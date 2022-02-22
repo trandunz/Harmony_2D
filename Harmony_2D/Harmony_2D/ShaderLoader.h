@@ -1,128 +1,29 @@
 #pragma once
-#include <GLEW/glew.h>
-#include <GLFW/glfw3.h>
 #include "Helper.h"
 class ShaderLoader
 {
 public:
     static const bool IsDebug = false;
-
-    inline static GLuint CompileVertShader(std::string_view _source)
-    {
-        // Creation
-        GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-        const char* src = _source.data();
-        glShaderSource(vertShader, 1, &src, nullptr);
-
-        // Compile vertex shader
-        if (IsDebug)
-        {
-            Print("Compiling vertex shader.");
-        }
-        glCompileShader(vertShader);
-
-        // Debug
-        int result;
-        glGetShaderiv(vertShader, GL_COMPILE_STATUS, &result);
-        if (result == GL_FALSE)
-        {
-            int length;
-            glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &length);
-            char* message = (char*)_malloca(length * sizeof(char));
-            glGetShaderInfoLog(vertShader, length, &length, message);
-            Print("Failed to Compile Vertex Shader");
-            Print(message);
-            glDeleteShader(vertShader);
-            return 0;
-        }
-
-        return vertShader;
-    }
-
-    inline static GLuint CompileFragShader(std::string_view _source)
-    {
-        GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-        const char* src = _source.data();
-        glShaderSource(fragShader, 1, &src, nullptr);
-
-        // Compile Frag shader
-        if (IsDebug)
-        {
-            Print("Compiling fragment shader.");
-        }
-        glCompileShader(fragShader);
-
-        // Debug
-        int result;
-        glGetShaderiv(fragShader, GL_COMPILE_STATUS, &result);
-        if (result == GL_FALSE)
-        {
-            int length;
-            glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &length);
-            char* message = (char*)_malloca(length * sizeof(char));
-            glGetShaderInfoLog(fragShader, length, &length, message);
-            Print("Failed to Compile Vertex Shader");
-            Print(message);
-            glDeleteShader(fragShader);
-            return 0;
-        }
-
-        return fragShader;
-    }
-
-    inline static GLuint CompileGeoShader(std::string_view _source)
-    {
-        GLuint geoShader = glCreateShader(GL_GEOMETRY_SHADER);
-        const char* src = _source.data();
-        glShaderSource(geoShader, 1, &src, nullptr);
-
-        // Compile Frag shader
-        if (IsDebug)
-        {
-            Print("Compiling Geometry shader.");
-        }
-        glCompileShader(geoShader);
-
-        // Debug
-        int result;
-        glGetShaderiv(geoShader, GL_COMPILE_STATUS, &result);
-        if (result == GL_FALSE)
-        {
-            int length;
-            glGetShaderiv(geoShader, GL_INFO_LOG_LENGTH, &length);
-            char* message = (char*)_malloca(length * sizeof(char));
-            glGetShaderInfoLog(geoShader, length, &length, message);
-            Print("Failed to Compile Vertex Shader");
-            Print(message);
-            glDeleteShader(geoShader);
-            return 0;
-        }
-
-        return geoShader;
-    }
-
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _geoShader, std::string_view _fragmentShader)
     {
-        // Program
+        // Create Program
         GLuint program = glCreateProgram();
 
-        // Shaders
+        // Create Shaders And Store There ID's
+        GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
+        GLuint geoShader = CompileShader(GL_GEOMETRY_SHADER, PassFileToString(_geoShader));
+        GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
 
-        GLuint vertShader = CompileVertShader(readFile(_vertexShader));
-        GLuint geoShader = 0;
-        if (_geoShader != "")
-            geoShader = CompileGeoShader(readFile(_geoShader));
-        GLuint fragShader = CompileFragShader(readFile(_fragmentShader));
-
+        // Attach Shaders To Program
         if (IsDebug)
         {
             Print("Attaching Shaders");
         }
         glAttachShader(program, vertShader);
-        if (_geoShader != "")
-            glAttachShader(program, geoShader);
+        glAttachShader(program, geoShader);
         glAttachShader(program, fragShader);
 
+        // Link And Validate
         if (IsDebug)
         {
             Print("Linking program");
@@ -130,19 +31,105 @@ public:
         glLinkProgram(program);
         glValidateProgram(program);
 
+        // Cleanup
         if (IsDebug)
         {
             Print("Deleting Shaders");
         }
         glDeleteShader(vertShader);
-        if (_geoShader != "")
-            glDeleteShader(geoShader);
+        glDeleteShader(geoShader);
         glDeleteShader(fragShader);
 
+        // Return Program ID
         return program;
     }
+    inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
+    {
+        // Create Program
+        GLuint program = glCreateProgram();
 
-    inline static std::string readFile(std::string_view _fileAddress)
+        // Create Shaders And Store There ID's
+        GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
+        GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
+
+        // Attach Shaders To Program
+        if (IsDebug)
+        {
+            Print("Attaching Shaders");
+        }
+        glAttachShader(program, vertShader);
+        glAttachShader(program, fragShader);
+
+        // Link And Validate
+        if (IsDebug)
+        {
+            Print("Linking program");
+        }
+        glLinkProgram(program);
+        glValidateProgram(program);
+
+        // Cleanup
+        if (IsDebug)
+        {
+            Print("Deleting Shaders");
+        }
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+
+        // Return Program ID
+        return program;
+    }
+private:
+    inline static GLuint CompileShader(GLenum _type, std::string_view _source)
+    {
+        GLuint shader = glCreateShader(_type);
+        const GLchar* src = _source.data();
+        glShaderSource(shader, 1, &src, nullptr);
+
+        // Compile Shader
+        if (IsDebug)
+        {
+            switch (_type)
+            {
+            case GL_VERTEX_SHADER:
+            {
+                Print("Compiling vertex shader.");
+                break;
+            }
+            case GL_FRAGMENT_SHADER:
+            {
+                Print("Compiling fragment shader.");
+                break;
+            }
+            case GL_GEOMETRY_SHADER:
+            {
+                Print("Compiling geometry shader.");
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        glCompileShader(shader);
+
+        // Debug
+        int result;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+        if (result == GL_FALSE)
+        {
+            int length;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+            char* message = (char*)_malloca(length * sizeof(char));
+            glGetShaderInfoLog(shader, length, &length, message);
+            Print("Failed to Compile Vertex Shader");
+            Print(message);
+            glDeleteShader(shader);
+            return result;
+        }
+
+        return shader;
+    }
+    inline static std::string PassFileToString(std::string_view _fileAddress)
     {
         std::string content;
         std::ifstream fileStream(_fileAddress.data(), std::ios::in);
@@ -153,7 +140,6 @@ public:
             Print(". File does not exist.");
             return "";
         }
-
         std::string line = "";
         while (!fileStream.eof()) {
             std::getline(fileStream, line);

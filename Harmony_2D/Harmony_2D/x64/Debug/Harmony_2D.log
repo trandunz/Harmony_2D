@@ -1,3 +1,12 @@
-﻿  Main.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+﻿  Camera.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(26,13): warning C4244: 'initializing': conversion from 'long double' to 'float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(27,13): warning C4244: 'initializing': conversion from 'long double' to 'float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(28,13): warning C4244: 'initializing': conversion from 'long double' to 'float', possible loss of data
+  Main.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(46,35): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(46,26): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(69,27): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+  Mesh.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(178,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  Generating Code...
   Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe
