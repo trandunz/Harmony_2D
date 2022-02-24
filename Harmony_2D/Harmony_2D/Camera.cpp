@@ -90,8 +90,8 @@ void Camera::Input()
 
 void Camera::ProcessMouse(const float& xOffset, const float& yOffset)
 {
-    m_Yaw += xOffset * m_Sensitivity;
-    m_Pitch += yOffset * m_Sensitivity;
+    m_Yaw += xOffset * (m_Sensitivity / 10);
+    m_Pitch += yOffset * (m_Sensitivity / 10);
 
     if (m_Pitch > 89.0f)
         m_Pitch = 89.0f;
