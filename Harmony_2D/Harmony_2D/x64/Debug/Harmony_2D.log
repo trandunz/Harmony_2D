@@ -3,11 +3,30 @@ C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(26,1
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(27,13): warning C4244: 'initializing': conversion from 'long double' to 'float', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Camera.cpp(28,13): warning C4244: 'initializing': conversion from 'long double' to 'float', possible loss of data
   Main.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(309,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(115,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(129,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(143,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(157,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(171,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(185,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(199,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(213,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(227,15): warning C4101: 'location': unreferenced local variable
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(46,35): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(46,26): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(69,27): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
   Mesh.cpp
-C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(178,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(309,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(115,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(129,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(143,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(157,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(171,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(185,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(199,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(213,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(227,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(179,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

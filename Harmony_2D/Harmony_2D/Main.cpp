@@ -76,7 +76,7 @@ void Update();
 int Cleanup();
 
 Mesh* m_FrameBufferMesh = nullptr;
-Mesh* m_Test = nullptr;
+std::vector<Mesh*> m_Meshes;
 
 int main()
 {
@@ -155,7 +155,12 @@ void Start()
 	m_FrameBufferMesh = new Mesh(FrameBufferTexture);
 	
 	m_Camera = new Camera(m_Keypresses);
-	m_Test = new Mesh(*m_Camera);
+
+	for (int i = 0; i < 5; i++)
+	{
+		m_Meshes.push_back(new Mesh(*m_Camera));
+	}
+	
 }
 
 void Update()
@@ -196,14 +201,14 @@ void Update()
 				}
 				case GLFW_KEY_K:
 				{
-					if (m_Test)
+					if (m_Meshes[0])
 					{
-						delete m_Test;
-						m_Test = nullptr;
+						delete m_Meshes[0];
+						m_Meshes[0] = nullptr;
 					}
 					else
 					{
-						m_Test = new Mesh(*m_Camera);
+						m_Meshes[0] = new Mesh(*m_Camera);
 					}
 						
 
@@ -224,9 +229,9 @@ void Update()
 		}
 
 		// Draw
-		if (m_Test != nullptr)
+		for (auto& item : m_Meshes)
 		{
-			m_Test->Draw();
+			item->Draw();
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -253,9 +258,15 @@ int Cleanup()
 		delete m_FrameBufferMesh;
 	m_FrameBufferMesh = nullptr;
 
-	if (m_Test != nullptr)
-		delete m_Test;
-	m_Test = nullptr;
+	for (auto& item : m_Meshes)
+	{
+		if (item != nullptr)
+		{
+			delete item;
+		}
+		item = nullptr;
+	}
+	m_Meshes.clear();
 
 	if (m_Camera != nullptr)
 		delete m_Camera;

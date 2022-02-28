@@ -25,7 +25,7 @@ private:
     void UpdateCameraVectors();
     bool UpdatePosition(const long double& _dt);
 
-    float m_Yaw = 0.0f;
+    float m_Yaw = -90.0f;
     float m_Pitch = 0.0f;
     float m_MoveSpeed = 3.0f;
     float m_Sensitivity = 0.5f;

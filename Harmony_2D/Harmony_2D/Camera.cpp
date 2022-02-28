@@ -34,7 +34,7 @@ bool Camera::UpdatePosition(const long double& _dt)
     }
     if (y >= 0.000000001f || y <= -0.000000001f)
     {
-        m_Position += m_Front * y;
+        m_Position += m_Up * y;
         moved = true;
     }
     if (z >= 0.000000001f || z <= -0.000000001f)
@@ -71,10 +71,20 @@ void Camera::Input()
             }
             case GLFW_KEY_W:
             {
-                m_InputVec.y = 1;
+                m_InputVec.z = 1;
                 break;
             }
             case GLFW_KEY_S:
+            {
+                m_InputVec.z = -1;
+                break;
+            }
+            case GLFW_KEY_SPACE:
+            {
+                m_InputVec.y = 1;
+                break;
+            }
+            case GLFW_KEY_C:
             {
                 m_InputVec.y = -1;
                 break;

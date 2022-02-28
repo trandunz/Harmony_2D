@@ -9,6 +9,7 @@ Mesh::Mesh(Camera& _camera)
 {
 	Init();
 	m_Camera = &_camera;
+	m_Transform.translation = {0,0,-1};
 }
 
 Mesh::~Mesh()
@@ -152,11 +153,12 @@ void Mesh::Draw()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
 
+	// If Not Frame Buffer
 	if (m_Camera)
 	{
 		ProjectionMat = m_Camera->GetProjectionMatrix();
 		ViewMat = m_Camera->GetViewMatrix();
-		Model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -1));
+		UpdateModelFromTransform(m_Transform);
 
 		// Stream In Proj Mat
 		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
@@ -168,9 +170,9 @@ void Mesh::Draw()
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &ViewMat[0]);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		// Stream In View Mat
+		// Stream In Model Mat
 		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), &Model[0]);
+		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), &m_Transform.tranform[0]);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 

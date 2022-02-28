@@ -1,11 +1,6 @@
 #pragma once
 #include "ShaderLoader.h"
 #include "Camera.h"
-struct Vertex
-{
-	glm::vec3 position;
-	glm::vec2 texCoords;
-};
 
 class Mesh
 {
@@ -22,13 +17,15 @@ private:
 	GLuint IndexBufferID;
 	GLuint VertexArrayID;
 	GLuint UniformBufferID;
+
 	glm::mat4 ProjectionMat;
 	glm::mat4 ViewMat;
-	glm::mat4 Model;
 
 	std::vector<Vertex> m_Vertices;
 	std::vector<unsigned> m_Indices;
 
 	Camera* m_Camera = nullptr;
+
+	Transform m_Transform;
 };
 
