@@ -7,9 +7,8 @@ Mesh::Mesh(GLuint _textureID)
 
 Mesh::Mesh(Camera& _camera)
 {
-	Init();
 	m_Camera = &_camera;
-	m_Transform.translation = {0,0,-1};
+	Init();
 }
 
 Mesh::~Mesh()
@@ -52,23 +51,23 @@ void Mesh::Init(GLuint _screenTextureID)
 	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} });
 	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} });
 
+	// Shader
+	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/frameBuffer.vert", "Resources/Shaders/frameBuffer.frag");
+	glUseProgram(ShaderID);
+
+	// Vertex Array
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
 	// Vertex Buffer
-	glCreateBuffers(1, &VertBufferID);
+	glGenBuffers(1, &VertBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
 	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), &m_Vertices[0], GL_STATIC_DRAW);
 
 	// Index Buffer
-	glCreateBuffers(1, &IndexBufferID);
+	glGenBuffers(1, &IndexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
-
-	// Vertex Array
-	glCreateVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// Shader
-	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/frameBuffer.vert", "Resources/Shaders/frameBuffer.frag");
-	glUseProgram(ShaderID);
 	
 	// Layouts
 	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
@@ -103,23 +102,23 @@ void Mesh::Init()
 	m_Vertices.push_back({ {-0.5f,  -0.5f, 0.0f} }); // Bottom Left
 	m_Vertices.push_back({ { 0.5f,  -0.5f, 0.0f} }); // Bottom Right
 
+	// Shader
+	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
+	glUseProgram(ShaderID);
+
+	// Vertex Array
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
 	// Vertex Buffer
-	glCreateBuffers(1, &VertBufferID);
+	glGenBuffers(1, &VertBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
 	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), &m_Vertices[0], GL_STATIC_DRAW);
 
 	// Index Buffer
-	glCreateBuffers(1, &IndexBufferID);
+	glGenBuffers(1, &IndexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
-
-	// Vertex Array
-	glCreateVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// Shader
-	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
-	glUseProgram(ShaderID);
 
 	// Layouts
 	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
@@ -129,13 +128,12 @@ void Mesh::Init()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
 
 	// Uniform Buffer
-	unsigned int uniformBlockIndexYellow = glGetUniformBlockIndex(ShaderID, "Matrices");
-	glUniformBlockBinding(ShaderID, uniformBlockIndexYellow, 0);
-	glCreateBuffers(1, &UniformBufferID);
+	glGenBuffers(1, &UniformBufferID);
+	unsigned matrixBlockIndex = glGetUniformBlockIndex(ShaderID, "Matrices");
+	glUniformBlockBinding(ShaderID, matrixBlockIndex, 0);
 	glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-	glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, uniformBlockIndexYellow, UniformBufferID, 0, 3 * sizeof(glm::mat4));
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, UniformBufferID, 0, 2 * sizeof(glm::mat4));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Unbind
@@ -151,7 +149,6 @@ void Mesh::Draw()
 	glUseProgram(ShaderID);
 	glBindVertexArray(VertexArrayID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
 
 	// If Not Frame Buffer
 	if (m_Camera)
@@ -163,17 +160,13 @@ void Mesh::Draw()
 		// Stream In Proj Mat
 		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionMat[0]);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		// Stream In View Mat
-		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &ViewMat[0]);
+
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		// Stream In Model Mat
-		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), &m_Transform.tranform[0]);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
 	}
 
 	// Draw
@@ -181,7 +174,6 @@ void Mesh::Draw()
 
 	// Unbind
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
 }

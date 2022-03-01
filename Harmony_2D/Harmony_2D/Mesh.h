@@ -11,6 +11,8 @@ public:
 	void Init(GLuint _screenTextureID);
 	void Init();
 	void Draw();
+
+	inline Transform& GetTransform() { return m_Transform; }
 private:
 	GLuint ShaderID;
 	GLuint VertBufferID;

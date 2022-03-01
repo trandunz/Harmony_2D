@@ -64,14 +64,14 @@ public:
     }
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
     {
-        for (auto& item : Shaders)
-        {
-            if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
-            {
-                std::cout << "Re-used Shader " << item.second << "!" << std::endl;
-                return item.second;
-            }
-        }
+        //for (auto& item : Shaders)
+        //{
+        //    if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
+        //    {
+        //        std::cout << "Re-used Shader " << item.second << "!" << std::endl;
+        //        return item.second;
+        //    }
+        //}
 
         // Create Program
         GLuint program = glCreateProgram();
@@ -104,7 +104,7 @@ public:
         glDeleteShader(vertShader);
         glDeleteShader(fragShader);
 
-        Shaders.push_back(std::make_pair(Location{ _vertexShader.data(), "", _fragmentShader.data() }, program));
+        //Shaders.push_back(std::make_pair(Location{ _vertexShader.data(), "", _fragmentShader.data() }, program));
 
         // Return Program ID
         return program;

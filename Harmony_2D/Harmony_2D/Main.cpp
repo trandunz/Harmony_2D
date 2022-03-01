@@ -160,7 +160,8 @@ void Start()
 	{
 		m_Meshes.push_back(new Mesh(*m_Camera));
 	}
-	
+
+	m_Meshes[4]->GetTransform().translation = { 0,1,-1 };
 }
 
 void Update()
