@@ -23,7 +23,7 @@ public:
     static const bool IsDebug = false;
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> ShaderPrograms;
     inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;
-    inline static std::vector<std::pair<const char*, GLuint>> Shaders;
+    inline static std::vector<std::pair<std::string, GLuint>> Shaders;
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _geoShader, std::string_view _fragmentShader)
     {
         for (auto& item : ShaderPrograms)
@@ -248,11 +248,11 @@ public:
         glUniformMatrix4fv(m_Uniforms.back().second, 1, GL_FALSE, glm::value_ptr(_value));
     }
 private:
-    inline static GLuint CompileShader(GLenum _type, std::string_view _source)
+    inline static GLuint CompileShader(GLenum _type, std::string _source)
     {
         for (auto& item : Shaders)
         {
-            if (item.first == _source.data())
+            if (item.first == _source)
             {
                 Print("Re-used Shader " + std::to_string(item.second) + "!");
                 return item.second;
@@ -287,6 +287,7 @@ private:
                 break;
             }
         }
+
         glCompileShader(shader);
 
         // Debug
@@ -304,8 +305,8 @@ private:
             return result;
         }
 
-        Shaders.push_back(std::make_pair(_source.data(), result));
-
+        Shaders.push_back(std::make_pair(_source, shader));
+        
         return shader;
     }
     inline static std::string PassFileToString(std::string_view _fileAddress)
