@@ -11,12 +11,13 @@
 #include <iostream>
 #include <fstream>
 
-struct Location
+struct ShaderProgramLocation
 {
     const char* vertShader;
     const char* geoShader;
     const char* fragShader;
 };
+
 struct UniformLocation
 {
     GLuint program;

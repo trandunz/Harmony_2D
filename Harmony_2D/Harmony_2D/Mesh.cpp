@@ -27,7 +27,7 @@ Mesh::~Mesh()
 		glDeleteVertexArrays(1, &VertexArrayID);
 		glDeleteBuffers(1, &VertBufferID);
 		glDeleteBuffers(1, &IndexBufferID);
-		glDeleteProgram(ShaderID);
+		//glDeleteProgram(ShaderID);
 	}
 	m_Camera = nullptr;
 }
@@ -155,6 +155,12 @@ void Mesh::Draw()
 	{
 		ProjectionMat = m_Camera->GetProjectionMatrix();
 		ViewMat = m_Camera->GetViewMatrix();
+
+		float time = glfwGetTime();
+		m_Transform.scale = { ((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) };
+		m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
+		m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
+
 		UpdateModelFromTransform(m_Transform);
 
 		// Stream In Proj Mat
@@ -167,6 +173,7 @@ void Mesh::Draw()
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
+		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
 	}
 
 	// Draw

@@ -6,19 +6,31 @@ static class ShaderLoader
 public:
     ~ShaderLoader()
     {
+        glUseProgram(0);
+        for (auto& item : ShaderPrograms)
+        {
+            glDeleteProgram(item.second);
+        }
+        for (auto& item : Shaders)
+        {
+            glDeleteShader(item.second);
+        }
+
         Shaders.clear();
+        ShaderPrograms.clear();
         m_Uniforms.clear();
     }
     static const bool IsDebug = false;
-    inline static std::vector<std::pair<Location, GLuint>> Shaders;
+    inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> ShaderPrograms;
     inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;
+    inline static std::vector<std::pair<const char*, GLuint>> Shaders;
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _geoShader, std::string_view _fragmentShader)
     {
-        for (auto& item : Shaders)
+        for (auto& item : ShaderPrograms)
         {
             if (item.first.vertShader == _vertexShader.data() && item.first.geoShader == _geoShader.data() && item.first.fragShader == _fragmentShader.data())
             {
-                std::cout << "Re-used Shader " << item.second << "!" << std::endl;
+                Print("Re-used Shader Program " + std::to_string(item.second) + "!");
                 return item.second;
             }
         }
@@ -49,29 +61,29 @@ public:
         glValidateProgram(program);
 
         // Cleanup
-        if (IsDebug)
-        {
-            Print("Deleting Shaders");
-        }
-        glDeleteShader(vertShader);
-        glDeleteShader(geoShader);
-        glDeleteShader(fragShader);
+        //if (IsDebug)
+        //{
+        //    Print("Deleting Shaders");
+        //}
+        //glDeleteShader(vertShader);
+        //glDeleteShader(geoShader);
+        //glDeleteShader(fragShader);
 
-        Shaders.push_back(std::make_pair(Location{ _vertexShader.data(), _geoShader.data(), _fragmentShader.data() }, program));
+        ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), _geoShader.data(), _fragmentShader.data() }, program));
 
         // Return Program ID
         return program;
     }
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
     {
-        //for (auto& item : Shaders)
-        //{
-        //    if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
-        //    {
-        //        std::cout << "Re-used Shader " << item.second << "!" << std::endl;
-        //        return item.second;
-        //    }
-        //}
+        for (auto& item : ShaderPrograms)
+        {
+            if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
+            {
+                Print("Re-used Shader Program " + std::to_string(item.second) + "!");
+                return item.second;
+            }
+        }
 
         // Create Program
         GLuint program = glCreateProgram();
@@ -97,14 +109,14 @@ public:
         glValidateProgram(program);
 
         // Cleanup
-        if (IsDebug)
-        {
-            Print("Deleting Shaders");
-        }
-        glDeleteShader(vertShader);
-        glDeleteShader(fragShader);
+        //if (IsDebug)
+        //{
+        //    Print("Deleting Shaders");
+        //}
+        //glDeleteShader(vertShader);
+        //glDeleteShader(fragShader);
 
-        //Shaders.push_back(std::make_pair(Location{ _vertexShader.data(), "", _fragmentShader.data() }, program));
+        ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), "", _fragmentShader.data() }, program));
 
         // Return Program ID
         return program;
@@ -238,6 +250,15 @@ public:
 private:
     inline static GLuint CompileShader(GLenum _type, std::string_view _source)
     {
+        for (auto& item : Shaders)
+        {
+            if (item.first == _source.data())
+            {
+                Print("Re-used Shader " + std::to_string(item.second) + "!");
+                return item.second;
+            }
+        }
+
         GLuint shader = glCreateShader(_type);
         const GLchar* src = _source.data();
         glShaderSource(shader, 1, &src, nullptr);
@@ -282,6 +303,8 @@ private:
             glDeleteShader(shader);
             return result;
         }
+
+        Shaders.push_back(std::make_pair(_source.data(), result));
 
         return shader;
     }
