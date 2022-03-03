@@ -9,10 +9,13 @@ static double lastX = 0, lastY = 0;
 
 static Camera* m_Camera;
 static unsigned FrameBufferTexture;
+static unsigned FrameBufferDepthTexture;
+static unsigned FrameBufferIDTexture;
 static unsigned FrameBufferID;
 static unsigned RenderBufferID;
 static GLFWwindow* m_RenderWindow = nullptr;
 static std::map<int, bool> m_Keypresses;
+static GLfloat BackgroundColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 static void CalculateDeltaTime()
 {
@@ -42,13 +45,33 @@ static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xPo
 	auto yoffset = lastY - _yPos;
 	lastY = _yPos;
 
+
+
 	if (m_Camera && !activeMouse)
 		m_Camera->ProcessMouse(xoffset, yoffset);
 }
 
 static inline void MouseButtonCallback(GLFWwindow* _renderWindow, int _button, int _action, int _mods)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
 
+	GLfloat* pixels = new GLfloat[4];
+	glReadPixels(1080 - lastX, 1080 - lastY, 1, 1, GL_RGBA, GL_FLOAT, pixels);
+	std::string output = "";
+	output += std::to_string(pixels[0]);
+	output += "|";
+	output += std::to_string(pixels[1]);
+	output += "|";
+	output += std::to_string(pixels[2]);
+	output += "|";
+	output += std::to_string(pixels[3]);
+	Print(output);
+	delete[] pixels;
+	pixels = nullptr;
+
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCode, int _action, int _mods)
@@ -71,6 +94,9 @@ static inline void ScrollCallback(GLFWwindow* _renderWindow, double _xOffset, do
 
 static void InitGLFW();
 static void InitGLEW();
+void InitFrameBufferNDSA();
+void InitFrameBufferDSA();
+
 void Start();
 void Update();
 int Cleanup();
@@ -120,27 +146,23 @@ void InitGLEW()
 		Print("Failed to Initalise GLEW");
 }
 
-void Start()
+void InitFrameBufferNDSA()
 {
-	InitGLFW();
-	InitGLEW();
-
 	glGenFramebuffers(1, &FrameBufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
 
 	glGenTextures(1, &FrameBufferTexture);
+	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, FrameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1080, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FrameBufferTexture, 0);
 
-	glGenRenderbuffers(1, &RenderBufferID);
-	glBindRenderbuffer(GL_RENDERBUFFER, RenderBufferID);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1080, 1080);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RenderBufferID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1080, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FrameBufferTexture, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -148,9 +170,49 @@ void Start()
 		Print("FrameBuffer Error ");
 		std::cout << status << std::endl;
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void InitFrameBufferDSA()
+{
+	glCreateFramebuffers(1, &FrameBufferID);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferTexture);
+	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferIDTexture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTextureStorage2D(FrameBufferTexture, 1, GL_RGBA8, 1080, 1080);
+	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT0, FrameBufferTexture, 0);
+
+	// ID's
+	glTextureStorage2D(FrameBufferIDTexture, 1, GL_RGBA8, 1080, 1080);
+	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT1, FrameBufferIDTexture, 0);
+
+	// ID's
+	glTextureStorage2D(FrameBufferDepthTexture, 1, GL_DEPTH24_STENCIL8, 1080, 1080);
+	glNamedFramebufferTexture(FrameBufferID, GL_DEPTH_STENCIL_ATTACHMENT, FrameBufferDepthTexture, 0);
+
+	auto status = glCheckNamedFramebufferStatus(FrameBufferID, GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		Print("FrameBuffer Error ");
+		std::cout << status << std::endl;
+	}
+}
+
+void Start()
+{
+	InitGLFW();
+	InitGLEW();
+
+	InitFrameBufferDSA();
 
 	// Set Clear Color / Background
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(BackgroundColor[0], BackgroundColor[1], BackgroundColor[2], BackgroundColor[3]);
 
 	m_FrameBufferMesh = new Mesh(FrameBufferTexture);
 	
@@ -170,8 +232,10 @@ void Update()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
 
+		glClearNamedFramebufferfv(FrameBufferID, GL_COLOR, 0, BackgroundColor);
+
 		// Clear Frame Buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
 		// Update
@@ -235,9 +299,12 @@ void Update()
 			item->Draw();
 		}
 
+
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, FrameBufferTexture);
+		glBindTextureUnit(0, FrameBufferTexture);
 
 		if (m_FrameBufferMesh != nullptr)
 			m_FrameBufferMesh->Draw();
@@ -247,12 +314,16 @@ void Update()
 
 		// Poll Events
 		glfwPollEvents();
+
+
 	}
 }
 
 int Cleanup()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &FrameBufferID);
 	glDeleteTextures(1, &FrameBufferTexture);
 
 	if (m_FrameBufferMesh != nullptr)

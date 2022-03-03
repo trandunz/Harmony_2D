@@ -137,9 +137,9 @@ void Mesh::Init()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Unbind
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	glUseProgram(0);
 }
 
@@ -157,20 +157,22 @@ void Mesh::Draw()
 		ViewMat = m_Camera->GetViewMatrix();
 
 		float time = glfwGetTime();
-		m_Transform.scale = { ((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) };
-		m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
-		m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
+		//m_Transform.scale = { ((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) };
+		//m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
+		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
 
 		UpdateModelFromTransform(m_Transform);
 
-		// Stream In Proj Mat
-		glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionMat[0]);
-
-		// Stream In View Mat
-		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &ViewMat[0]);
-
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		{
+			// Bind
+			glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
+			// Stream In Proj Mat
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionMat[0]);
+			// Stream In View Mat
+			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &ViewMat[0]);
+			// Unbind
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		}
 
 		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
 		ShaderLoader::SetUniform1f(ShaderID, "Time", time);

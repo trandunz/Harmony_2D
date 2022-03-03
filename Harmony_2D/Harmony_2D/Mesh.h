@@ -9,7 +9,9 @@ public:
 	Mesh(Camera& _camera);
 	~Mesh();
 	void Init(GLuint _screenTextureID);
+	void InitDSA(GLuint _screenTextureID);
 	void Init();
+	void InitDSA();
 	void Draw();
 
 	inline Transform& GetTransform() { return m_Transform; }
