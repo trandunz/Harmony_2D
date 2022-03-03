@@ -162,7 +162,6 @@ void Mesh::Draw()
 		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
 
 		UpdateModelFromTransform(m_Transform);
-
 		{
 			// Bind
 			glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
@@ -176,6 +175,7 @@ void Mesh::Draw()
 
 		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
 		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
+		ShaderLoader::SetUniform1i(ShaderID, "Id", m_ObjectID);
 	}
 
 	// Draw

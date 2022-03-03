@@ -11,11 +11,25 @@ static Camera* m_Camera;
 static unsigned FrameBufferTexture;
 static unsigned FrameBufferDepthTexture;
 static unsigned FrameBufferIDTexture;
+static unsigned FrameBufferHitPosTexture;
 static unsigned FrameBufferID;
 static unsigned RenderBufferID;
 static GLFWwindow* m_RenderWindow = nullptr;
 static std::map<int, bool> m_Keypresses;
 static GLfloat BackgroundColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+static void InitGLFW();
+static void InitGLEW();
+void InitFrameBufferNDSA();
+void InitFrameBufferDSA();
+void MousePick();
+
+void Start();
+void Update();
+int Cleanup();
+
+Mesh* m_FrameBufferMesh = nullptr;
+std::vector<Mesh*> m_Meshes;
 
 static void CalculateDeltaTime()
 {
@@ -53,25 +67,7 @@ static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xPo
 
 static inline void MouseButtonCallback(GLFWwindow* _renderWindow, int _button, int _action, int _mods)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-
-	GLfloat* pixels = new GLfloat[4];
-	glReadPixels(1080 - lastX, 1080 - lastY, 1, 1, GL_RGBA, GL_FLOAT, pixels);
-	std::string output = "";
-	output += std::to_string(pixels[0]);
-	output += "|";
-	output += std::to_string(pixels[1]);
-	output += "|";
-	output += std::to_string(pixels[2]);
-	output += "|";
-	output += std::to_string(pixels[3]);
-	Print(output);
-	delete[] pixels;
-	pixels = nullptr;
-
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	MousePick();
 }
 
 static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCode, int _action, int _mods)
@@ -91,18 +87,6 @@ static inline void ScrollCallback(GLFWwindow* _renderWindow, double _xOffset, do
 	if (m_Camera)
 		m_Camera->ProcessScroll(_yOffset);
 }
-
-static void InitGLFW();
-static void InitGLEW();
-void InitFrameBufferNDSA();
-void InitFrameBufferDSA();
-
-void Start();
-void Update();
-int Cleanup();
-
-Mesh* m_FrameBufferMesh = nullptr;
-std::vector<Mesh*> m_Meshes;
 
 int main()
 {
@@ -179,6 +163,8 @@ void InitFrameBufferDSA()
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferTexture);
 	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferIDTexture);
+	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferHitPosTexture);
+	glCreateTextures(GL_TEXTURE_2D, 1, &FrameBufferDepthTexture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -189,12 +175,16 @@ void InitFrameBufferDSA()
 	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT0, FrameBufferTexture, 0);
 
 	// ID's
-	glTextureStorage2D(FrameBufferIDTexture, 1, GL_RGBA8, 1080, 1080);
+	glTextureStorage2D(FrameBufferIDTexture, 1, GL_R32I, 1080, 1080);
 	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT1, FrameBufferIDTexture, 0);
 
-	// ID's
-	glTextureStorage2D(FrameBufferDepthTexture, 1, GL_DEPTH24_STENCIL8, 1080, 1080);
-	glNamedFramebufferTexture(FrameBufferID, GL_DEPTH_STENCIL_ATTACHMENT, FrameBufferDepthTexture, 0);
+
+	glTextureStorage2D(FrameBufferHitPosTexture, 1, GL_RGBA8, 1080, 1080);
+	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT2, FrameBufferHitPosTexture, 0);
+
+
+	glTextureStorage2D(FrameBufferDepthTexture, 1, GL_DEPTH_COMPONENT32F, 1080, 1080);
+	glNamedFramebufferTexture(FrameBufferID, GL_DEPTH_ATTACHMENT, FrameBufferDepthTexture, 0);
 
 	auto status = glCheckNamedFramebufferStatus(FrameBufferID, GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -223,7 +213,7 @@ void Start()
 		m_Meshes.push_back(new Mesh(*m_Camera));
 	}
 
-	m_Meshes[4]->GetTransform().translation = { 0,1,-1 };
+	m_Meshes[0]->GetTransform().translation = { 0,5,-4 };
 }
 
 void Update()
@@ -299,11 +289,9 @@ void Update()
 			item->Draw();
 		}
 
-
-
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
+
 		glBindTextureUnit(0, FrameBufferTexture);
 
 		if (m_FrameBufferMesh != nullptr)
@@ -314,8 +302,6 @@ void Update()
 
 		// Poll Events
 		glfwPollEvents();
-
-
 	}
 }
 
@@ -325,6 +311,9 @@ int Cleanup()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &FrameBufferID);
 	glDeleteTextures(1, &FrameBufferTexture);
+	glDeleteTextures(1, &FrameBufferIDTexture);
+	glDeleteTextures(1, &FrameBufferDepthTexture);
+	glDeleteTextures(1, &FrameBufferHitPosTexture);
 
 	if (m_FrameBufferMesh != nullptr)
 		delete m_FrameBufferMesh;
@@ -350,6 +339,34 @@ int Cleanup()
 	exit(EXIT_SUCCESS);
 
 	return 0;
+}
+
+void MousePick()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, FrameBufferID);
+
+	GLenum buffers[] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
+	glDrawBuffers(3, buffers);
+	glReadBuffer(GL_COLOR_ATTACHMENT2);
+
+	GLfloat* pixels = new GLfloat[4];
+	glReadPixels(lastX, 1080 - lastY, 1, 1, GL_RGBA, GL_FLOAT, pixels);
+	glm::vec4 pos = { pixels[0], pixels[1], pixels[2], pixels[3] };
+	pos = m_Meshes[0]->GetTransform().tranform * pos;
+	std::string output = "";
+	output += std::to_string(pos[0]);
+	output += "|";
+	output += std::to_string(pos[1]);
+	output += "|";
+	output += std::to_string(pos[2]);
+	output += "|";
+	output += std::to_string(pos[3]);
+	Print(output);
+	delete[] pixels;
+	pixels = nullptr;
+
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 

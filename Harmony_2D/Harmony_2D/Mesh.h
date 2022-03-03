@@ -9,9 +9,7 @@ public:
 	Mesh(Camera& _camera);
 	~Mesh();
 	void Init(GLuint _screenTextureID);
-	void InitDSA(GLuint _screenTextureID);
 	void Init();
-	void InitDSA();
 	void Draw();
 
 	inline Transform& GetTransform() { return m_Transform; }
@@ -21,6 +19,7 @@ private:
 	GLuint IndexBufferID;
 	GLuint VertexArrayID;
 	GLuint UniformBufferID;
+	int m_ObjectID = 1;
 
 	glm::mat4 ProjectionMat;
 	glm::mat4 ViewMat;
