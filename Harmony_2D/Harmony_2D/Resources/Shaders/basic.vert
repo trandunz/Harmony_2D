@@ -9,13 +9,17 @@ layout (std140, binding = 0) uniform Matrices
 };
 
 out vec3 Position;
-out mat4 MVP;
+out mat4 Model_pass;
+out mat4 View_pass;
+out mat4 Proj_pass;
 
 uniform mat4 Model;
 
 void main()
 {
     Position = l_position;
-    MVP = projection * view * Model;
+    Model_pass = Model;
+    View_pass = view;
+    Proj_pass = projection;
 	gl_Position = projection * view * Model * vec4(l_position,1.0f);
 }

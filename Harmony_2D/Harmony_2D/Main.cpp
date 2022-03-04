@@ -179,7 +179,7 @@ void InitFrameBufferDSA()
 	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT1, FrameBufferIDTexture, 0);
 
 
-	glTextureStorage2D(FrameBufferHitPosTexture, 1, GL_RGBA8, 1080, 1080);
+	glTextureStorage2D(FrameBufferHitPosTexture, 1, GL_RGBA32F, 1080, 1080);
 	glNamedFramebufferTexture(FrameBufferID, GL_COLOR_ATTACHMENT2, FrameBufferHitPosTexture, 0);
 
 
@@ -351,16 +351,14 @@ void MousePick()
 
 	GLfloat* pixels = new GLfloat[4];
 	glReadPixels(lastX, 1080 - lastY, 1, 1, GL_RGBA, GL_FLOAT, pixels);
-	glm::vec4 pos = { pixels[0], pixels[1], pixels[2], pixels[3] };
-	pos = m_Meshes[0]->GetTransform().tranform * pos;
 	std::string output = "";
-	output += std::to_string(pos[0]);
+	output += std::to_string(pixels[0]);
 	output += "|";
-	output += std::to_string(pos[1]);
+	output += std::to_string(pixels[1]);
 	output += "|";
-	output += std::to_string(pos[2]);
+	output += std::to_string(pixels[2]);
 	output += "|";
-	output += std::to_string(pos[3]);
+	output += std::to_string(pixels[3]);
 	Print(output);
 	delete[] pixels;
 	pixels = nullptr;
