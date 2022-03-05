@@ -1,31 +1,24 @@
 ﻿  Main.cpp
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(332,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(126,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(140,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(154,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(168,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(182,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(196,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(210,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(224,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(238,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(65,35): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(65,26): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(88,27): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(353,27): warning C4244: 'argument': conversion from 'double' to 'GLint', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(353,15): warning C4244: 'argument': conversion from 'double' to 'GLint', possible loss of data
-  Mesh.cpp
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(332,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(126,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(140,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(154,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(168,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(182,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(196,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(210,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(224,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(238,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(159,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(182,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-  Generating Code...
-  Harmony_2D.vcxproj -> D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(332,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(126,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(140,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(154,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(168,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(182,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(196,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(210,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(224,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(238,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(168,2): warning C4091: 'static ': ignored on left of 'FrameBuffer' when no variable is declared
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(91,30): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(91,16): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(112,30): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(112,16): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(141,30): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(141,16): warning C4244: 'argument': conversion from 'float' to 'GLint', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(59,35): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(59,26): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(64,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(64,32): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(82,27): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+  Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

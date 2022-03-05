@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Mesh.h" />
