@@ -20,7 +20,7 @@ public:
     void Movement(const long double& _dt);
     void ProcessMouse(const float& _xOffset, const float& _yOffset);
     void ProcessScroll(const float& _yoffset);
-
+    glm::vec3 GetPosition() { return m_Position; };
 private:
     void UpdateCameraVectors();
     bool UpdatePosition(const long double& _dt);

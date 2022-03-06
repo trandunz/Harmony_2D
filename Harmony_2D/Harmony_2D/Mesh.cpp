@@ -143,7 +143,7 @@ void Mesh::Init()
 	glUseProgram(0);
 }
 
-void Mesh::Draw()
+void Mesh::Draw(float _depth)
 {
 	// Bind
 	glUseProgram(ShaderID);
@@ -176,6 +176,7 @@ void Mesh::Draw()
 		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
 		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
 		ShaderLoader::SetUniform1i(ShaderID, "Id", m_ObjectID);
+		ShaderLoader::SetUniform1f(ShaderID, "Depth", _depth);
 	}
 
 	// Draw

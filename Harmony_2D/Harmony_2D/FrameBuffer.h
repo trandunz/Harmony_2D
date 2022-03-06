@@ -80,7 +80,7 @@ public:
 		glDeleteTextures(1, &FrameBufferHitPosTexture);
 	}
 
-	inline static int GrabIDUnderMouse(float _mouseX, float _mouseY)
+	inline static int GrabIDUnderMouse(double&& _mouseX, double&& _mouseY)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBuffer::FrameBufferID);
 		GLenum buffers[] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
@@ -100,7 +100,27 @@ public:
 		return returnValue;
 	}
 
-	inline static glm::vec3 GrabColourUnderMouse(float _mouseX, float _mouseY)
+	inline static float GrabDepthUnderMouse(double&& _mouseX, double&& _mouseY)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FrameBuffer::FrameBufferID);
+		GLenum buffers[] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
+		glDrawBuffers(4, buffers);
+		glReadBuffer(GL_DEPTH_ATTACHMENT);
+
+		float* pixels = new float;
+		glReadPixels(_mouseX, 1080 - _mouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, pixels);
+		float returnValue = *pixels;
+		Print(*pixels);
+		delete pixels;
+		pixels = nullptr;
+
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return returnValue;
+	}
+
+	inline static glm::vec3 GrabColourUnderMouse(double&& _mouseX, double&& _mouseY)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBuffer::FrameBufferID);
 
@@ -129,7 +149,7 @@ public:
 		return returnValue;
 	}
 
-	inline static glm::vec3 GrabMousePositionIn3D(float _mouseX, float _mouseY)
+	inline static glm::vec3 GrabMousePositionIn3D(double&& _mouseX, double&& _mouseY)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FrameBuffer::FrameBufferID);
 
@@ -147,6 +167,8 @@ public:
 			output += std::to_string(pixels[1]);
 			output += "|";
 			output += std::to_string(pixels[2]);
+			output += "|";
+			output += std::to_string(pixels[3]);
 			Print(output);
 		}
 		delete[] pixels;

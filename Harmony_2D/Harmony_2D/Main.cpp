@@ -1,19 +1,18 @@
 #include "Mesh.h"
 #include "FrameBuffer.h"
 
-static double deltaTime = 0.0;	// Time between current frame and last frame
-static double lastFrame = 0.0; // Time of last frame
-static unsigned int frameCounter = 0;
-static bool firstMouse = true;
-static bool activeMouse = false;
-static double lastX = 0, lastY = 0;
+static double DeltaTime = 0.0;
+static double LastFrame = 0.0;
+static unsigned int FrameCounter = 0;
+static bool IsFirstMouse = true;
+static bool IsMouseActive = false;
+static double MouseX = 0.0, MouseY = 0.0;
+static float Depth = 1;
 
-static Camera* m_Camera;
+static Camera* SceneCamera = nullptr;
 
-static unsigned RenderBufferID;
-static GLFWwindow* m_RenderWindow = nullptr;
-static std::map<int, bool> m_Keypresses;
-
+static GLFWwindow* RenderWindow = nullptr;
+static std::map<int, bool> Keypresses;
 
 static void InitGLFW();
 static void InitGLEW();
@@ -22,15 +21,15 @@ void Start();
 void Update();
 int Cleanup();
 
-Mesh* m_FrameBufferMesh = nullptr;
-std::vector<Mesh*> m_Meshes;
+static Mesh* FrameBufferMesh = nullptr;
+static std::vector<Mesh*> Meshes;
 
 static void CalculateDeltaTime()
 {
 	float currentFrame = (float)glfwGetTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-	frameCounter++;
+	DeltaTime = currentFrame - LastFrame;
+	LastFrame = currentFrame;
+	FrameCounter++;
 }
 
 static inline void ErrorCallback(int _error, const char* _description)
@@ -41,45 +40,51 @@ static inline void ErrorCallback(int _error, const char* _description)
 
 static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xPos, double _yPos)
 {
-	if (firstMouse)
+	if (IsFirstMouse)
 	{
-		lastX = _xPos;
-		lastY = _yPos;
-		firstMouse = false;
+		MouseX = _xPos;
+		MouseY = _yPos;
+		IsFirstMouse = false;
 	}
-	auto xoffset = _xPos - lastX;
-	lastX = _xPos;
+	double xoffset = _xPos - MouseX;
+	MouseX = _xPos;
 
-	auto yoffset = lastY - _yPos;
-	lastY = _yPos;
+	double yoffset = MouseY - _yPos;
+	MouseY = _yPos;
 
-
-
-	if (m_Camera && !activeMouse)
-		m_Camera->ProcessMouse(xoffset, yoffset);
+	if (SceneCamera && !IsMouseActive)
+		SceneCamera->ProcessMouse(xoffset, yoffset);
 }
 
 static inline void MouseButtonCallback(GLFWwindow* _renderWindow, int _button, int _action, int _mods)
 {
-	FrameBuffer::GrabIDUnderMouse(lastX, lastY);
+	if (_action == GLFW_PRESS)
+	{
+		Depth = FrameBuffer::GrabDepthUnderMouse(std::move(MouseX), std::move(MouseY));
+		FrameBuffer::GrabMousePositionIn3D(std::move(MouseX), std::move(MouseY));
+	}
+	else if (_action == GLFW_RELEASE)
+	{
+
+	}
 }
 
 static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCode, int _action, int _mods)
 {
 	// Collect Input
 	if (_action == GLFW_PRESS)
-		m_Keypresses[_key] = true;
+		Keypresses[_key] = true;
 	else if (_action == GLFW_RELEASE)
-		m_Keypresses[_key] = false;
+		Keypresses[_key] = false;
 
-	if (m_Camera)
-		m_Camera->Input();
+	if (SceneCamera)
+		SceneCamera->Input();
 }
 
 static inline void ScrollCallback(GLFWwindow* _renderWindow, double _xOffset, double _yOffset)
 {
-	if (m_Camera)
-		m_Camera->ProcessScroll(_yOffset);
+	if (SceneCamera)
+		SceneCamera->ProcessScroll(_yOffset);
 }
 
 int main()
@@ -101,20 +106,20 @@ void InitGLFW()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create Window
-	m_RenderWindow = glfwCreateWindow(1080, 1080, "Harmony2D v0.01", NULL, NULL);
+	RenderWindow = glfwCreateWindow(1080, 1080, "Harmony2D v0.01", NULL, NULL);
 
 	// Set Context To New Window
-	glfwMakeContextCurrent(m_RenderWindow);
+	glfwMakeContextCurrent(RenderWindow);
 
-	glfwSetKeyCallback(m_RenderWindow, KeyCallback);
-	glfwSetCursorPosCallback(m_RenderWindow, CursorPositionCallback);
-	glfwSetMouseButtonCallback(m_RenderWindow, MouseButtonCallback);
-	glfwSetScrollCallback(m_RenderWindow, ScrollCallback);
+	glfwSetKeyCallback(RenderWindow, KeyCallback);
+	glfwSetCursorPosCallback(RenderWindow, CursorPositionCallback);
+	glfwSetMouseButtonCallback(RenderWindow, MouseButtonCallback);
+	glfwSetScrollCallback(RenderWindow, ScrollCallback);
 
-	if (activeMouse)
-		glfwSetInputMode(m_RenderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	if (IsMouseActive)
+		glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	else
-		glfwSetInputMode(m_RenderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void InitGLEW()
@@ -136,21 +141,27 @@ void Start()
 	// Set Clear Color / Background
 	glClearColor(FrameBuffer::BackgroundColor[0], FrameBuffer::BackgroundColor[1], FrameBuffer::BackgroundColor[2], FrameBuffer::BackgroundColor[3]);
 
-	m_FrameBufferMesh = new Mesh(FrameBuffer::FrameBufferTexture);
+	FrameBufferMesh = new Mesh(FrameBuffer::FrameBufferTexture);
 	
-	m_Camera = new Camera(m_Keypresses);
+	SceneCamera = new Camera(Keypresses);
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 1; i++)
 	{
-		m_Meshes.push_back(new Mesh(*m_Camera));
+		Meshes.push_back(new Mesh(*SceneCamera));
 	}
 
-	m_Meshes[0]->GetTransform().translation = { 0,5,-4 };
+	// Plane
+	{
+		Meshes[0]->GetTransform().translation = { 0,0,0 };
+		Meshes[0]->GetTransform().scale = { 100, 100, 1};
+		Meshes[0]->GetTransform().rotation_axis = { 1,0,0 };
+		Meshes[0]->GetTransform().rotation_value = 3.14 / 2;
+	}
 }
 
 void Update()
 {
-	while (!glfwWindowShouldClose(m_RenderWindow))
+	while (!glfwWindowShouldClose(RenderWindow))
 	{
 		FrameBuffer::Bind();
 
@@ -160,7 +171,7 @@ void Update()
 		FrameBuffer::ClearTexturesCustom();
 
 		// Update
-		for (auto& item : m_Keypresses)
+		for (auto& item : Keypresses)
 		{
 			if (item.second == true)
 			{
@@ -168,33 +179,33 @@ void Update()
 				{
 				case GLFW_KEY_TAB:
 				{
-					activeMouse = !activeMouse;
+					IsMouseActive = !IsMouseActive;
 
-					if (activeMouse)
-						glfwSetInputMode(m_RenderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					if (IsMouseActive)
+						glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 					else
-						glfwSetInputMode(m_RenderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+						glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 						
 					item.second = false;
 					break;
 				}
 				case GLFW_KEY_ESCAPE:
 				{
-					glfwSetWindowShouldClose(m_RenderWindow, GLFW_TRUE);
+					glfwSetWindowShouldClose(RenderWindow, GLFW_TRUE);
 
 					item.second = false;
 					break;
 				}
 				case GLFW_KEY_K:
 				{
-					if (m_Meshes[0])
+					if (Meshes[0])
 					{
-						delete m_Meshes[0];
-						m_Meshes[0] = nullptr;
+						delete Meshes[0];
+						Meshes[0] = nullptr;
 					}
 					else
 					{
-						m_Meshes[0] = new Mesh(*m_Camera);
+						Meshes[0] = new Mesh(*SceneCamera);
 					}
 						
 
@@ -209,35 +220,29 @@ void Update()
 
 		CalculateDeltaTime();
 
-		if (m_Camera)
+		if (SceneCamera)
 		{
-			m_Camera->Movement(deltaTime);
+			SceneCamera->Movement(DeltaTime);
 		}
 
 		// Draw Items To Frame Buffer
-		[]() -> void
+		for (auto& item : Meshes)
 		{
-			for (auto& item : m_Meshes)
-			{
-				item->Draw();
-			}
-		}();
+			item->Draw(Depth);
+		}
 		
 		// Draw Frame Buffer To Screen
-		[]() -> void
-		{
-			glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 
-			FrameBuffer::UnBind();
+		FrameBuffer::UnBind();
 
-			if (m_FrameBufferMesh != nullptr)
-				m_FrameBufferMesh->Draw();
+		if (FrameBufferMesh != nullptr)
+			FrameBufferMesh->Draw();
 
-			glEnable(GL_DEPTH_TEST);
-		}();
+		glEnable(GL_DEPTH_TEST);
 
 		// Swap Buffers
-		glfwSwapBuffers(m_RenderWindow);
+		glfwSwapBuffers(RenderWindow);
 
 		// Poll Events
 		glfwPollEvents();
@@ -248,11 +253,11 @@ int Cleanup()
 {
 	FrameBuffer::Cleanup();
 
-	if (m_FrameBufferMesh != nullptr)
-		delete m_FrameBufferMesh;
-	m_FrameBufferMesh = nullptr;
+	if (FrameBufferMesh != nullptr)
+		delete FrameBufferMesh;
+	FrameBufferMesh = nullptr;
 
-	for (auto& item : m_Meshes)
+	for (auto& item : Meshes)
 	{
 		if (item != nullptr)
 		{
@@ -260,14 +265,14 @@ int Cleanup()
 		}
 		item = nullptr;
 	}
-	m_Meshes.clear();
+	Meshes.clear();
 
-	if (m_Camera != nullptr)
-		delete m_Camera;
-	m_Camera = nullptr;
+	if (SceneCamera != nullptr)
+		delete SceneCamera;
+	SceneCamera = nullptr;
 
 	// Cleanup GLFW
-	glfwDestroyWindow(m_RenderWindow);
+	glfwDestroyWindow(RenderWindow);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 

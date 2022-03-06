@@ -10,7 +10,7 @@ public:
 	~Mesh();
 	void Init(GLuint _screenTextureID);
 	void Init();
-	void Draw();
+	void Draw(float _depth = 1);
 
 	inline Transform& GetTransform() { return m_Transform; }
 private:
