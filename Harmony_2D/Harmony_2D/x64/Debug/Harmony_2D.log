@@ -9,6 +9,7 @@ C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(210,15): warning C4101: 'location': unreferenced local variable
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(224,15): warning C4101: 'location': unreferenced local variable
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(238,15): warning C4101: 'location': unreferenced local variable
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\TextureLoader.h(10,2): warning C4091: 'static ': ignored on left of 'TextureLoader' when no variable is declared
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(190,2): warning C4091: 'static ': ignored on left of 'FrameBuffer' when no variable is declared
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(91,30): warning C4244: 'argument': conversion from 'double' to 'GLint', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(91,16): warning C4244: 'argument': conversion from 'double' to 'GLint', possible loss of data
@@ -21,7 +22,6 @@ C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\FrameBuffer.h(1
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(56,38): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(56,29): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(87,30): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(158,54): warning C4305: '=': truncation from 'double' to 'GLfloat'
   Mesh.cpp
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(332,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(126,15): warning C4101: 'location': unreferenced local variable
@@ -33,7 +33,11 @@ C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(210,15): warning C4101: 'location': unreferenced local variable
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(224,15): warning C4101: 'location': unreferenced local variable
 C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(238,15): warning C4101: 'location': unreferenced local variable
-C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(159,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(183,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\TextureLoader.h(10,2): warning C4091: 'static ': ignored on left of 'TextureLoader' when no variable is declared
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(161,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(189,73): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  TextureLoader.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\TextureLoader.h(10,2): warning C4091: 'static ': ignored on left of 'TextureLoader' when no variable is declared
   Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

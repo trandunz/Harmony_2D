@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderLoader.h"
 #include "Camera.h"
+#include "TextureLoader.h"
 
 class Mesh
 {
@@ -26,6 +27,7 @@ private:
 
 	std::vector<Vertex> m_Vertices;
 	std::vector<unsigned> m_Indices;
+	std::vector<Texture> m_ActiveTextures;
 
 	Camera* m_Camera = nullptr;
 

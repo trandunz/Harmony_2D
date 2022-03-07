@@ -90,17 +90,19 @@ void Mesh::Init()
 	// Indices
 	m_Indices.push_back(0);// Top Left
 	m_Indices.push_back(1);// Top Right
-	m_Indices.push_back(3);// Bottom Right
+	m_Indices.push_back(2);// Bottom Right
 
 	m_Indices.push_back(0);// Top Left
 	m_Indices.push_back(2);// Bottom Left
 	m_Indices.push_back(3);// Bottom Right
 
 	// Vertices
-	m_Vertices.push_back({ {-0.5f,   0.5f, 0.0f} }); // Top Left
-	m_Vertices.push_back({ { 0.5f,   0.5f, 0.0f} }); // Top Right
-	m_Vertices.push_back({ {-0.5f,  -0.5f, 0.0f} }); // Bottom Left
-	m_Vertices.push_back({ { 0.5f,  -0.5f, 0.0f} }); // Bottom Right
+	m_Vertices.push_back({ {-0.5f,   0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
+	m_Vertices.push_back({ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
+	m_Vertices.push_back({ { 0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
+	m_Vertices.push_back({ { 0.5f,   0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
+	
+	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"));
 
 	// Shader
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
@@ -177,6 +179,10 @@ void Mesh::Draw(float _depth)
 		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
 		ShaderLoader::SetUniform1i(ShaderID, "Id", m_ObjectID);
 		ShaderLoader::SetUniform1f(ShaderID, "Depth", _depth);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
+		ShaderLoader::SetUniform1i(ShaderID, "Diffuse", 0);
 	}
 
 	// Draw

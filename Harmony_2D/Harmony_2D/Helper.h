@@ -39,6 +39,12 @@ struct Transform
     GLfloat rotation_value = 0.0f;
 };
 
+struct Texture
+{
+	GLuint ID = 0;
+	const char* FilePath = "";
+};
+
 static inline glm::mat4& UpdateModelFromTransform(Transform& _transform)
 {
 	_transform.tranform = glm::mat4(1);

@@ -138,6 +138,8 @@ void Start()
 
 	FrameBuffer::InitFrameBufferDSA();
 
+	TextureLoader::Init();
+
 	// Set Clear Color / Background
 	glClearColor(FrameBuffer::BackgroundColor[0], FrameBuffer::BackgroundColor[1], FrameBuffer::BackgroundColor[2], FrameBuffer::BackgroundColor[3]);
 
@@ -152,10 +154,10 @@ void Start()
 
 	// Plane
 	{
-		Meshes[0]->GetTransform().translation = { 0,0,0 };
-		Meshes[0]->GetTransform().scale = { 100, 100, 1};
-		Meshes[0]->GetTransform().rotation_axis = { 1,0,0 };
-		Meshes[0]->GetTransform().rotation_value = 3.14 / 2;
+		//Meshes[0]->GetTransform().translation = { 0,0,0 };
+		//Meshes[0]->GetTransform().scale = { 100, 100, 1};
+		//Meshes[0]->GetTransform().rotation_axis = { 1,0,0 };
+		//Meshes[0]->GetTransform().rotation_value = 3.14 / 2;
 	}
 }
 

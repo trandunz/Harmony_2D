@@ -5,6 +5,7 @@ layout (location = 1) out int ID;
 layout (location = 2) out vec4 HitPosition;
 
 in vec3 Position;
+in vec2 TexCoords;
 in mat4 Model_pass;
 in mat4 View_pass;
 in mat4 Proj_pass;
@@ -12,13 +13,14 @@ in mat4 Proj_pass;
 uniform float Time;
 uniform int Id;
 uniform float Depth;
+uniform sampler2D Diffuse;
 
 vec4 WorldPosFromDepth(float _depth);
 vec3 reconstruct_pos();
 
 void main()
 {
-    FragColor = vec4(((sin(Time) / 2) + 0.5f),(1),(1),1.0f);
+    FragColor = texture(Diffuse,TexCoords) * vec4(((sin(Time) / 2) + 0.5f),(1),(1),1.0f);
     ID = Id;
     HitPosition = vec4(reconstruct_pos(),1.0f);
 } 
