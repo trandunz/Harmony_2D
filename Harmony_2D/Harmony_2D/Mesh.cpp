@@ -35,21 +35,21 @@ Mesh::~Mesh()
 void Mesh::Init(GLuint _screenTextureID)
 {
 	// Indices
-	m_Indices.push_back(0);// Top Left
-	m_Indices.push_back(1);// Top Right
-	m_Indices.push_back(2);// Bottom Right
+	m_Indices.push_back(0);
+	m_Indices.push_back(1);
+	m_Indices.push_back(2);
 
-	m_Indices.push_back(3);// Top Left
-	m_Indices.push_back(4);// Bottom Left
-	m_Indices.push_back(5);// Bottom Right
+	m_Indices.push_back(3);
+	m_Indices.push_back(4);
+	m_Indices.push_back(5);
 
 	// Vertices
-	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} });
-	m_Vertices.push_back({ {-1.0f,   -1.0f, 0.0f},{0.0f,0.0f} });
-	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} });
-	m_Vertices.push_back({ {1.0f,   1.0f, 0.0f},{1.0f,1.0f} });
-	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} });
-	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} });
+	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} }); // Top Left
+	m_Vertices.push_back({ {-1.0f,   -1.0f, 0.0f},{0.0f,0.0f} }); // Bottom Left
+	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} }); // Bottom Right
+	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} }); // Bottom Right
+	m_Vertices.push_back({ {1.0f,   1.0f, 0.0f},{1.0f,1.0f} }); // Top Right
+	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} }); // Top Left
 
 	// Shader
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/frameBuffer.vert", "Resources/Shaders/frameBuffer.frag");
@@ -88,13 +88,13 @@ void Mesh::Init(GLuint _screenTextureID)
 void Mesh::Init()
 {
 	// Indices
-	m_Indices.push_back(0);// Top Left
-	m_Indices.push_back(1);// Top Right
-	m_Indices.push_back(2);// Bottom Right
+	m_Indices.push_back(0);
+	m_Indices.push_back(1);
+	m_Indices.push_back(2);
 
-	m_Indices.push_back(0);// Top Left
-	m_Indices.push_back(2);// Bottom Left
-	m_Indices.push_back(3);// Bottom Right
+	m_Indices.push_back(0);
+	m_Indices.push_back(2);
+	m_Indices.push_back(3);
 
 	// Vertices
 	m_Vertices.push_back({ {-0.5f,   0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left

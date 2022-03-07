@@ -136,6 +136,8 @@ void Start()
 	InitGLFW();
 	InitGLEW();
 
+	glEnable(GL_CULL_FACE);
+
 	FrameBuffer::InitFrameBufferDSA();
 
 	TextureLoader::Init();
@@ -226,6 +228,8 @@ void Update()
 		{
 			SceneCamera->Movement(DeltaTime);
 		}
+
+
 
 		// Draw Items To Frame Buffer
 		for (auto& item : Meshes)
