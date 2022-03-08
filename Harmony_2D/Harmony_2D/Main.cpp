@@ -60,8 +60,7 @@ static inline void MouseButtonCallback(GLFWwindow* _renderWindow, int _button, i
 {
 	if (_action == GLFW_PRESS)
 	{
-		Depth = FrameBuffer::GrabDepthUnderMouse(std::move(MouseX), std::move(MouseY));
-		FrameBuffer::GrabMousePositionIn3D(std::move(MouseX), std::move(MouseY));
+		FrameBuffer::GrabIDUnderMouse(std::move(MouseX), std::move(MouseY));
 	}
 	else if (_action == GLFW_RELEASE)
 	{
@@ -138,6 +137,9 @@ void Start()
 
 	glEnable(GL_CULL_FACE);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	FrameBuffer::InitFrameBufferDSA();
 
 	TextureLoader::Init();
@@ -151,15 +153,7 @@ void Start()
 
 	for (int i = 0; i < 1; i++)
 	{
-		Meshes.push_back(new Mesh(*SceneCamera));
-	}
-
-	// Plane
-	{
-		//Meshes[0]->GetTransform().translation = { 0,0,0 };
-		//Meshes[0]->GetTransform().scale = { 100, 100, 1};
-		//Meshes[0]->GetTransform().rotation_axis = { 1,0,0 };
-		//Meshes[0]->GetTransform().rotation_value = 3.14 / 2;
+		Meshes.push_back(new Mesh(*SceneCamera, DeltaTime));
 	}
 }
 
@@ -200,22 +194,6 @@ void Update()
 					item.second = false;
 					break;
 				}
-				case GLFW_KEY_K:
-				{
-					if (Meshes[0])
-					{
-						delete Meshes[0];
-						Meshes[0] = nullptr;
-					}
-					else
-					{
-						Meshes[0] = new Mesh(*SceneCamera);
-					}
-						
-
-					item.second = false;
-					break;
-				}
 				default:
 					break;
 				}
@@ -229,12 +207,10 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-
-
 		// Draw Items To Frame Buffer
 		for (auto& item : Meshes)
 		{
-			item->Draw(Depth);
+			item->Draw();
 		}
 		
 		// Draw Frame Buffer To Screen

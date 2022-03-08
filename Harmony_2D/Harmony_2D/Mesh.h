@@ -7,11 +7,11 @@ class Mesh
 {
 public:
 	Mesh(GLuint _textureID);
-	Mesh(Camera& _camera);
+	Mesh(Camera& _camera, double& _deltaTime);
 	~Mesh();
 	void Init(GLuint _screenTextureID);
 	void Init();
-	void Draw(float _depth = 1);
+	void Draw();
 
 	inline Transform& GetTransform() { return m_Transform; }
 private:
@@ -21,6 +21,8 @@ private:
 	GLuint VertexArrayID;
 	GLuint UniformBufferID;
 	int m_ObjectID = 1;
+	bool m_Animated = true;
+	double* m_DeltaTime = nullptr;
 
 	glm::mat4 ProjectionMat;
 	glm::mat4 ViewMat;
@@ -32,5 +34,7 @@ private:
 	Camera* m_Camera = nullptr;
 
 	Transform m_Transform;
+
+	void GenerateQuadIndices(int _numberOfQuads = 1);
 };
 

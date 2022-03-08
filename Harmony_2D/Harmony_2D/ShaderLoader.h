@@ -299,8 +299,9 @@ private:
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
             char* message = (char*)_malloca(length * sizeof(char));
             glGetShaderInfoLog(shader, length, &length, message);
-            Print("Failed to Compile Vertex Shader");
-            Print(message);
+            std::string debugOutput = "Failed to Compile Vertex Shader";
+            debugOutput += message;
+            Print(debugOutput);
             glDeleteShader(shader);
             return result;
         }
@@ -314,14 +315,17 @@ private:
         std::string content;
         std::ifstream fileStream(_fileAddress.data(), std::ios::in);
 
-        if (!fileStream.is_open()) {
-            Print("Could not read file ");
-            Print(_fileAddress.data());
-            Print(". File does not exist.");
+        if (!fileStream.is_open()) 
+        {
+            std::string debugOutput = "Could not read file ";
+            debugOutput += _fileAddress.data();
+            debugOutput += ". File does not exist.";
+            Print(debugOutput);
             return "";
         }
         std::string line = "";
-        while (!fileStream.eof()) {
+        while (!fileStream.eof()) 
+        {
             std::getline(fileStream, line);
             content.append(line + "\n");
         }

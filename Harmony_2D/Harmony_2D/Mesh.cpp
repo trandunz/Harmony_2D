@@ -5,9 +5,10 @@ Mesh::Mesh(GLuint _textureID)
 	Init(_textureID);
 }
 
-Mesh::Mesh(Camera& _camera)
+Mesh::Mesh(Camera& _camera, double& _deltaTime)
 {
 	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
 	Init();
 }
 
@@ -30,26 +31,19 @@ Mesh::~Mesh()
 		//glDeleteProgram(ShaderID);
 	}
 	m_Camera = nullptr;
+	m_DeltaTime = nullptr;
 }
 
 void Mesh::Init(GLuint _screenTextureID)
 {
 	// Indices
-	m_Indices.push_back(0);
-	m_Indices.push_back(1);
-	m_Indices.push_back(2);
-
-	m_Indices.push_back(3);
-	m_Indices.push_back(4);
-	m_Indices.push_back(5);
+	GenerateQuadIndices();
 
 	// Vertices
 	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} }); // Top Left
 	m_Vertices.push_back({ {-1.0f,   -1.0f, 0.0f},{0.0f,0.0f} }); // Bottom Left
 	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} }); // Bottom Right
-	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} }); // Bottom Right
 	m_Vertices.push_back({ {1.0f,   1.0f, 0.0f},{1.0f,1.0f} }); // Top Right
-	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} }); // Top Left
 
 	// Shader
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/frameBuffer.vert", "Resources/Shaders/frameBuffer.frag");
@@ -88,19 +82,13 @@ void Mesh::Init(GLuint _screenTextureID)
 void Mesh::Init()
 {
 	// Indices
-	m_Indices.push_back(0);
-	m_Indices.push_back(1);
-	m_Indices.push_back(2);
-
-	m_Indices.push_back(0);
-	m_Indices.push_back(2);
-	m_Indices.push_back(3);
+	GenerateQuadIndices();
 
 	// Vertices
-	m_Vertices.push_back({ {-0.5f,   0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
-	m_Vertices.push_back({ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
-	m_Vertices.push_back({ { 0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
-	m_Vertices.push_back({ { 0.5f,   0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
+	m_Vertices.push_back({ glm::vec3{-0.5f,   0.5f, 0.0f}, glm::vec2{0.0f,1.0f} }); // Top Left
+	m_Vertices.push_back({ glm::vec3{-0.5f,  -0.5f, 0.0f}, glm::vec2{0.0f,0.0f} }); // Bottom Left
+	m_Vertices.push_back({ glm::vec3{ 0.5f,  -0.5f, 0.0f}, glm::vec2{1.0f,0.0f} }); // Bottom Right
+	m_Vertices.push_back({ glm::vec3{ 0.5f,   0.5f, 0.0f}, glm::vec2{1.0f,1.0f} }); // Top Right
 	
 	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"));
 
@@ -145,7 +133,7 @@ void Mesh::Init()
 	glUseProgram(0);
 }
 
-void Mesh::Draw(float _depth)
+void Mesh::Draw()
 {
 	// Bind
 	glUseProgram(ShaderID);
@@ -175,10 +163,24 @@ void Mesh::Draw(float _depth)
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
 
+		if (m_Animated)
+		{
+			for (auto& item : m_Vertices)
+			{
+				if (item.texCoords.x > 0)
+				{
+					item.texCoords.x = 0.25f;
+				}
+			}
+
+			glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex), m_Vertices.data());
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
+
 		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
 		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
 		ShaderLoader::SetUniform1i(ShaderID, "Id", m_ObjectID);
-		ShaderLoader::SetUniform1f(ShaderID, "Depth", _depth);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
@@ -189,7 +191,22 @@ void Mesh::Draw(float _depth)
 	glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 
 	// Unbind
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+void Mesh::GenerateQuadIndices(int _numberOfQuads)
+{
+	for (int i = 0; i < _numberOfQuads; i++)
+	{
+		m_Indices.push_back(0 + (3 * i));
+		m_Indices.push_back(1 + (3 * i));
+		m_Indices.push_back(2 + (3 * i));
+
+		m_Indices.push_back(0 + (3 * i));
+		m_Indices.push_back(2 + (3 * i));
+		m_Indices.push_back(3 + (3 * i));
+	}
 }

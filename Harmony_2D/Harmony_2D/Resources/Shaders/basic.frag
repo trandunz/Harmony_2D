@@ -15,23 +15,22 @@ uniform int Id;
 uniform float Depth;
 uniform sampler2D Diffuse;
 
-vec4 WorldPosFromDepth(float _depth);
-vec3 reconstruct_pos();
+vec3 GrabPositionFromDepth();
 
 void main()
 {
     FragColor = texture(Diffuse,TexCoords) * vec4(((sin(Time) / 2) + 0.5f),(1),(1),1.0f);
     ID = Id;
-    HitPosition = vec4(reconstruct_pos(),1.0f);
+    HitPosition = Model_pass * vec4(Position,1.0f);
 } 
 
-vec3 reconstruct_pos()
+vec3 GrabPositionFromDepth()
 {
-    vec2 screen;
-    screen.x = ( gl_FragCoord.x - 1080 / 2.0 ) / ( 1080 / 2.0 );
-    screen.y = ( (1080 - gl_FragCoord.y) - 1080 / 2.0 ) / ( -1080 / 2.0 );
+    vec2 screenPos;
+    screenPos.x = ( gl_FragCoord.x - 1080 / 2.0 ) / ( 1080 / 2.0 );
+    screenPos.y = ( (1080 - gl_FragCoord.y) - 1080 / 2.0 ) / ( -1080 / 2.0 );
     float D = Depth * 2.0 - 1.0; 
-    vec4 WorldPos = inverse(Proj_pass * View_pass) * vec4( screen.x, screen.y, D, 1.0);
-    WorldPos.xyz /= WorldPos.w;
-    return WorldPos.xyz;
+    vec4 worldPos = inverse(Proj_pass * View_pass) * vec4( screenPos.x, screenPos.y, D, 1.0);
+    worldPos.xyz /= worldPos.w;
+    return worldPos.xyz;
 }
