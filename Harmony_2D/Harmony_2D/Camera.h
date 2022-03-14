@@ -4,7 +4,7 @@
 class Camera
 {
 public:
-    Camera(std::map<int, bool>& _keyMap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f));
+    Camera(std::map<int, bool>& _keyMap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 2), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f));
     ~Camera();
 
     inline glm::mat4 GetViewMatrix()
@@ -13,7 +13,7 @@ public:
     }
     inline glm::mat4 GetProjectionMatrix()
     {
-        return glm::perspective(glm::radians(m_Zoom), 1080.0f / 1080.0f, 0.1f, 100.0f);
+        return m_IsPerspective ? glm::perspective(glm::radians(m_Zoom), 1080.0f / 1080.0f, 0.1f, 100.0f) : glm::ortho((float) - 1080 / 2, (float)1080 / 2, (float)-1080 / 2, (float)1080 / 2, 0.1f, 100.0f);
     }
 
     void Input();
@@ -30,6 +30,8 @@ private:
     float m_MoveSpeed = 3.0f;
     float m_Sensitivity = 0.5f;
     float m_Zoom = 45.0f;
+
+    bool m_IsPerspective = false;
 
     std::map<int, bool>* m_KeyPresses = nullptr;
 

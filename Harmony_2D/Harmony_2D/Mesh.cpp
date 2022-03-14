@@ -90,7 +90,7 @@ void Mesh::Init()
 	m_Vertices.push_back({ glm::vec3{ 0.5f,  -0.5f, 0.0f}, glm::vec2{1.0f,0.0f} }); // Bottom Right
 	m_Vertices.push_back({ glm::vec3{ 0.5f,   0.5f, 0.0f}, glm::vec2{1.0f,1.0f} }); // Top Right
 	
-	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"));
+	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png"));
 
 	// Shader
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
@@ -151,7 +151,7 @@ void Mesh::Draw()
 		//m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
 		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
 
-		UpdateModelFromTransform(m_Transform);
+		ScaleToTexture();
 		{
 			// Bind
 			glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
@@ -209,4 +209,10 @@ void Mesh::GenerateQuadIndices(int _numberOfQuads)
 		m_Indices.push_back(2 + (3 * i));
 		m_Indices.push_back(3 + (3 * i));
 	}
+}
+
+void Mesh::ScaleToTexture()
+{
+	m_Transform.scale = { m_ActiveTextures[0].Dimensions.x / 2,m_ActiveTextures[0].Dimensions.y/2,0};
+	UpdateModelValueOfTransform(m_Transform);
 }

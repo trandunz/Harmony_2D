@@ -108,7 +108,8 @@ void Camera::ProcessMouse(const float& xOffset, const float& yOffset)
     if (m_Pitch < -89.0f)
         m_Pitch = -89.0f;
 
-    UpdateCameraVectors();
+    if (m_IsPerspective)
+        UpdateCameraVectors();
 }
 
 void Camera::ProcessScroll(const float& yoffset)

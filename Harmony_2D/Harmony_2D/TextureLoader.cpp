@@ -49,7 +49,7 @@ Texture TextureLoader::LoadTexture(const char* _filePath)
     imageData = nullptr;
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    m_Textures.emplace_back(Texture{ id , _filePath });
+    m_Textures.emplace_back(Texture{ id , {width,height},_filePath });
 
-    return { id, _filePath };
+    return m_Textures.back();
 }

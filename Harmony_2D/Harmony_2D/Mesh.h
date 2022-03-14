@@ -35,6 +35,7 @@ private:
 
 	Transform m_Transform;
 
+	void ScaleToTexture();
 	void GenerateQuadIndices(int _numberOfQuads = 1);
 };
 

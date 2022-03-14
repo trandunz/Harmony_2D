@@ -42,10 +42,11 @@ struct Transform
 struct Texture
 {
 	GLuint ID = 0;
+	glm::vec2 Dimensions{ 0 };
 	const char* FilePath = "";
 };
 
-static inline glm::mat4& UpdateModelFromTransform(Transform& _transform)
+static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 {
 	_transform.tranform = glm::mat4(1);
 	_transform.tranform = glm::translate(_transform.tranform, _transform.translation);
