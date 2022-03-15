@@ -1,26 +1,31 @@
 #version 460 core
+#define PI 3.141592654
 
 layout (location = 0) out vec4 FragColor;
-layout (location = 1) out int ID;
-layout (location = 2) out vec4 HitPosition;
 
 in vec3 Position;
 in vec2 TexCoords;
-in mat4 Model_pass;
-in mat4 View_pass;
-in mat4 Proj_pass;
 
 uniform float Time;
-uniform int Id;
-uniform float Depth;
-uniform sampler2D Diffuse;
+uniform int NumberOfAnimationFrames;
+uniform int CurrentAnimationFrame;
+uniform int IsAnimation;
+uniform sampler2D Texture0;
+uniform sampler2D Texture1;
 
 vec3 GrabPositionFromDepth();
 
 void main()
 {
-    //FragColor = texture(Diffuse,TexCoords);
-    FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    ID = Id;
-    HitPosition = Model_pass * vec4(Position,1.0f);
+    vec2 animatedFrameCoords;
+    if (IsAnimation  == 1)
+    {
+        animatedFrameCoords.x = (CurrentAnimationFrame + TexCoords.x) * (1.0f/NumberOfAnimationFrames);
+    }
+    else
+    {
+        animatedFrameCoords.x = TexCoords.x; 
+    }
+    animatedFrameCoords.y = TexCoords.y; 
+    FragColor = mix(texture(Texture0,animatedFrameCoords) ,texture(Texture1,animatedFrameCoords), ((sin(Time + (PI/2)))/2)+0.5f);
 } 

@@ -1,9 +1,17 @@
 #include "Mesh.h"
 
-Mesh::Mesh(Camera& _camera, double& _deltaTime)
+Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::vector<Texture>&& _textures, bool&& _animated)
 {
 	m_Camera = &_camera;
 	m_DeltaTime = &_deltaTime;
+	m_NumberOfSides = _numberOfSides;
+	m_Animated = _animated;
+
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (int i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
 	Init();
 }
 
@@ -23,22 +31,21 @@ Mesh::~Mesh()
 		glDeleteVertexArrays(1, &VertexArrayID);
 		glDeleteBuffers(1, &VertBufferID);
 		glDeleteBuffers(1, &IndexBufferID);
-		//glDeleteProgram(ShaderID);
 	}
+	m_Vertices.clear();
+	m_Indices.clear();
+	m_ActiveTextures.clear();
 	m_Camera = nullptr;
 	m_DeltaTime = nullptr;
 }
 
 void Mesh::Init()
 {
-	// Indices
-	GeneratePolygonIndices(6);
+	// Generate N Sided Polygon
+	GeneratePolygonVertices(m_NumberOfSides);
+	GeneratePolygonIndices(m_NumberOfSides);
 
-	GenerateHexagonVertices();
-	
-	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"));
-
-	// Shader
+	// Create A Shader And Copy The ID
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
 	glUseProgram(ShaderID);
 
@@ -57,23 +64,31 @@ void Mesh::Init()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_STATIC_DRAW);
 
 	// Layouts
-	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
+	// Position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	// TexCoords
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
 
 	// Uniform Buffer
+	// Generate Uniform Buffer
 	glGenBuffers(1, &UniformBufferID);
+	// Get Block Binding Index (Similar To Get Location)
 	unsigned matrixBlockIndex = glGetUniformBlockIndex(ShaderID, "Matrices");
+	// Assign Binding Point To Uniform Block
 	glUniformBlockBinding(ShaderID, matrixBlockIndex, 0);
+	// Bind Uniform Buffer
 	glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, UniformBufferID, 0, 2 * sizeof(glm::mat4));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, UniformBufferID, 0, sizeof(glm::mat4));
+
+	// Scale The Mesh To The Texture Size
+	SetScale({ 200,200,0 });
 
 	// Unbind
 	glBindVertexArray(0);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glUseProgram(0);
@@ -86,51 +101,49 @@ void Mesh::Draw()
 	glBindVertexArray(VertexArrayID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
 
-	// If Not Frame Buffer
-	if (m_Camera)
+	// Get PVMatrix From Camera
+	m_PVMatrix = m_Camera->GetPVMatrix();
+
+	// Bind Uniform Buffer
+	glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
+	// Stream In PVMat Data
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &m_PVMatrix[0]);
+	// Unbind Uniform Buffer
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// Uniforms
+	// Model Matrix
+	ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
+	// Elapsed Time
+	ShaderLoader::SetUniform1f(ShaderID, "Time", (float)glfwGetTime());
+
+	// Textures
+	for (int i = 0; i < m_ActiveTextures.size(); i++)
 	{
-		ProjectionMat = m_Camera->GetProjectionMatrix();
-		ViewMat = m_Camera->GetViewMatrix();
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
+		ShaderLoader::SetUniform1i(ShaderID, "Texture" + std::to_string(i), i);
+	}
 
-		float time = (float)glfwGetTime();
-		//m_Transform.scale = { ((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) };
-		//m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
-		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
-
-		SetScale({100,100,1});
+	if (m_Animated)
+	{
+		ShaderLoader::SetUniform1i(ShaderID, "IsAnimation", 1);
+		ShaderLoader::SetUniform1i(ShaderID, "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
+		ShaderLoader::SetUniform1i(ShaderID, "CurrentAnimationFrame", m_CurrentAnimationFrame);
+		
+		if (m_AnimationTimer > 0)
 		{
-			// Bind
-			glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
-			// Stream In Proj Mat
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionMat[0]);
-			// Stream In View Mat
-			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &ViewMat[0]);
-			// Unbind
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			m_AnimationTimer -= (float)*m_DeltaTime;
 		}
-
-		if (m_Animated)
+		else
 		{
-			for (auto& item : m_Vertices)
-			{
-				if (item.texCoords.x > 0)
-				{
-					item.texCoords.x = 0.25f;
-				}
-			}
-
-			glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex), m_Vertices.data());
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			m_AnimationTimer = m_FrameTime_s;
+			m_CurrentAnimationFrame++;
 		}
-
-		ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
-		ShaderLoader::SetUniform1f(ShaderID, "Time", time);
-		ShaderLoader::SetUniform1i(ShaderID, "Id", m_ObjectID);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
-		ShaderLoader::SetUniform1i(ShaderID, "Diffuse", 0);
+	}
+	else
+	{
+		ShaderLoader::SetUniform1i(ShaderID, "IsAnimation", 0);
 	}
 
 	// Draw
@@ -141,6 +154,12 @@ void Mesh::Draw()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+void Mesh::SetPosition(glm::vec3&& _newPos)
+{
+	m_Transform.translation = _newPos;
+	UpdateModelValueOfTransform(m_Transform);
 }
 
 void Mesh::SetScale(glm::vec3&& _newScale)
@@ -157,42 +176,67 @@ void Mesh::ScaleToTexture()
 
 void Mesh::GeneratePolygonVertices(const int _numberOfSides)
 {
-	double angle = 0.0;
-	float step = TWOPI / _numberOfSides;
+	float angle = 0.0f, increment = TWOPI / _numberOfSides;
+
+	// If Its A Sqaure, Turn It 45% Degrees
+	if (_numberOfSides == 4)
+	{
+		GenerateGenericQuadVertices();
+		return;
+	}
+		
 
 	// Centre
-	m_Vertices.push_back({ glm::vec3{0.0f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); 
+	m_Vertices.emplace_back(Vertex{{0.0f,  0.0f, 0.0f}, {0.5f,0.5f}});
 
-	// Fan Around
+	// Fan Around Centre
+	float xPos, yPos;
 	for (int i = 0; i < _numberOfSides; i++)
 	{
-		double xPos = cos(angle);
-		double yPos = sin(angle);
-		m_Vertices.push_back({ glm::vec3{xPos, yPos, 0 } , glm::vec2{1.0f,1.0f } });
-		
-		angle += step;
+		xPos = cos(angle);
+		yPos = sin(angle);
+		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
+		angle += increment;
 	}
-
 }
 
-void Mesh::GenerateHexagonVertices()
+void Mesh::GenerateGenericQuadVertices()
 {
-	m_Vertices.push_back({ glm::vec3{0.0f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} });
-	m_Vertices.push_back({ glm::vec3{-0.5f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Left
-	m_Vertices.push_back({ glm::vec3{-0.25f,  -0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Left Bot
-	m_Vertices.push_back({ glm::vec3{0.25f,  -0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right Bot
-	m_Vertices.push_back({ glm::vec3{0.5f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right
-	m_Vertices.push_back({ glm::vec3{0.25f,  0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right Top
-	m_Vertices.push_back({ glm::vec3{-0.25f,  0.5f, 0.0f}, glm::vec2{0.0f,0.5f} }); // left Top
+	m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
+	m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
+	m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
+	m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
+}
 
-	
+void Mesh::GenerateGenericQuadIndices()
+{
+	m_Indices.emplace_back(0);
+	m_Indices.emplace_back(1);
+	m_Indices.emplace_back(2);
+	m_Indices.emplace_back(0);
+	m_Indices.emplace_back(2);
+	m_Indices.emplace_back(3);
+	m_Indices.emplace_back(0);
+}
+
+float Mesh::ToTexCoord(float _position)
+{
+	return (_position + 1) * 0.5f;
 }
 
 void Mesh::GeneratePolygonIndices(const int _numberOfSides)
 {
+	if (_numberOfSides == 4)
+	{
+		GenerateGenericQuadIndices();
+		return;
+	}
 	for (int i = 0; i < _numberOfSides; i++)
 	{
+		// Centre
 		m_Indices.push_back(0);
+
+		// Back At Beginning?
 		if (i + 2 > _numberOfSides)
 		{
 			m_Indices.push_back(i + 1);
@@ -203,6 +247,5 @@ void Mesh::GeneratePolygonIndices(const int _numberOfSides)
 			m_Indices.push_back(i + 1);
 			m_Indices.push_back(i + 2);
 		}
-		
 	}
 }

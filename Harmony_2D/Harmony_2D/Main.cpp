@@ -7,7 +7,8 @@ static bool IsMouseVisible = false, ExitProcess = false;
 static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
-static std::vector<Mesh*> Meshes;
+static std::vector<Mesh*> HexagonMeshes;
+static Mesh* CapGuyMesh = nullptr;
 
 void InitGLFW();
 void InitGLEW();
@@ -117,9 +118,15 @@ void Start()
 
 	SceneCamera = new Camera(Keypresses);
 
+	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4,
+		{ TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")}
+		, true);
+	CapGuyMesh->SetPosition({ 0.0f, -1080 / 4, 0 });
+
 	for (int i = 0; i < 1; i++)
 	{
-		Meshes.push_back(new Mesh(*SceneCamera, DeltaTime));
+		HexagonMeshes.push_back(new Mesh(*SceneCamera, DeltaTime, 6, 
+			{ TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")}));
 	}
 }
 
@@ -152,11 +159,17 @@ void Update()
 
 void Render()
 {
-	// Draw Items To Default Frame Buffer
-	for (auto& item : Meshes)
+	// Draw Hexagon Meshes
+	for (auto& item : HexagonMeshes)
 	{
+		item->SetPosition({ 1080 / 4, 1080 / 4, 0 });
+		item->Draw();
+		item->SetPosition({ -1080 / 4, 1080 / 4, 0 });
 		item->Draw();
 	}
+
+	// Draw Cap Guy
+	CapGuyMesh->Draw();
 
 	// Swap Buffers
 	glfwSwapBuffers(RenderWindow);
@@ -165,7 +178,7 @@ void Render()
 int Cleanup()
 {
 	// Cleanup All Meshes
-	for (auto& item : Meshes)
+	for (auto& item : HexagonMeshes)
 	{
 		if (item != nullptr)
 		{
@@ -173,7 +186,11 @@ int Cleanup()
 		}
 		item = nullptr;
 	}
-	Meshes.clear();
+	HexagonMeshes.clear();
+
+	if (CapGuyMesh != nullptr)
+		delete CapGuyMesh;
+	CapGuyMesh = nullptr;
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)

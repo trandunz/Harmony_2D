@@ -15,6 +15,10 @@ public:
     {
         return m_IsPerspective ? glm::perspective(glm::radians(m_Zoom), 1080.0f / 1080.0f, 0.1f, 100.0f) : glm::ortho((float) - 1080 / 2, (float)1080 / 2, (float)-1080 / 2, (float)1080 / 2, 0.1f, 100.0f);
     }
+    inline glm::mat4 GetPVMatrix()
+    {
+        return GetProjectionMatrix() * GetViewMatrix();
+    }
 
     void Input();
     void Movement(const long double& _dt);

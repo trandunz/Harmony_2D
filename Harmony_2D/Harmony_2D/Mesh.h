@@ -6,11 +6,13 @@
 class Mesh
 {
 public:
-	Mesh(Camera& _camera, double& _deltaTime);
+	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, std::vector<Texture>&& _textures = {}, bool&& _animated = false);
 	~Mesh();
 	void Init();
 	void Draw();
 
+	void SetPosition(glm::vec3&& _newPos);
+	void SetScale(glm::vec3&& _newScale);
 	inline Transform& GetTransform() { return m_Transform; }
 private:
 	GLuint ShaderID;
@@ -18,12 +20,15 @@ private:
 	GLuint IndexBufferID;
 	GLuint VertexArrayID;
 	GLuint UniformBufferID;
-	int m_ObjectID = 1;
-	bool m_Animated = true;
+	bool m_Animated = false;
 	double* m_DeltaTime = nullptr;
+	unsigned m_NumberOfSides = 4;
+	unsigned m_CurrentAnimationFrame = 1;
+	unsigned m_NumberOfAnimationFrames = 8;
+	float m_FrameTime_s = 0.09f;
+	float m_AnimationTimer = 0.0f;
 
-	glm::mat4 ProjectionMat;
-	glm::mat4 ViewMat;
+	glm::mat4 m_PVMatrix;
 
 	std::vector<Vertex> m_Vertices;
 	std::vector<unsigned> m_Indices;
@@ -33,10 +38,11 @@ private:
 
 	Transform m_Transform;
 
-	void SetScale(glm::vec3&& _newScale);
 	void ScaleToTexture();
 	void GeneratePolygonIndices(const int _numberOfSides = 6);
 	void GeneratePolygonVertices(const int _numberOfSides = 6);
-	void GenerateHexagonVertices();
+	void GenerateGenericQuadVertices();
+	void GenerateGenericQuadIndices();
+	float ToTexCoord(float _position);
 };
 
