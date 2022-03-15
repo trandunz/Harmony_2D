@@ -44,9 +44,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -56,12 +53,6 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Resources\Shaders\basic.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Resources\Shaders\frameBuffer.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Resources\Shaders\frameBuffer.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

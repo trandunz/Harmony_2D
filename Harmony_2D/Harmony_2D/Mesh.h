@@ -6,10 +6,8 @@
 class Mesh
 {
 public:
-	Mesh(GLuint _textureID);
 	Mesh(Camera& _camera, double& _deltaTime);
 	~Mesh();
-	void Init(GLuint _screenTextureID);
 	void Init();
 	void Draw();
 

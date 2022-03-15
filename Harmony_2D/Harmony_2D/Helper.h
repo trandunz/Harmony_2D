@@ -65,12 +65,12 @@ static inline void Print(std::string_view _string)
 	std::cout << _string << std::endl;
 }
 
-static inline void Print(const int& _int)
+static inline void Print(const int&& _int)
 {
 	std::cout << _int << std::endl;
 }
 
-static inline void Print(const float& _float)
+static inline void Print(const float&& _float)
 {
 	std::cout << _float << std::endl;
 }

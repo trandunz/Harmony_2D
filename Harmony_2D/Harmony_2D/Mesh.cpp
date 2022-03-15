@@ -1,10 +1,5 @@
 #include "Mesh.h"
 
-Mesh::Mesh(GLuint _textureID)
-{
-	Init(_textureID);
-}
-
 Mesh::Mesh(Camera& _camera, double& _deltaTime)
 {
 	m_Camera = &_camera;
@@ -32,51 +27,6 @@ Mesh::~Mesh()
 	}
 	m_Camera = nullptr;
 	m_DeltaTime = nullptr;
-}
-
-void Mesh::Init(GLuint _screenTextureID)
-{
-	// Indices
-	GenerateQuadIndices();
-
-	// Vertices
-	m_Vertices.push_back({ {-1.0f,   1.0f, 0.0f},{0.0f,1.0f} }); // Top Left
-	m_Vertices.push_back({ {-1.0f,   -1.0f, 0.0f},{0.0f,0.0f} }); // Bottom Left
-	m_Vertices.push_back({ {1.0f,   -1.0f, 0.0f},{1.0f,0.0f} }); // Bottom Right
-	m_Vertices.push_back({ {1.0f,   1.0f, 0.0f},{1.0f,1.0f} }); // Top Right
-
-	// Shader
-	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/frameBuffer.vert", "Resources/Shaders/frameBuffer.frag");
-	glUseProgram(ShaderID);
-
-	// Vertex Array
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// Vertex Buffer
-	glGenBuffers(1, &VertBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
-	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), &m_Vertices[0], GL_STATIC_DRAW);
-
-	// Index Buffer
-	glGenBuffers(1, &IndexBufferID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
-	
-	// Layouts
-	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
-	
-	glUniform1i(glGetUniformLocation(ShaderID, "screenTexture"), 0);
-
-	// Unbind
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glUseProgram(0);
 }
 
 void Mesh::Init()

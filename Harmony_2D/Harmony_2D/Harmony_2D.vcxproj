@@ -154,7 +154,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Mesh.h" />
@@ -163,8 +162,6 @@
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />
     <None Include="Resources\Shaders\basic.vert" />
-    <None Include="Resources\Shaders\frameBuffer.frag" />
-    <None Include="Resources\Shaders\frameBuffer.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
