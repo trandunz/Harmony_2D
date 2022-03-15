@@ -19,7 +19,8 @@ vec3 GrabPositionFromDepth();
 
 void main()
 {
-    FragColor = texture(Diffuse,TexCoords);
+    //FragColor = texture(Diffuse,TexCoords);
+    FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     ID = Id;
     HitPosition = Model_pass * vec4(Position,1.0f);
 } 

@@ -11,6 +11,10 @@
 #include <iostream>
 #include <fstream>
 
+#define PI 3.141592654
+#define TWOPI 6.283185307186
+#define THREEPI 9.42477796077
+
 struct ShaderProgramLocation
 {
     const char* vertShader;

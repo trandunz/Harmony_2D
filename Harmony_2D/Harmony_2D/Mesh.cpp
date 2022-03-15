@@ -32,15 +32,11 @@ Mesh::~Mesh()
 void Mesh::Init()
 {
 	// Indices
-	GenerateQuadIndices();
+	GeneratePolygonIndices(6);
 
-	// Vertices
-	m_Vertices.push_back({ glm::vec3{-0.5f,   0.5f, 0.0f}, glm::vec2{0.0f,1.0f} }); // Top Left
-	m_Vertices.push_back({ glm::vec3{-0.5f,  -0.5f, 0.0f}, glm::vec2{0.0f,0.0f} }); // Bottom Left
-	m_Vertices.push_back({ glm::vec3{ 0.5f,  -0.5f, 0.0f}, glm::vec2{1.0f,0.0f} }); // Bottom Right
-	m_Vertices.push_back({ glm::vec3{ 0.5f,   0.5f, 0.0f}, glm::vec2{1.0f,1.0f} }); // Top Right
+	GenerateHexagonVertices();
 	
-	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png"));
+	m_ActiveTextures.emplace_back(TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"));
 
 	// Shader
 	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
@@ -101,7 +97,7 @@ void Mesh::Draw()
 		//m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
 		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
 
-		ScaleToTexture();
+		SetScale({100,100,1});
 		{
 			// Bind
 			glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
@@ -147,22 +143,66 @@ void Mesh::Draw()
 	glUseProgram(0);
 }
 
-void Mesh::GenerateQuadIndices(int _numberOfQuads)
+void Mesh::SetScale(glm::vec3&& _newScale)
 {
-	for (int i = 0; i < _numberOfQuads; i++)
-	{
-		m_Indices.push_back(0 + (3 * i));
-		m_Indices.push_back(1 + (3 * i));
-		m_Indices.push_back(2 + (3 * i));
-
-		m_Indices.push_back(0 + (3 * i));
-		m_Indices.push_back(2 + (3 * i));
-		m_Indices.push_back(3 + (3 * i));
-	}
+	m_Transform.scale = _newScale;
+	UpdateModelValueOfTransform(m_Transform);
 }
 
 void Mesh::ScaleToTexture()
 {
-	m_Transform.scale = { m_ActiveTextures[0].Dimensions.x / 2,m_ActiveTextures[0].Dimensions.y/2,0};
+	SetScale({ m_ActiveTextures[0].Dimensions.x / 2,m_ActiveTextures[0].Dimensions.y / 2,0 });
 	UpdateModelValueOfTransform(m_Transform);
+}
+
+void Mesh::GeneratePolygonVertices(const int _numberOfSides)
+{
+	double angle = 0.0;
+	float step = TWOPI / _numberOfSides;
+
+	// Centre
+	m_Vertices.push_back({ glm::vec3{0.0f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); 
+
+	// Fan Around
+	for (int i = 0; i < _numberOfSides; i++)
+	{
+		double xPos = cos(angle);
+		double yPos = sin(angle);
+		m_Vertices.push_back({ glm::vec3{xPos, yPos, 0 } , glm::vec2{1.0f,1.0f } });
+		
+		angle += step;
+	}
+
+}
+
+void Mesh::GenerateHexagonVertices()
+{
+	m_Vertices.push_back({ glm::vec3{0.0f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} });
+	m_Vertices.push_back({ glm::vec3{-0.5f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Left
+	m_Vertices.push_back({ glm::vec3{-0.25f,  -0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Left Bot
+	m_Vertices.push_back({ glm::vec3{0.25f,  -0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right Bot
+	m_Vertices.push_back({ glm::vec3{0.5f,  0.0f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right
+	m_Vertices.push_back({ glm::vec3{0.25f,  0.5f, 0.0f}, glm::vec2{0.5f,0.5f} }); // Right Top
+	m_Vertices.push_back({ glm::vec3{-0.25f,  0.5f, 0.0f}, glm::vec2{0.0f,0.5f} }); // left Top
+
+	
+}
+
+void Mesh::GeneratePolygonIndices(const int _numberOfSides)
+{
+	for (int i = 0; i < _numberOfSides; i++)
+	{
+		m_Indices.push_back(0);
+		if (i + 2 > _numberOfSides)
+		{
+			m_Indices.push_back(i + 1);
+			m_Indices.push_back(1);
+		}
+		else
+		{
+			m_Indices.push_back(i + 1);
+			m_Indices.push_back(i + 2);
+		}
+		
+	}
 }

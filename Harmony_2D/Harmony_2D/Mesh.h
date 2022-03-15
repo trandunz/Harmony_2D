@@ -33,7 +33,10 @@ private:
 
 	Transform m_Transform;
 
+	void SetScale(glm::vec3&& _newScale);
 	void ScaleToTexture();
-	void GenerateQuadIndices(int _numberOfQuads = 1);
+	void GeneratePolygonIndices(const int _numberOfSides = 6);
+	void GeneratePolygonVertices(const int _numberOfSides = 6);
+	void GenerateHexagonVertices();
 };
 
