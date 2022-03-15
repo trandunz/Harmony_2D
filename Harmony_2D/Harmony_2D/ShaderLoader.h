@@ -1,7 +1,7 @@
 #pragma once
 #include "Helper.h"
 
-static class ShaderLoader
+class ShaderLoader
 {
 public:
     ~ShaderLoader()
@@ -24,62 +24,26 @@ public:
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> ShaderPrograms;
     inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;
     inline static std::vector<std::pair<std::string, GLuint>> Shaders;
-    inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _geoShader, std::string_view _fragmentShader)
-    {
-        for (auto& item : ShaderPrograms)
-        {
-            if (item.first.vertShader == _vertexShader.data() && item.first.geoShader == _geoShader.data() && item.first.fragShader == _fragmentShader.data())
-            {
-                Print("Re-used Shader Program " + std::to_string(item.second) + "!");
-                return item.second;
-            }
-        }
 
-        // Create Program
-        GLuint program = glCreateProgram();
-
-        // Create Shaders And Store There ID's
-        GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
-        GLuint geoShader = CompileShader(GL_GEOMETRY_SHADER, PassFileToString(_geoShader));
-        GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
-
-        // Attach Shaders To Program
-        if (IsDebug)
-        {
-            Print("Attaching Shaders");
-        }
-        glAttachShader(program, vertShader);
-        glAttachShader(program, geoShader);
-        glAttachShader(program, fragShader);
-
-        // Link And Validate
-        if (IsDebug)
-        {
-            Print("Linking program");
-        }
-        glLinkProgram(program);
-        glValidateProgram(program);
-
-        ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), _geoShader.data(), _fragmentShader.data() }, program));
-
-        // Return Program ID
-        return program;
-    }
     inline static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
     {
+        // Check If there Is Already A Shader With The Same Specifications Created
         for (auto& item : ShaderPrograms)
         {
             if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
             {
-                Print("Re-used Shader Program " + std::to_string(item.second) + "!");
+                if (IsDebug)
+                {
+                    Print("Re-used Shader Program " + std::to_string(item.second) + "!");
+                }
                 return item.second;
             }
         }
 
-        // Create Program
+        // Create A Default Program
         GLuint program = glCreateProgram();
 
-        // Create Shaders And Store There ID's
+        // Create Shaders And Store There ID's Locally
         GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
         GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
 
@@ -99,6 +63,24 @@ public:
         glLinkProgram(program);
         glValidateProgram(program);
 
+        // Debug Output With Error Specific Message
+        int result = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, &result);
+        if (result == GL_FALSE)
+        {
+            int length = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+            char* message = (char*)_malloca(length * sizeof(char));
+            glGetProgramInfoLog(program, length, &length, message);
+            std::string debugOutput = "Failed to Compile Shader Program ";
+            debugOutput += message;
+            Print(debugOutput);
+            glDeleteProgram(program);
+            _freea(message);
+            return result;
+        }
+
+        // Push The New Shader Program To Vector
         ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), "", _fragmentShader.data() }, program));
 
         // Return Program ID
@@ -106,7 +88,7 @@ public:
     }
     inline static void SetUniform1i(const GLuint& _program, std::string_view _location, GLint _value)
     {
-        GLint location; 
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -120,7 +102,7 @@ public:
     }
     inline static void SetUniform1f(const GLuint& _program, std::string_view _location, GLfloat _value)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -134,7 +116,7 @@ public:
     }
     inline static void SetUniform2i(const GLuint& _program, std::string_view _location, GLint _value, GLint _value2)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -148,7 +130,7 @@ public:
     }
     inline static void SetUniform2i(const GLuint& _program, std::string_view _location, GLfloat _value, GLfloat _value2)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -162,7 +144,7 @@ public:
     }
     inline static void SetUniform3i(const GLuint& _program, std::string_view _location, GLint _value, GLint _value2, GLint _value3)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -176,7 +158,7 @@ public:
     }
     inline static void SetUniform3f(const GLuint& _program, std::string_view _location, GLfloat _value, GLfloat _value2, GLfloat _value3)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -190,7 +172,7 @@ public:
     }
     inline static void SetUniform3fv(const GLuint& _program, std::string_view _location, const glm::vec3& _value)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -204,7 +186,7 @@ public:
     }
     inline static void SetUniform3iv(const GLuint& _program, std::string_view _location, const glm::ivec3& _value)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -218,7 +200,7 @@ public:
     }
     inline static void SetUniformMatrix4fv(const GLuint& _program, std::string_view _location, const glm::mat4& _value)
     {
-        GLint location;
+        GLint location = 0;
         for (auto& item : m_Uniforms)
         {
             if (item.first.program == _program && item.first.location == _location.data())
@@ -233,20 +215,27 @@ public:
 private:
     inline static GLuint CompileShader(GLenum _type, std::string _source)
     {
+        // Check If there Is Already A Shader With The Same Specifications Created
         for (auto& item : Shaders)
         {
             if (item.first == _source)
             {
-                Print("Re-used Shader " + std::to_string(item.second) + "!");
+                if (IsDebug)
+                {
+                    Print("Re-used Shader " + std::to_string(item.second) + "!");
+                }
                 return item.second;
             }
         }
 
+        // Create A Shader Of The Specified Type
         GLuint shader = glCreateShader(_type);
+
+        // Grab The Shader Information Assign It To The Newly Created Shader
         const GLchar* src = _source.data();
         glShaderSource(shader, 1, &src, nullptr);
 
-        // Compile Shader
+        // Print Compiling Shader (Type Specific)
         if (IsDebug)
         {
             switch (_type)
@@ -271,14 +260,15 @@ private:
             }
         }
 
+        // Compile The Shader
         glCompileShader(shader);
 
-        // Debug
-        int result;
+        // Debug Output With Error Specific Message
+        int result = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
         if (result == GL_FALSE)
         {
-            int length;
+            int length = 0;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
             char* message = (char*)_malloca(length * sizeof(char));
             glGetShaderInfoLog(shader, length, &length, message);
@@ -286,6 +276,7 @@ private:
             debugOutput += message;
             Print(debugOutput);
             glDeleteShader(shader);
+            _freea(message);
             return result;
         }
 
@@ -295,25 +286,31 @@ private:
     }
     inline static std::string PassFileToString(std::string_view _fileAddress)
     {
-        std::string content;
-        std::ifstream fileStream(_fileAddress.data(), std::ios::in);
+        // Will Contain File Information
+        std::string content{""};
 
+        // File Stream
+        std::ifstream fileStream(_fileAddress.data());
+
+        // If File Dident Open
         if (!fileStream.is_open()) 
         {
             std::string debugOutput = "Could not read file ";
             debugOutput += _fileAddress.data();
             debugOutput += ". File does not exist.";
             Print(debugOutput);
-            return "";
+            return content;
         }
+
+        // Read File And Pass Contents To 'content' string
         std::string line = "";
         while (!fileStream.eof()) 
         {
             std::getline(fileStream, line);
             content.append(line + "\n");
         }
-
         fileStream.close();
+
         return content;
     }
 };

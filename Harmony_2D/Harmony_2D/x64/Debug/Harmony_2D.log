@@ -1,16 +1,7 @@
-﻿  Main.cpp
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(319,2): warning C4091: 'static ': ignored on left of 'ShaderLoader' when no variable is declared
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(109,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(123,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(137,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(151,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(165,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(179,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(193,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(207,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\ShaderLoader.h(221,15): warning C4101: 'location': unreferenced local variable
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\TextureLoader.h(11,2): warning C4091: 'static ': ignored on left of 'TextureLoader' when no variable is declared
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(68,30): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(90,47): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(90,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+﻿  Camera.cpp
+  Main.cpp
+  Mesh.cpp
+  TextureLoader.cpp
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Harmony_2D.vcxproj -> D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

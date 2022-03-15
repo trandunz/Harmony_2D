@@ -26,9 +26,8 @@ void Camera::Movement(const long double& _dt)
 bool Camera::UpdatePosition(const long double& _dt)
 {
     bool moved = false;
-    float x = m_InputVec.x * m_MoveSpeed * _dt;
-    float y = m_InputVec.y * m_MoveSpeed * _dt;
-    float z = m_InputVec.z * m_MoveSpeed * _dt;
+    float x = m_InputVec.x * m_MoveSpeed * (float)_dt;
+    float y = m_InputVec.y * m_MoveSpeed * (float)_dt;
 
     if (x >= 0.000000001f || x <= -0.000000001f)
     {
@@ -40,11 +39,6 @@ bool Camera::UpdatePosition(const long double& _dt)
         m_Position += m_Up * y;
         moved = true;
     }
-    if (z >= 0.000000001f || z <= -0.000000001f)
-    {
-        m_Position += m_Front * z;
-        moved = true;
-    }
 
     return moved;
 }
@@ -54,7 +48,6 @@ void Camera::Input()
     // Reset Input Vec
     m_InputVec.x = 0.0f;
     m_InputVec.y = 0.0f;
-    m_InputVec.z = 0.0f;
 
     for (auto& item : (*m_KeyPresses))
     {
@@ -74,20 +67,10 @@ void Camera::Input()
             }
             case GLFW_KEY_W:
             {
-                m_InputVec.z = 1;
-                break;
-            }
-            case GLFW_KEY_S:
-            {
-                m_InputVec.z = -1;
-                break;
-            }
-            case GLFW_KEY_SPACE:
-            {
                 m_InputVec.y = 1;
                 break;
             }
-            case GLFW_KEY_C:
+            case GLFW_KEY_S:
             {
                 m_InputVec.y = -1;
                 break;
@@ -99,20 +82,6 @@ void Camera::Input()
     }
 
     glm::normalize(m_InputVec);
-}
-
-void Camera::ProcessMouse(const float& xOffset, const float& yOffset)
-{
-    m_Yaw += xOffset * (m_Sensitivity / 10);
-    m_Pitch += yOffset * (m_Sensitivity / 10);
-
-    if (m_Pitch > 89.0f)
-        m_Pitch = 89.0f;
-    if (m_Pitch < -89.0f)
-        m_Pitch = -89.0f;
-
-    if (m_IsPerspective)
-        UpdateCameraVectors();
 }
 
 void Camera::ProcessScroll(const float& yoffset)

@@ -1,6 +1,6 @@
 #pragma once
 #include "Helper.h"
-static class TextureLoader
+class TextureLoader
 {
 public:
 	~TextureLoader();

@@ -96,7 +96,7 @@ void Mesh::Draw()
 		ProjectionMat = m_Camera->GetProjectionMatrix();
 		ViewMat = m_Camera->GetViewMatrix();
 
-		float time = glfwGetTime();
+		float time = (float)glfwGetTime();
 		//m_Transform.scale = { ((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 2) + 0.5f) };
 		//m_Transform.rotation_axis = { ((sin(time)) + 0.5f) ,((sin(time) / 2) + 0.5f) ,((sin(time) / 4) + 0.5f) };
 		//m_Transform.rotation_value = ((sin(time * 5)) + 0.5f);
@@ -138,7 +138,7 @@ void Mesh::Draw()
 	}
 
 	// Draw
-	glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);

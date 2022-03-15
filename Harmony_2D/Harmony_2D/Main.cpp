@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-static float WindowHeight = 1080, WindowWidth = 1080;
+static int WindowHeight = 1080, WindowWidth = 1080;
 static double DeltaTime = 0.0, LastFrame = 0.0, MouseX = 0.0, MouseY = 0.0;
 static bool IsMouseVisible = false, ExitProcess = false;
 
@@ -25,13 +25,6 @@ static void CalculateDeltaTime()
 	float currentFrame = (float)glfwGetTime();
 	DeltaTime = currentFrame - LastFrame;
 	LastFrame = currentFrame;
-}
-
-static inline void ErrorCallback(int _error, const char* _description)
-{
-	std::string message = "Error: %s\n";
-	message += +_description;
-	Print(message);
 }
 
 static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xPos, double _yPos)
@@ -65,7 +58,7 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 static inline void ScrollCallback(GLFWwindow* _renderWindow, double _xOffset, double _yOffset)
 {
 	if (SceneCamera)
-		SceneCamera->ProcessScroll(_yOffset);
+		SceneCamera->ProcessScroll((const float)_yOffset);
 }
 
 int main()
@@ -93,7 +86,6 @@ void InitGLFW()
 	glfwMakeContextCurrent(RenderWindow);
 
 	// Set Callback Functions
-	glfwSetErrorCallback(ErrorCallback);
 	glfwSetKeyCallback(RenderWindow, KeyCallback);
 	glfwSetCursorPosCallback(RenderWindow, CursorPositionCallback);
 	glfwSetMouseButtonCallback(RenderWindow, MouseButtonCallback);
