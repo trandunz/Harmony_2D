@@ -19,18 +19,7 @@ vec3 GrabPositionFromDepth();
 
 void main()
 {
-    FragColor = texture(Diffuse,TexCoords) * vec4(((sin(Time) / 2) + 0.5f),(1),(1),1.0f);
+    FragColor = texture(Diffuse,TexCoords);
     ID = Id;
     HitPosition = Model_pass * vec4(Position,1.0f);
 } 
-
-vec3 GrabPositionFromDepth()
-{
-    vec2 screenPos;
-    screenPos.x = ( gl_FragCoord.x - 1080 / 2.0 ) / ( 1080 / 2.0 );
-    screenPos.y = ( (1080 - gl_FragCoord.y) - 1080 / 2.0 ) / ( -1080 / 2.0 );
-    float D = Depth * 2.0 - 1.0; 
-    vec4 worldPos = inverse(Proj_pass * View_pass) * vec4( screenPos.x, screenPos.y, D, 1.0);
-    worldPos.xyz /= worldPos.w;
-    return worldPos.xyz;
-}

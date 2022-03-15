@@ -7,6 +7,9 @@ Camera::Camera(std::map<int, bool>& _keyMap, glm::vec3 _position, glm::vec3 _up,
     m_WorldUp = _up;
     m_Front = _front;
 
+    if (!m_IsPerspective)
+        m_MoveSpeed *= 1080;
+
     UpdateCameraVectors();
 }
 

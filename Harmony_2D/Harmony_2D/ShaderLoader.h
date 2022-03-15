@@ -60,15 +60,6 @@ public:
         glLinkProgram(program);
         glValidateProgram(program);
 
-        // Cleanup
-        //if (IsDebug)
-        //{
-        //    Print("Deleting Shaders");
-        //}
-        //glDeleteShader(vertShader);
-        //glDeleteShader(geoShader);
-        //glDeleteShader(fragShader);
-
         ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), _geoShader.data(), _fragmentShader.data() }, program));
 
         // Return Program ID
@@ -107,14 +98,6 @@ public:
         }
         glLinkProgram(program);
         glValidateProgram(program);
-
-        // Cleanup
-        //if (IsDebug)
-        //{
-        //    Print("Deleting Shaders");
-        //}
-        //glDeleteShader(vertShader);
-        //glDeleteShader(fragShader);
 
         ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), "", _fragmentShader.data() }, program));
 
