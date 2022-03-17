@@ -7,25 +7,56 @@ in vec3 Position;
 in vec2 TexCoords;
 
 uniform float Time;
-uniform int NumberOfAnimationFrames;
-uniform int CurrentAnimationFrame;
-uniform int IsAnimation;
-uniform sampler2D Texture0;
-uniform sampler2D Texture1;
 
-vec3 GrabPositionFromDepth();
+uniform int TextureCount;
+uniform int NumberOfAnimationFrames, CurrentAnimationFrame;
+uniform bool IsAnimation;
+
+uniform sampler2D Texture0, Texture1;
+
+float ClampedSin(float _value);
+vec4 ColourFromTexturesORWhite(vec2 _texCoords);
 
 void main()
 {
-    vec2 animatedFrameCoords;
-    if (IsAnimation  == 1)
+    if (IsAnimation  == true)
     {
+        vec2 animatedFrameCoords = TexCoords;
         animatedFrameCoords.x = (CurrentAnimationFrame + TexCoords.x) * (1.0f/NumberOfAnimationFrames);
+        FragColor = ColourFromTexturesORWhite(animatedFrameCoords);
     }
     else
     {
-        animatedFrameCoords.x = TexCoords.x; 
+        FragColor = ColourFromTexturesORWhite(TexCoords);
     }
-    animatedFrameCoords.y = TexCoords.y; 
-    FragColor = mix(texture(Texture0,animatedFrameCoords) ,texture(Texture1,animatedFrameCoords), ((sin(Time + (PI/2)))/2)+0.5f);
 } 
+
+// Clamps Sin Between 0 and 1
+float ClampedSin(float _value)
+{
+    return ((sin(_value + (PI/2)))/2) + 0.5f;
+}
+
+vec4 ColourFromTexturesORWhite(vec2 _texCoords)
+{
+    vec4 outputColour;
+    switch(TextureCount)
+    {
+        case 1:
+        {
+            outputColour = texture(Texture0,_texCoords);
+            break;
+        }
+        case 2:
+        {
+            outputColour = mix(texture(Texture0,_texCoords),texture(Texture1,_texCoords), ClampedSin(Time));
+            break;
+        }
+        default:
+        {
+            outputColour = vec4(1.0f,1.0f,1.0f,1.0f);
+            break;
+        }
+    }
+    return outputColour;
+}

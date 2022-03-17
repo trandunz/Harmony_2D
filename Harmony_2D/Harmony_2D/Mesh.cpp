@@ -1,11 +1,26 @@
 #include "Mesh.h"
 
-Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::vector<Texture>&& _textures, bool&& _animated)
+Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::vector<Texture>&& _textures)
 {
 	m_Camera = &_camera;
 	m_DeltaTime = &_deltaTime;
 	m_NumberOfSides = _numberOfSides;
-	m_Animated = _animated;
+
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (int i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
+	Init();
+}
+
+Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsigned&& _numberOfAnimationFrames, std::vector<Texture>&& _textures)
+{
+	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
+	m_NumberOfSides = _numberOfSides;
+	m_NumberOfAnimationFrames = _numberOfAnimationFrames;
+	m_Animated = true;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (int i = 0; i < _textures.size(); i++)
@@ -27,16 +42,27 @@ Mesh::~Mesh()
 	}
 	// Delete
 	{
-		glDeleteBuffers(1, &UniformBufferID);
-		glDeleteVertexArrays(1, &VertexArrayID);
-		glDeleteBuffers(1, &VertBufferID);
-		glDeleteBuffers(1, &IndexBufferID);
+		glDeleteBuffers(1, &m_UniformBufferID);
+		glDeleteVertexArrays(1, &m_VertexArrayID);
+		glDeleteBuffers(1, &m_VertBufferID);
+		glDeleteBuffers(1, &m_IndexBufferID);
 	}
 	m_Vertices.clear();
 	m_Indices.clear();
 	m_ActiveTextures.clear();
 	m_Camera = nullptr;
 	m_DeltaTime = nullptr;
+}
+
+void Mesh::SetAnimationFrame(unsigned _frame)
+{
+	if (m_Animated)
+	{
+		if (_frame <= m_NumberOfAnimationFrames)
+			m_CurrentAnimationFrame = _frame;
+		else
+			m_CurrentAnimationFrame = m_NumberOfAnimationFrames;
+	}
 }
 
 void Mesh::Init()
@@ -46,21 +72,21 @@ void Mesh::Init()
 	GeneratePolygonIndices(m_NumberOfSides);
 
 	// Create A Shader And Copy The ID
-	ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
-	glUseProgram(ShaderID);
+	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
+	glUseProgram(m_ShaderID);
 
 	// Vertex Array
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	glGenVertexArrays(1, &m_VertexArrayID);
+	glBindVertexArray(m_VertexArrayID);
 
 	// Vertex Buffer
-	glGenBuffers(1, &VertBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, VertBufferID);
+	glGenBuffers(1, &m_VertBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertBufferID);
 	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
 
 	// Index Buffer
-	glGenBuffers(1, &IndexBufferID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
+	glGenBuffers(1, &m_IndexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_STATIC_DRAW);
 
 	// Layouts
@@ -73,18 +99,25 @@ void Mesh::Init()
 
 	// Uniform Buffer
 	// Generate Uniform Buffer
-	glGenBuffers(1, &UniformBufferID);
+	glGenBuffers(1, &m_UniformBufferID);
 	// Get Block Binding Index (Similar To Get Location)
-	unsigned matrixBlockIndex = glGetUniformBlockIndex(ShaderID, "Matrices");
+	unsigned matrixBlockIndex = glGetUniformBlockIndex(m_ShaderID, "Matrices");
 	// Assign Binding Point To Uniform Block
-	glUniformBlockBinding(ShaderID, matrixBlockIndex, 0);
+	glUniformBlockBinding(m_ShaderID, matrixBlockIndex, 0);
 	// Bind Uniform Buffer
-	glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBufferID);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, UniformBufferID, 0, sizeof(glm::mat4));
+	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
 
 	// Scale The Mesh To The Texture Size
-	SetScale({ 200,200,0 });
+	if (m_Animated)
+	{
+		SetScaleToAnimationFrameSize();
+	}
+	else
+	{
+		ScaleToTexture();
+	}
 
 	// Unbind
 	glBindVertexArray(0);
@@ -97,15 +130,15 @@ void Mesh::Init()
 void Mesh::Draw()
 {
 	// Bind
-	glUseProgram(ShaderID);
-	glBindVertexArray(VertexArrayID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
+	glUseProgram(m_ShaderID);
+	glBindVertexArray(m_VertexArrayID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 
 	// Get PVMatrix From Camera
 	m_PVMatrix = m_Camera->GetPVMatrix();
 
 	// Bind Uniform Buffer
-	glBindBuffer(GL_UNIFORM_BUFFER, UniformBufferID);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBufferID);
 	// Stream In PVMat Data
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &m_PVMatrix[0]);
 	// Unbind Uniform Buffer
@@ -113,37 +146,41 @@ void Mesh::Draw()
 
 	// Uniforms
 	// Model Matrix
-	ShaderLoader::SetUniformMatrix4fv(ShaderID, "Model", m_Transform.tranform);
+	ShaderLoader::SetUniformMatrix4fv(m_ShaderID, "Model", m_Transform.tranform);
 	// Elapsed Time
-	ShaderLoader::SetUniform1f(ShaderID, "Time", (float)glfwGetTime());
+	ShaderLoader::SetUniform1f(m_ShaderID, "Time", (float)glfwGetTime());
 
 	// Textures
+	ShaderLoader::SetUniform1i(m_ShaderID, "TextureCount", (GLint)m_ActiveTextures.size());
 	for (int i = 0; i < m_ActiveTextures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
-		ShaderLoader::SetUniform1i(ShaderID, "Texture" + std::to_string(i), i);
+		ShaderLoader::SetUniform1i(m_ShaderID, "Texture" + std::to_string(i), i);
 	}
 
 	if (m_Animated)
 	{
-		ShaderLoader::SetUniform1i(ShaderID, "IsAnimation", 1);
-		ShaderLoader::SetUniform1i(ShaderID, "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
-		ShaderLoader::SetUniform1i(ShaderID, "CurrentAnimationFrame", m_CurrentAnimationFrame);
+		ShaderLoader::SetUniform1i(m_ShaderID, "IsAnimation", 1);
+		ShaderLoader::SetUniform1i(m_ShaderID, "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
+		ShaderLoader::SetUniform1i(m_ShaderID, "CurrentAnimationFrame", m_CurrentAnimationFrame);
 		
-		if (m_AnimationTimer > 0)
+		if (m_Animating)
 		{
-			m_AnimationTimer -= (float)*m_DeltaTime;
-		}
-		else
-		{
-			m_AnimationTimer = m_FrameTime_s;
-			m_CurrentAnimationFrame++;
+			if (m_AnimationTimer > 0)
+			{
+				m_AnimationTimer -= (float)*m_DeltaTime;
+			}
+			else
+			{
+				m_AnimationTimer = m_FrameTime_s;
+				m_CurrentAnimationFrame++;
+			}
 		}
 	}
 	else
 	{
-		ShaderLoader::SetUniform1i(ShaderID, "IsAnimation", 0);
+		ShaderLoader::SetUniform1i(m_ShaderID, "IsAnimation", 0);
 	}
 
 	// Draw
@@ -168,15 +205,36 @@ void Mesh::SetScale(glm::vec3&& _newScale)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
+void Mesh::Scale(glm::vec3&& _scaleFactor)
+{
+	m_Transform.scale *= _scaleFactor;
+	UpdateModelValueOfTransform(m_Transform);
+}
+
+void Mesh::SetScaleToAnimationFrameSize()
+{
+	SetScale({ m_ActiveTextures[0].Dimensions.x / m_NumberOfAnimationFrames ,m_ActiveTextures[0].Dimensions.y,0 });
+}
+
+void Mesh::ToggleAnimating()
+{
+	m_Animated ? m_Animating = !m_Animating : false;
+}
+
+bool Mesh::IsAnimating()
+{
+	return m_Animated ? m_Animating : false;
+}
+
 void Mesh::ScaleToTexture()
 {
-	SetScale({ m_ActiveTextures[0].Dimensions.x / 2,m_ActiveTextures[0].Dimensions.y / 2,0 });
+	SetScale({ m_ActiveTextures[0].Dimensions.x ,m_ActiveTextures[0].Dimensions.y ,0 });
 	UpdateModelValueOfTransform(m_Transform);
 }
 
 void Mesh::GeneratePolygonVertices(const int _numberOfSides)
 {
-	float angle = 0.0f, increment = TWOPI / _numberOfSides;
+	float angle = 0.0f, increment = (float)TWOPI / _numberOfSides;
 
 	// If Its A Sqaure, Turn It 45% Degrees
 	if (_numberOfSides == 4)

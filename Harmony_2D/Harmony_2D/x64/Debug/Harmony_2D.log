@@ -1,5 +1,2 @@
-﻿  Main.cpp
-  Mesh.cpp
-C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(179,32): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+﻿  ShaderLoader.cpp
   Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

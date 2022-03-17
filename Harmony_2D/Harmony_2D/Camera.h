@@ -4,45 +4,68 @@
 class Camera
 {
 public:
-    Camera(std::map<int, bool>& _keyMap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 2), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f));
+    /// <summary>
+    /// Camera Constructor Initalizes Paramter Values
+    /// </summary>
+    /// <param name="_keyMap"></param>
+    /// <param name="_position"></param>
+    Camera(std::map<int, bool>& _keyMap, glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f));
+    
+    /// <summary>
+    /// Cleans Up Any Pointers Or Objects (e.g KeyPresses*)
+    /// </summary>
     ~Camera();
 
-    inline glm::mat4 GetViewMatrix()
-    {
-        return glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-    }
-    inline glm::mat4 GetProjectionMatrix()
-    {
-        return m_IsPerspective ? glm::perspective(glm::radians(m_Zoom), 1080.0f / 1080.0f, 0.1f, 100.0f) : glm::ortho((float) - 1080 / 2, (float)1080 / 2, (float)-1080 / 2, (float)1080 / 2, 0.1f, 100.0f);
-    }
-    inline glm::mat4 GetPVMatrix()
-    {
-        return GetProjectionMatrix() * GetViewMatrix();
-    }
-
+    /// <summary>
+    /// Captures Camera Input
+    /// </summary>
     void Input();
+
+    /// <summary>
+    /// Handles Camera Movement Based On Input. Does Not Run If No Input.
+    /// </summary>
+    /// <param name="_dt"></param>
     void Movement(const long double& _dt);
-    void ProcessScroll(const float& _yoffset);
+
+    /// <summary>
+    /// Returns The Camera's Position
+    /// </summary>
+    /// <returns></returns>
     glm::vec3 GetPosition() { return m_Position; };
+
+    /// <summary>
+    /// Creates And Returns The Projection * View Matrix
+    /// </summary>
+    /// <returns></returns>
+    glm::mat4 GetPVMatrix();
 private:
-    void UpdateCameraVectors();
+
+    /// <summary>
+    /// Updates The Cameras Position Based On Input
+    /// </summary>
+    /// <param name="_dt"></param>
+    /// <returns></returns>
     bool UpdatePosition(const long double& _dt);
 
-    float m_Yaw = -90.0f;
-    float m_Pitch = 0.0f;
-    float m_MoveSpeed = 3.0f;
-    float m_Sensitivity = 0.5f;
-    float m_Zoom = 45.0f;
+    /// <summary>
+    /// Creeates And Returns The Cameras View Matrix
+    /// </summary>
+    /// <returns></returns>
+    glm::mat4 GetViewMatrix();
 
-    bool m_IsPerspective = false;
+    /// <summary>
+    /// Creates And Returns The Cameras Projection Matrix
+    /// </summary>
+    /// <returns></returns>
+    glm::mat4 GetProjectionMatrix();
 
+    float m_MoveSpeed = 1.0f;
     std::map<int, bool>* m_KeyPresses = nullptr;
 
-    glm::vec3 m_InputVec;
-    glm::vec3 m_Position;
-    glm::vec3 m_Front;
-    glm::vec3 m_Up;
-    glm::vec3 m_WorldUp;
-    glm::vec3 m_Right;
+    glm::vec3 m_InputVec{ 0,0,0 };
+    glm::vec3 m_Position{ 0,0,0 };
+    glm::vec3 m_Front{ 0,0,-1 };
+    glm::vec3 m_Up{0,1,0};
+    glm::vec3 m_Right{ 1,0,0 };
 };
 

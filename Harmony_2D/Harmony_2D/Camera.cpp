@@ -1,21 +1,29 @@
 #include "Camera.h"
 
-Camera::Camera(std::map<int, bool>& _keyMap, glm::vec3 _position, glm::vec3 _up, glm::vec3 _front)
+Camera::Camera(std::map<int, bool>& _keyMap, glm::vec3 _position)
 {
     m_KeyPresses = &_keyMap;
     m_Position = _position;
-    m_WorldUp = _up;
-    m_Front = _front;
-
-    if (!m_IsPerspective)
-        m_MoveSpeed *= 1080;
-
-    UpdateCameraVectors();
 }
 
 Camera::~Camera()
 {
     m_KeyPresses = nullptr;
+}
+
+glm::mat4 Camera::GetViewMatrix()
+{
+    return glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+}
+
+glm::mat4 Camera::GetProjectionMatrix()
+{
+    return glm::ortho((float)-1080 / 2, (float)1080 / 2, (float)-1080 / 2, (float)1080 / 2, 0.1f, 100.0f);
+}
+
+glm::mat4 Camera::GetPVMatrix()
+{
+    return GetProjectionMatrix() * GetViewMatrix();
 }
 
 void Camera::Movement(const long double& _dt)
@@ -26,17 +34,17 @@ void Camera::Movement(const long double& _dt)
 bool Camera::UpdatePosition(const long double& _dt)
 {
     bool moved = false;
-    float x = m_InputVec.x * m_MoveSpeed * (float)_dt;
-    float y = m_InputVec.y * m_MoveSpeed * (float)_dt;
+    float x = m_InputVec.x * m_MoveSpeed * 1080;
+    float y = m_InputVec.y * m_MoveSpeed * 1080;
 
     if (x >= 0.000000001f || x <= -0.000000001f)
     {
-        m_Position += m_Right * x;
+        m_Position += m_Right * x *(float)_dt;
         moved = true;
     }
     if (y >= 0.000000001f || y <= -0.000000001f)
     {
-        m_Position += m_Up * y;
+        m_Position += m_Up * y * (float)_dt;
         moved = true;
     }
 
@@ -82,27 +90,4 @@ void Camera::Input()
     }
 
     glm::normalize(m_InputVec);
-}
-
-void Camera::ProcessScroll(const float& yoffset)
-{
-    m_Zoom -= yoffset;
-
-    if (m_Zoom < 1.0f)
-        m_Zoom = 1.0f;
-    if (m_Zoom > 45.0f)
-        m_Zoom = 45.0f;
-}
-
-void Camera::UpdateCameraVectors()
-{
-    glm::vec3 newFront = 
-    {
-        cos(glm::radians(m_Yaw))* cos(glm::radians(m_Pitch)),
-        sin(glm::radians(m_Pitch)),
-        sin(glm::radians(m_Yaw))* cos(glm::radians(m_Pitch))
-    };
-    m_Front = glm::normalize(newFront);
-    m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
-    m_Up = glm::normalize(glm::cross(m_Right, m_Front));
 }

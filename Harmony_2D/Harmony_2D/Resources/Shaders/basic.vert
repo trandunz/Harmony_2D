@@ -10,7 +10,6 @@ layout (std140, binding = 0) uniform Matrices
 
 out vec3 Position;
 out vec2 TexCoords;
-out mat4 Model_pass;
 
 uniform mat4 Model;
 
@@ -18,6 +17,5 @@ void main()
 {
     Position = l_position;
     TexCoords = l_texCoords;
-    Model_pass = Model;
 	gl_Position = PVMatrix * Model * vec4(l_position,1.0f);
 }

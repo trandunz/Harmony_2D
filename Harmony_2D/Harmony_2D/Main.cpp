@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 static int WindowHeight = 1080, WindowWidth = 1080;
-static double DeltaTime = 0.0, LastFrame = 0.0, MouseX = 0.0, MouseY = 0.0;
+static double DeltaTime = 0.0, LastFrame = 0.0;
 static bool IsMouseVisible = false, ExitProcess = false;
 
 static Camera* SceneCamera = nullptr;
@@ -21,29 +21,24 @@ int Cleanup();
 void HandleKeymapActions();
 void HandleMouseVisible();
 
-static void CalculateDeltaTime()
+/// <summary>
+/// Calculates The Time Taken Between The Last Frame And The Current One
+/// </summary>
+static inline void CalculateDeltaTime()
 {
-	float currentFrame = (float)glfwGetTime();
+	double currentFrame = glfwGetTime();
 	DeltaTime = currentFrame - LastFrame;
 	LastFrame = currentFrame;
 }
 
-static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xPos, double _yPos)
-{
-	MouseX = _xPos;
-	MouseY = _yPos;
-}
-
-static inline void MouseButtonCallback(GLFWwindow* _renderWindow, int _button, int _action, int _mods)
-{
-	if (_action == GLFW_PRESS)
-	{
-	}
-	else if (_action == GLFW_RELEASE)
-	{
-	}
-}
-
+/// <summary>
+/// GLFW Key Callback Function
+/// </summary>
+/// <param name="_renderWindow"></param>
+/// <param name="_key"></param>
+/// <param name="_scanCode"></param>
+/// <param name="_action"></param>
+/// <param name="_mods"></param>
 static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCode, int _action, int _mods)
 {
 	// Collect Input
@@ -52,16 +47,15 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 	else if (_action == GLFW_RELEASE)
 		Keypresses[_key] = false;
 
+	// Handle Input
 	if (SceneCamera)
 		SceneCamera->Input();
 }
 
-static inline void ScrollCallback(GLFWwindow* _renderWindow, double _xOffset, double _yOffset)
-{
-	if (SceneCamera)
-		SceneCamera->ProcessScroll((const float)_yOffset);
-}
-
+/// <summary>
+/// Main Thread Function
+/// </summary>
+/// <returns></returns>
 int main()
 {
 	Start();
@@ -69,6 +63,9 @@ int main()
 	return Cleanup();
 }
 
+/// <summary>
+/// Initalizes GLFW With Window Hints, Callback Functions
+/// </summary>
 void InitGLFW()
 {
 	// Init GLFW
@@ -88,54 +85,80 @@ void InitGLFW()
 
 	// Set Callback Functions
 	glfwSetKeyCallback(RenderWindow, KeyCallback);
-	glfwSetCursorPosCallback(RenderWindow, CursorPositionCallback);
-	glfwSetMouseButtonCallback(RenderWindow, MouseButtonCallback);
-	glfwSetScrollCallback(RenderWindow, ScrollCallback);
-
-	// Check For Mouse Visible
-	HandleMouseVisible();
 }
 
+/// <summary>
+/// Initalizes GLEW, Enables Culling, Enables 1-Alpha Blending, Sets Clear Color For Default FrameBuffer (Grey)
+/// </summary>
 void InitGLEW()
 {
 	// Init Glew
 	if (glewInit() != GLEW_OK)
 		Print("Failed to Initalise GLEW");
 
+	// Enable Culling
 	glEnable(GL_CULL_FACE);
+	// Enable Blending
 	glEnable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	// Set Blending To Handle Alpha On Texture
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+	// Set Window Clear Colour To Gray
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
+/// <summary>
+/// Main Initalization Function That Gets Called When The Proccess Open's
+/// </summary>
 void Start()
 {
 	InitGLFW();
 	InitGLEW();
 
+	// Update Mouse Visible Based On Default Value
+	HandleMouseVisible();
+	
+	// Initialize Texture Loader
 	TextureLoader::Init();
 
-	SceneCamera = new Camera(Keypresses);
+	// Create The Scene Camera
+	SceneCamera = new Camera(Keypresses, {0,0,1});
 
-	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4,
-		{ TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")}
-		, true);
-	CapGuyMesh->SetPosition({ 0.0f, -1080 / 4, 0 });
+	// Quad / Cap Guy Mesh
+	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4, 8,
+		{ 
+			TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")
+		});
+	// Set Its Position To Bottom Middle
+	CapGuyMesh->SetPosition({ 0.0f, -WindowHeight / 4, 0 });
+	// Start Animation
+	CapGuyMesh->ToggleAnimating();
+	// Set Starting Animation Frame
+	CapGuyMesh->SetAnimationFrame(0);
 
-	for (int i = 0; i < 1; i++)
+	//  Hexagon Mesh
+	HexagonMeshes.push_back(new Mesh(*SceneCamera, DeltaTime, 6,
+		{
+			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),
+			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")
+		}));
+	
+
+	// Scale Both Hexagons To Half There Size
+	for (auto& item : HexagonMeshes)
 	{
-		HexagonMeshes.push_back(new Mesh(*SceneCamera, DeltaTime, 6, 
-			{ TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")}));
+		item->Scale({ 0.5f, 0.5f, 1.0f });
 	}
 }
 
+/// <summary>
+/// Main Update Function That Gets Called Every Frame
+/// </summary>
 void Update()
 {
 	while (ExitProcess == false)
 	{
-		// Clear Default Frame Buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Clear Default Frame Buffer Of Colour
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Calculate DeltaTime
 		CalculateDeltaTime();
@@ -157,24 +180,32 @@ void Update()
 	}
 }
 
+/// <summary>
+/// Main Render Function That Draws To The Screen At The End Of Every Frame
+/// </summary>
 void Render()
 {
 	// Draw Hexagon Meshes
 	for (auto& item : HexagonMeshes)
 	{
-		item->SetPosition({ 1080 / 4, 1080 / 4, 0 });
+		item->SetPosition({ WindowWidth / 4, WindowHeight / 4, 0 });
 		item->Draw();
-		item->SetPosition({ -1080 / 4, 1080 / 4, 0 });
+		item->SetPosition({ -WindowWidth / 4, WindowHeight / 4, 0 });
 		item->Draw();
 	}
 
 	// Draw Cap Guy
 	CapGuyMesh->Draw();
 
-	// Swap Buffers
+	// Swap Front Buffer And Back Buffer
 	glfwSwapBuffers(RenderWindow);
 }
 
+/// <summary>
+/// Returns Main Thread Exit Code.
+/// Handles Cleaning Up Any Pointers Or Vectors Created In The Main Implementation File.
+/// </summary>
+/// <returns></returns>
 int Cleanup()
 {
 	// Cleanup All Meshes
@@ -202,10 +233,13 @@ int Cleanup()
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 
-	// Return Main Thread Exit Code
+	// Return Main Thread Exit Code (0)
 	return EXIT_SUCCESS;
 }
 
+/// <summary>
+/// Handles All Window Related Input Actions
+/// </summary>
 void HandleKeymapActions()
 {
 	for (auto& item : Keypresses)
@@ -216,7 +250,9 @@ void HandleKeymapActions()
 			{
 			case GLFW_KEY_TAB:
 			{
+				// Toggle Mouse Visible
 				IsMouseVisible = !IsMouseVisible;
+				// Update Based On Bool
 				HandleMouseVisible();
 
 				// On Button Down Instead Of Hold
@@ -239,6 +275,9 @@ void HandleKeymapActions()
 	}
 }
 
+/// <summary>
+/// Disable Or Enables The Mouse Curson Depending On Bool IsMouseVisible
+/// </summary>
 void HandleMouseVisible()
 {
 	if (IsMouseVisible)
