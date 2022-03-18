@@ -85,7 +85,14 @@ public:
 	/// Requires the mesh to be animated.
 	/// </summary>
 	/// <param name="_frame"></param>
-	void SetAnimationFrame(unsigned _frame);
+	void SetAnimationFrame(unsigned&& _frame);
+
+	/// <summary>
+	/// Sets the value m_TextureFadeSpeed to _newSpeed.
+	/// Modulates the speed in which two textures fade between eachother.
+	/// </summary>
+	/// <param name="_newSpeed"></param>
+	void SetTextureFadeSpeed(float&& _newSpeed);
 private:
 	/// <summary>
 	/// Initializes the mesh ready for drawing. Will be called on mesh construction.
@@ -141,6 +148,7 @@ private:
 	unsigned m_NumberOfAnimationFrames = 8;
 	float m_FrameTime_s = 0.09f;
 	float m_AnimationTimer = 0.0f;
+	float m_TextureFadeSpeed = 1.0f;
 
 	glm::mat4 m_PVMatrix;
 	Transform m_Transform;

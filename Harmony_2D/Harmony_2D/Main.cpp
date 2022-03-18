@@ -7,7 +7,7 @@ static bool IsMouseVisible = false, ExitProcess = false;
 static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
-static std::vector<Mesh*> HexagonMeshes;
+static Mesh* HexagonMesh = nullptr;
 static Mesh* CapGuyMesh = nullptr;
 
 void InitGLFW();
@@ -151,18 +151,16 @@ void Start()
 	CapGuyMesh->SetAnimationFrame(0);
 
 	//  Hexagon Mesh
-	HexagonMeshes.push_back(new Mesh(*SceneCamera, DeltaTime, 6,
+	HexagonMesh = new Mesh(*SceneCamera, DeltaTime, 6,
 		{
 			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),
 			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")
-		}));
+		});
 	
 
 	// Scale Both Hexagons To Half There Size
-	for (auto& item : HexagonMeshes)
-	{
-		item->Scale({ 0.5f, 0.5f, 1.0f });
-	}
+	HexagonMesh->Scale({ 0.5f, 0.5f, 1.0f });
+	HexagonMesh->SetTextureFadeSpeed(0.5f);
 }
 
 /// <summary>
@@ -200,14 +198,14 @@ void Update()
 /// </summary>
 void Render()
 {
-	// Draw Hexagon Meshes
-	for (auto& item : HexagonMeshes)
-	{
-		item->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
-		item->Draw();
-		item->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
-		item->Draw();
-	}
+	// Draw Hexagon Meshes (2)
+	// First
+	HexagonMesh->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
+	HexagonMesh->Draw();
+
+	// Second
+	HexagonMesh->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
+	HexagonMesh->Draw();
 
 	// Draw Cap Guy
 	CapGuyMesh->Draw();
@@ -223,17 +221,12 @@ void Render()
 /// <returns></returns>
 int Cleanup()
 {
-	// Cleanup All Meshes
-	for (auto& item : HexagonMeshes)
-	{
-		if (item != nullptr)
-		{
-			delete item;
-		}
-		item = nullptr;
-	}
-	HexagonMeshes.clear();
+	// Cleanup Hexagons
+	if (HexagonMesh != nullptr)
+		delete HexagonMesh;
+	HexagonMesh = nullptr;
 
+	// Cleanup Cap Guy
 	if (CapGuyMesh != nullptr)
 		delete CapGuyMesh;
 	CapGuyMesh = nullptr;
@@ -247,7 +240,7 @@ int Cleanup()
 	glfwDestroyWindow(RenderWindow);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
-
+	
 	// Return Main Thread Exit Code (0)
 	return EXIT_SUCCESS;
 }

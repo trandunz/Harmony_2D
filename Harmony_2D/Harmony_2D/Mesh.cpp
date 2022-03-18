@@ -58,7 +58,7 @@ Mesh::~Mesh()
 	m_DeltaTime = nullptr;
 }
 
-void Mesh::SetAnimationFrame(unsigned _frame)
+void Mesh::SetAnimationFrame(unsigned&& _frame)
 {
 	if (m_Animated)
 	{
@@ -67,6 +67,11 @@ void Mesh::SetAnimationFrame(unsigned _frame)
 		else
 			m_CurrentAnimationFrame = m_NumberOfAnimationFrames;
 	}
+}
+
+void Mesh::SetTextureFadeSpeed(float&& _newSpeed)
+{
+	m_TextureFadeSpeed = _newSpeed;
 }
 
 void Mesh::Init()
@@ -152,7 +157,7 @@ void Mesh::Draw()
 	// Model Matrix
 	ShaderLoader::SetUniformMatrix4fv(m_ShaderID, "Model", m_Transform.tranform);
 	// Elapsed Time
-	ShaderLoader::SetUniform1f(m_ShaderID, "Time", (float)glfwGetTime());
+	ShaderLoader::SetUniform1f(m_ShaderID, "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
 
 	// Textures
 	ShaderLoader::SetUniform1i(m_ShaderID, "TextureCount", (GLint)m_ActiveTextures.size());
