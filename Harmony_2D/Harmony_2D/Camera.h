@@ -9,10 +9,10 @@ public:
     /// </summary>
     /// <param name="_keyMap"></param>
     /// <param name="_position"></param>
-    Camera(std::map<int, bool>& _keyMap, glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera(glm::ivec2& _windowSize, std::map<int, bool>& _keyMap, glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f));
     
     /// <summary>
-    /// Cleans Up Any Pointers Or Objects (e.g KeyPresses*)
+    /// Cleans Up Any Pointers Or Objects (e.g KeyPresses*, WidnowSize*)
     /// </summary>
     ~Camera();
 
@@ -38,6 +38,24 @@ public:
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetPVMatrix();
+
+    /// <summary>
+    /// Sets the near and far plane of the camera in that order ({newNear, newFar}).
+    /// </summary>
+    /// <param name="_nearAndFar"></param>
+    void SetNearAndFarPlane(glm::vec2 _nearAndFar);
+
+    /// <summary>
+    /// Returns the value of the nearPlane.
+    /// </summary>
+    /// <returns></returns>
+    inline float GetNearPlane() { return m_NearPlane; }
+
+    /// <summary>
+    /// Returns the value of the farPlane.
+    /// </summary>
+    /// <returns></returns>
+    inline float GetFarPlane() { return m_FarPlane; }
 private:
 
     /// <summary>
@@ -61,7 +79,9 @@ private:
 
     float m_MoveSpeed = 1.0f;
     std::map<int, bool>* m_KeyPresses = nullptr;
+    glm::ivec2* m_WindowSize = nullptr;
 
+    float m_NearPlane = 0.1f, m_FarPlane = 100.0f;
     glm::vec3 m_InputVec{ 0,0,0 };
     glm::vec3 m_Position{ 0,0,0 };
     glm::vec3 m_Front{ 0,0,-1 };

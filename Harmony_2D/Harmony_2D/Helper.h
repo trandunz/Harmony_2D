@@ -15,25 +15,36 @@
 #define TWOPI 6.283185307186
 #define THREEPI 9.42477796077
 
+/// <summary>
+/// ShaderProgramLocation struct that encapuslates the file paths of a programs shaders.
+/// </summary>
 struct ShaderProgramLocation
 {
     const char* vertShader;
-    const char* geoShader;
     const char* fragShader;
 };
 
+/// <summary>
+/// UniformLocation struct that encapsulates the uniforms program and location.
+/// </summary>
 struct UniformLocation
 {
     GLuint program;
     const char* location;
 };
 
+/// <summary>
+/// Vertex struct that encapsulates Positional data and textureCoordinates
+/// </summary>
 struct Vertex
 {
 	glm::vec3 position;
 	glm::vec2 texCoords;
 };
 
+/// <summary>
+/// Transform struct that encapsulates positional data such as translation, rotation and scale.
+/// </summary>
 struct Transform
 {
     glm::mat4 tranform = glm::mat4(1);
@@ -43,6 +54,10 @@ struct Transform
     GLfloat rotation_value = 0.0f;
 };
 
+/// <summary>
+/// Texture Struct that contains the ID of the texture, 
+/// Its dimentions and its filePath.
+/// </summary>
 struct Texture
 {
 	GLuint ID = 0;
@@ -50,6 +65,12 @@ struct Texture
 	const char* FilePath = "";
 };
 
+/// <summary>
+/// Updates the provided transform's model matrix with 
+/// its positional, rotational and scaling values.
+/// </summary>
+/// <param name="_transform"></param>
+/// <returns></returns>
 static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 {
 	_transform.tranform = glm::mat4(1);
@@ -64,16 +85,28 @@ static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 	return _transform.tranform;
 }
 
+/// <summary>
+/// Prints the given string withought a heap allocation to the console output stream.
+/// </summary>
+/// <param name="_string"></param>
 static inline void Print(std::string_view _string)
 {
 	std::cout << _string << std::endl;
 }
 
+/// <summary>
+/// Prints the given integer to the console output stream.
+/// </summary>
+/// <param name="_int"></param>
 static inline void Print(const int&& _int)
 {
 	std::cout << _int << std::endl;
 }
 
+/// <summary>
+/// Prints the given float to the console output Stream.
+/// </summary>
+/// <param name="_float"></param>
 static inline void Print(const float&& _float)
 {
 	std::cout << _float << std::endl;

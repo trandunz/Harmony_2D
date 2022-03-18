@@ -11,6 +11,8 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
+
+	// Create and initalize the mesh ready for drawing
 	Init();
 }
 
@@ -27,6 +29,8 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsig
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
+	
+	// Create and initalize the mesh ready for drawing
 	Init();
 }
 
@@ -109,7 +113,7 @@ void Mesh::Init()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
 
-	// Scale The Mesh To The Texture Size
+	// Scale The Mesh To The Texture OR Animation Frame Size
 	if (m_Animated)
 	{
 		SetScaleToAnimationFrameSize();
@@ -159,12 +163,14 @@ void Mesh::Draw()
 		ShaderLoader::SetUniform1i(m_ShaderID, "Texture" + std::to_string(i), i);
 	}
 
+	// Animated Texture / Sprite Sheet
 	if (m_Animated)
 	{
 		ShaderLoader::SetUniform1i(m_ShaderID, "IsAnimation", 1);
 		ShaderLoader::SetUniform1i(m_ShaderID, "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
 		ShaderLoader::SetUniform1i(m_ShaderID, "CurrentAnimationFrame", m_CurrentAnimationFrame);
 		
+		// If animating then change current frame to next with some delay m_FrameTime_s
 		if (m_Animating)
 		{
 			if (m_AnimationTimer > 0)
@@ -242,7 +248,6 @@ void Mesh::GeneratePolygonVertices(const int _numberOfSides)
 		GenerateGenericQuadVertices();
 		return;
 	}
-		
 
 	// Centre
 	m_Vertices.emplace_back(Vertex{{0.0f,  0.0f, 0.0f}, {0.5f,0.5f}});

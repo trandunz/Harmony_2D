@@ -22,7 +22,7 @@ GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_vi
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_ShaderPrograms)
     {
-        if (item.first.vertShader == _vertexShader && item.first.geoShader == "" && item.first.fragShader == _fragmentShader)
+        if (item.first.vertShader == _vertexShader && item.first.fragShader == _fragmentShader)
         {
             if (IsDebug)
             {
@@ -74,7 +74,7 @@ GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_vi
     }
 
     // Push The New Shader Program To Vector
-    m_ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), "", _fragmentShader.data() }, program));
+    m_ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), _fragmentShader.data() }, program));
 
     // Return Program ID
     return program;

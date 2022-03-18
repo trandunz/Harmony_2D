@@ -6,30 +6,126 @@
 class Mesh
 {
 public:
+	/// <summary>
+	/// Non-Animated Mesh Constructor
+	/// </summary>
+	/// <param name="_camera"></param>
+	/// <param name="_deltaTime"></param>
+	/// <param name="_numberOfSides"></param>
+	/// <param name="_textures"></param>
 	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, std::vector<Texture>&& _textures = {});
+
+	/// <summary>
+	/// Animated Mesh Contructor
+	/// </summary>
+	/// <param name="_camera"></param>
+	/// <param name="_deltaTime"></param>
+	/// <param name="_numberOfSides"></param>
+	/// <param name="_numberOfAnimationFrames"></param>
+	/// <param name="_textures"></param>
 	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, unsigned&& _numberOfAnimationFrames = 8, std::vector<Texture>&& _textures = {});
+	
+	/// <summary>
+	/// Cleans Up Mesh Data
+	/// </summary>
 	~Mesh();
 
+	/// <summary>
+	/// Handles Drawing The Mesh. If IsAnimating() is true then animtation will play
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// Returns the Transform of the Mesh
+	/// </summary>
+	/// <returns></returns>
 	inline Transform& GetTransform() { return m_Transform; }
+
+	/// <summary>
+	/// Sets the meshes transform translation to the specified Vec3
+	/// </summary>
+	/// <param name="_newPos"></param>
 	void SetPosition(glm::vec3&& _newPos);
+
+	/// <summary>
+	/// Sets the meshes transform scale to the specified Vec3
+	/// </summary>
+	/// <param name="_newScale"></param>
 	void SetScale(glm::vec3&& _newScale);
+
+	/// <summary>
+	/// Scales the meshes transform by specified amount
+	/// </summary>
+	/// <param name="_scaleFactor"></param>
 	void Scale(glm::vec3&& _scaleFactor);
+
+	/// <summary>
+	/// Scales the mesh to the size of one animation frame. 
+	/// Requires the mesh to be animated.
+	/// </summary>
 	void SetScaleToAnimationFrameSize();
 	
+	/// <summary>
+	/// Toggles animating if the mesh is marked as animated.
+	/// </summary>
 	void ToggleAnimating();
+
+	/// <summary>
+	/// Returns true or false based on the animation state of the mesh. 
+	/// Requires the mesh to be animated.
+	/// </summary>
+	/// <returns></returns>
 	bool IsAnimating();
+
+	/// <summary>
+	/// Sets the current animation frame. 
+	/// Negative Values Are counted as positive. 
+	/// SpriteSheet starts at frame 0.
+	/// Values larger than the maxFrameCount will be clamped to the maxFrameCount.
+	/// Requires the mesh to be animated.
+	/// </summary>
+	/// <param name="_frame"></param>
 	void SetAnimationFrame(unsigned _frame);
 private:
+	/// <summary>
+	/// Initializes the mesh ready for drawing. Will be called on mesh construction.
+	/// </summary>
 	void Init();
 
+	/// <summary>
+	/// Scales the mesh to the size of its first active texture. (In Pixels)
+	/// </summary>
 	void ScaleToTexture();
+
+	/// <summary>
+	/// Populates the indices array with values for a polygon of N sides.
+	/// Default Side count is 6. (Hexagon)
+	/// </summary>
+	/// <param name="_numberOfSides"></param>
 	void GeneratePolygonIndices(const int _numberOfSides = 6);
+
+	/// <summary>
+	/// Populates the vertex array with values for a polygon of N Sides.
+	/// Default Side count is 6. (Hexagon)
+	/// </summary>
+	/// <param name="_numberOfSides"></param>
 	void GeneratePolygonVertices(const int _numberOfSides = 6);
+
+	/// <summary>
+	/// Populates the vertex array with values for a generic quad.
+	/// </summary>
 	void GenerateGenericQuadVertices();
+
+	/// <summary>
+	/// Populates the indices array with values for a generic quad.
+	/// </summary>
 	void GenerateGenericQuadIndices();
 
+	/// <summary>
+	/// Converts a given positional value (e.g xPos) to texture coordinate space. (0.0f->1.0f)
+	/// </summary>
+	/// <param name="_position"></param>
+	/// <returns></returns>
 	float ToTexCoord(float _position);
 
 	GLuint m_ShaderID;

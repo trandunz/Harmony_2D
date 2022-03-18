@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-static int WindowHeight = 1080, WindowWidth = 1080;
+static glm::ivec2 WindowSize{ 1080,1080 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
 static bool IsMouseVisible = false, ExitProcess = false;
 
@@ -29,6 +29,20 @@ static inline void CalculateDeltaTime()
 	double currentFrame = glfwGetTime();
 	DeltaTime = currentFrame - LastFrame;
 	LastFrame = currentFrame;
+}
+
+/// <summary>
+/// Handles Window Resizing.
+/// Calls GlViewPort(0,0,newWidth,newHeight).
+/// Sets WindowSize = {newWidth,newHeight}.
+/// </summary>
+/// <param name="_renderWindow"></param>
+/// <param name="_width"></param>
+/// <param name="_height"></param>
+static inline void WindowResizeCallback(GLFWwindow* _renderWindow, int _width, int _height)
+{
+	glViewport(0, 0, _width, _height);
+	WindowSize = { _width , _height};
 }
 
 /// <summary>
@@ -78,13 +92,14 @@ void InitGLFW()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create Window
-	RenderWindow = glfwCreateWindow(WindowWidth, WindowHeight, "GD1P04 - Assessment 1", NULL, NULL);
+	RenderWindow = glfwCreateWindow(WindowSize.x, WindowSize.y, "GD1P04 - Assessment 1", NULL, NULL);
 
 	// Set Context To New Window
 	glfwMakeContextCurrent(RenderWindow);
 
 	// Set Callback Functions
 	glfwSetKeyCallback(RenderWindow, KeyCallback);
+	glfwSetWindowSizeCallback(RenderWindow, WindowResizeCallback);
 }
 
 /// <summary>
@@ -121,7 +136,7 @@ void Start()
 	TextureLoader::Init();
 
 	// Create The Scene Camera
-	SceneCamera = new Camera(Keypresses, {0,0,1});
+	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,1});
 
 	// Quad / Cap Guy Mesh
 	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4, 8,
@@ -129,7 +144,7 @@ void Start()
 			TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")
 		});
 	// Set Its Position To Bottom Middle
-	CapGuyMesh->SetPosition({ 0.0f, -WindowHeight / 4, 0 });
+	CapGuyMesh->SetPosition({ 0.0f, -WindowSize.y / 4, 0 });
 	// Start Animation
 	CapGuyMesh->ToggleAnimating();
 	// Set Starting Animation Frame
@@ -188,9 +203,9 @@ void Render()
 	// Draw Hexagon Meshes
 	for (auto& item : HexagonMeshes)
 	{
-		item->SetPosition({ WindowWidth / 4, WindowHeight / 4, 0 });
+		item->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
 		item->Draw();
-		item->SetPosition({ -WindowWidth / 4, WindowHeight / 4, 0 });
+		item->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
 		item->Draw();
 	}
 
