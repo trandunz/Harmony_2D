@@ -119,8 +119,8 @@ void InitGLEW()
 	glEnable(GL_BLEND);
 	// Set Blending To Handle Alpha On Texture
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Set Window Clear Colour To Gray
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	// Set Window Clear Colour To Sky Blue
+	glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
 }
 
 /// <summary>
@@ -140,7 +140,8 @@ void Start()
 		"Resources/Textures/path.jpg",
 		"Resources/Textures/AwesomeFace.png",
 		"Resources/Textures/Rayman.jpg" ,
-		"Resources/Textures/Raven.png"
+		"Resources/Textures/Raven.png",
+		"Resources/Textures/Gull.jpg"
 		});
 
 	// Create The Scene Camera
@@ -191,7 +192,7 @@ void Start()
 	HexagonMesh2 = new Mesh(std::move(HexagonMesh->GetVertexArrayID()), *SceneCamera, DeltaTime, 6,
 		{
 			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
-			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png")
+			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")
 		});
 	// Set To Half Current Size
 	HexagonMesh2->SetScale(std::move(HexagonMesh->GetTransform().scale));
