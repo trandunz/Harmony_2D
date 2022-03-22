@@ -26,6 +26,25 @@ public:
 	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, unsigned&& _numberOfAnimationFrames = 8, std::vector<Texture>&& _textures = {});
 	
 	/// <summary>
+	/// Non-Animated Mesh Constructor With Copied VAO (VBO & EBO)
+	/// </summary>
+	/// <param name="_camera"></param>
+	/// <param name="_deltaTime"></param>
+	/// <param name="_numberOfSides"></param>
+	/// <param name="_textures"></param>
+	Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, std::vector<Texture>&& _textures = {});
+
+	/// <summary>
+	/// Animated Mesh Contructor With Copied VAO (VBO & EBO)
+	/// </summary>
+	/// <param name="_camera"></param>
+	/// <param name="_deltaTime"></param>
+	/// <param name="_numberOfSides"></param>
+	/// <param name="_numberOfAnimationFrames"></param>
+	/// <param name="_textures"></param>
+	Mesh(GLuint&& _vertexArrayID, Camera & _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, unsigned&& _numberOfAnimationFrames = 8, std::vector<Texture>&& _textures = {});
+
+	/// <summary>
 	/// Cleans Up Mesh Data
 	/// </summary>
 	~Mesh();
@@ -58,6 +77,19 @@ public:
 	/// </summary>
 	/// <param name="_scaleFactor"></param>
 	void Scale(glm::vec3&& _scaleFactor);
+
+	/// <summary>
+	/// Sets the meshes transform rotation to the specified values
+	/// </summary>
+	/// <param name="_newScale"></param>
+	void SetRotation(glm::vec3&& _axis, float&& _degrees);
+
+	/// <summary>
+	/// Rotates the meshes transform by the specified amount
+	/// </summary>
+	/// <param name="_axis"></param>
+	/// <param name="_value"></param>
+	void Rotate(glm::vec3&& _axis, float&& _degrees);
 
 	/// <summary>
 	/// Scales the mesh to the size of one animation frame. 
@@ -93,11 +125,22 @@ public:
 	/// </summary>
 	/// <param name="_newSpeed"></param>
 	void SetTextureFadeSpeed(float&& _newSpeed);
+
+	/// <summary>
+	/// Returns the VAO (VBO & EBO) ID of the Mesh
+	/// </summary>
+	/// <returns></returns>
+	GLuint& GetVertexArrayID() { return m_VertexArrayID; }
 private:
 	/// <summary>
 	/// Initializes the mesh ready for drawing. Will be called on mesh construction.
 	/// </summary>
 	void Init();
+
+	/// <summary>
+	/// Initializes the mesh ready for drawing using the already created VAO (VBO & EBO). Will be called on mesh construction.
+	/// </summary>
+	void Init(GLuint& _vertexArrayID);
 
 	/// <summary>
 	/// Scales the mesh to the size of its first active texture. (In Pixels)
@@ -136,9 +179,9 @@ private:
 	float ToTexCoord(float _position);
 
 	GLuint m_ShaderID;
-	GLuint m_VertBufferID;
-	GLuint m_IndexBufferID;
 	GLuint m_VertexArrayID;
+	GLuint m_VertexBufferID;
+	GLuint m_IndexBufferID;
 	GLuint m_UniformBufferID;
 	bool m_Animated = false;
 	bool m_Animating = false;

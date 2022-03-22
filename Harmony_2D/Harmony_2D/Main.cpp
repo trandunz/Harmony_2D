@@ -8,6 +8,7 @@ static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
 static Mesh* HexagonMesh = nullptr;
+static Mesh* HexagonMesh2 = nullptr;
 static Mesh* CapGuyMesh = nullptr;
 
 void InitGLFW();
@@ -114,9 +115,9 @@ void InitGLEW()
 	// Enable Culling
 	glEnable(GL_CULL_FACE);
 	// Enable Blending
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	// Set Blending To Handle Alpha On Texture
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Set Window Clear Colour To Gray
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
@@ -150,17 +151,31 @@ void Start()
 	// Set Starting Animation Frame
 	CapGuyMesh->SetAnimationFrame(0);
 
-	//  Hexagon Mesh
+	// First Hexagon Mesh
 	HexagonMesh = new Mesh(*SceneCamera, DeltaTime, 6,
 		{
 			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),
 			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")
 		});
-	
-
-	// Scale Both Hexagons To Half There Size
+	// Set To Half Current Size
 	HexagonMesh->Scale({ 0.5f, 0.5f, 1.0f });
+	// Set Fade Speed
 	HexagonMesh->SetTextureFadeSpeed(0.5f);
+	// Set Position
+	HexagonMesh->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
+
+	// Second Hexagon Mesh
+	HexagonMesh2 = new Mesh(std::move(HexagonMesh->GetVertexArrayID()), *SceneCamera, DeltaTime, 6,
+		{
+			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
+			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png")
+		});
+	// Set To Half Current Size
+	HexagonMesh2->SetScale(std::move(HexagonMesh->GetTransform().scale));
+	// Set Fade Speed
+	HexagonMesh2->SetTextureFadeSpeed(0.5f);
+	// Set Position
+	HexagonMesh2->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
 }
 
 /// <summary>
@@ -188,6 +203,8 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
+		HexagonMesh->Rotate({ 0,0,1 }, DeltaTime * 10);
+
 		// Main Render
 		Render();
 	}
@@ -198,14 +215,11 @@ void Update()
 /// </summary>
 void Render()
 {
-	// Draw Hexagon Meshes (2)
-	// First
-	HexagonMesh->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
+	// First Hexagon
 	HexagonMesh->Draw();
 
-	// Second
-	HexagonMesh->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
-	HexagonMesh->Draw();
+	// Second Hexagon
+	HexagonMesh2->Draw();
 
 	// Draw Cap Guy
 	CapGuyMesh->Draw();
@@ -225,6 +239,10 @@ int Cleanup()
 	if (HexagonMesh != nullptr)
 		delete HexagonMesh;
 	HexagonMesh = nullptr;
+
+	if (HexagonMesh2 != nullptr)
+		delete HexagonMesh2;
+	HexagonMesh2 = nullptr;
 
 	// Cleanup Cap Guy
 	if (CapGuyMesh != nullptr)

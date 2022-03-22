@@ -34,6 +34,41 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsig
 	Init();
 }
 
+Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::vector<Texture>&& _textures)
+{
+	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
+	m_NumberOfSides = _numberOfSides;
+	m_VertexArrayID = _vertexArrayID;
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (int i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
+
+	// Create and initalize the mesh ready for drawing
+	Init(_vertexArrayID);
+}
+
+Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsigned&& _numberOfAnimationFrames, std::vector<Texture>&& _textures)
+{
+	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
+	m_NumberOfSides = _numberOfSides;
+	m_NumberOfAnimationFrames = _numberOfAnimationFrames;
+	m_Animated = true;
+	m_VertexArrayID = _vertexArrayID;
+
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (int i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
+
+	// Create and initalize the mesh ready for drawing
+	Init(_vertexArrayID);
+}
+
 Mesh::~Mesh()
 {
 	// Unbind
@@ -48,7 +83,7 @@ Mesh::~Mesh()
 	{
 		glDeleteBuffers(1, &m_UniformBufferID);
 		glDeleteVertexArrays(1, &m_VertexArrayID);
-		glDeleteBuffers(1, &m_VertBufferID);
+		glDeleteBuffers(1, &m_VertexBufferID);
 		glDeleteBuffers(1, &m_IndexBufferID);
 	}
 	m_Vertices.clear();
@@ -89,8 +124,8 @@ void Mesh::Init()
 	glBindVertexArray(m_VertexArrayID);
 
 	// Vertex Buffer
-	glGenBuffers(1, &m_VertBufferID);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertBufferID);
+	glGenBuffers(1, &m_VertexBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
 	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
 
 	// Index Buffer
@@ -136,12 +171,50 @@ void Mesh::Init()
 	glUseProgram(0);
 }
 
+void Mesh::Init(GLuint& _vertexArray)
+{
+	// Generate N Sided Polygon
+	GeneratePolygonVertices(m_NumberOfSides);
+	GeneratePolygonIndices(m_NumberOfSides);
+
+	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
+	glUseProgram(m_ShaderID);
+
+	glBindVertexArray(m_VertexArrayID);
+
+	// Uniform Buffer
+	// Generate Uniform Buffer
+	glGenBuffers(1, &m_UniformBufferID);
+	// Get Block Binding Index (Similar To Get Location)
+	unsigned matrixBlockIndex = glGetUniformBlockIndex(m_ShaderID, "Matrices");
+	// Assign Binding Point To Uniform Block
+	glUniformBlockBinding(m_ShaderID, matrixBlockIndex, 0);
+	// Bind Uniform Buffer
+	glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBufferID);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
+
+	// Scale The Mesh To The Texture OR Animation Frame Size
+	if (m_Animated)
+	{
+		SetScaleToAnimationFrameSize();
+	}
+	else
+	{
+		ScaleToTexture();
+	}
+
+	// Unbind
+	glBindVertexArray(0);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glUseProgram(0);
+}
+
 void Mesh::Draw()
 {
 	// Bind
 	glUseProgram(m_ShaderID);
 	glBindVertexArray(m_VertexArrayID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 
 	// Get PVMatrix From Camera
 	m_PVMatrix = m_Camera->GetPVMatrix();
@@ -199,7 +272,6 @@ void Mesh::Draw()
 
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
@@ -219,6 +291,20 @@ void Mesh::SetScale(glm::vec3&& _newScale)
 void Mesh::Scale(glm::vec3&& _scaleFactor)
 {
 	m_Transform.scale *= _scaleFactor;
+	UpdateModelValueOfTransform(m_Transform);
+}
+
+void Mesh::SetRotation(glm::vec3&& _axis, float&& _degrees)
+{
+	m_Transform.rotation_axis = _axis;
+	m_Transform.rotation_value = glm::radians(_degrees);
+	UpdateModelValueOfTransform(m_Transform);
+}
+
+void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
+{
+	m_Transform.rotation_axis = _axis;
+	m_Transform.rotation_value += glm::radians(_degrees);
 	UpdateModelValueOfTransform(m_Transform);
 }
 
