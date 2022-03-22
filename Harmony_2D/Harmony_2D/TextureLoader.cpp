@@ -12,10 +12,14 @@ TextureLoader::~TextureLoader()
     }
 }
 
-void TextureLoader::Init()
+void TextureLoader::Init(std::vector<const char*>&& _textures)
 {
-    // Flip All Textures On Load In The Y Axis
     stbi_set_flip_vertically_on_load(true);
+
+    for (auto& item : _textures)
+    {
+        LoadTexture(item);
+    }
 }
 
 Texture TextureLoader::LoadTexture(const char* _filePath)

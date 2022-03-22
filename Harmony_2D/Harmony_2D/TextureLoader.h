@@ -9,9 +9,9 @@ public:
 	~TextureLoader();
 
 	/// <summary>
-	/// Initializes The Texture Loader With Any Custom Setups (e.g Flip_on_Load)
+	/// Initializes The Texture Loader With Any Initial Textures And Sets Flip_On_Load True
 	/// </summary>
-	static void Init();
+	static void Init(std::vector<const char*>&& _textures = {});
 
 	/// <summary>
 	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.

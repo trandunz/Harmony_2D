@@ -10,6 +10,7 @@ static std::map<int, bool> Keypresses;
 static Mesh* HexagonMesh = nullptr;
 static Mesh* HexagonMesh2 = nullptr;
 static Mesh* CapGuyMesh = nullptr;
+static Mesh* CapGuyPathMesh = nullptr;
 
 void InitGLFW();
 void InitGLEW();
@@ -115,9 +116,9 @@ void InitGLEW()
 	// Enable Culling
 	glEnable(GL_CULL_FACE);
 	// Enable Blending
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	// Set Blending To Handle Alpha On Texture
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Set Window Clear Colour To Gray
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
@@ -134,24 +135,44 @@ void Start()
 	HandleMouseVisible();
 	
 	// Initialize Texture Loader
-	TextureLoader::Init();
+	TextureLoader::Init({ 
+		"Resources/Textures/Capguy_Walk.png", 
+		"Resources/Textures/path.jpg",
+		"Resources/Textures/AwesomeFace.png",
+		"Resources/Textures/Rayman.jpg" ,
+		"Resources/Textures/Raven.png"
+		});
 
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,1});
 
-	// Quad / Cap Guy Mesh
+	//
+	// Cap Guy Mesh / Quad
+	//
 	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4, 8,
 		{ 
 			TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")
 		});
 	// Set Its Position To Bottom Middle
-	CapGuyMesh->SetPosition({ 0.0f, -WindowSize.y / 4, 0 });
+	CapGuyMesh->SetPosition({ 0.0f, -WindowSize.y / 5.5f, 0 });
+	CapGuyMesh->Scale({ 1.5f, 1.5f, 1 });
 	// Start Animation
 	CapGuyMesh->ToggleAnimating();
 	// Set Starting Animation Frame
 	CapGuyMesh->SetAnimationFrame(0);
 
+	//
+	// Path
+	//
+	CapGuyPathMesh = new Mesh(*SceneCamera, DeltaTime, 4,
+		{
+			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
+		});
+	CapGuyPathMesh->SetPosition({ 0.0f, (- WindowSize.y / 3.5f), 0});
+
+	//
 	// First Hexagon Mesh
+	//
 	HexagonMesh = new Mesh(*SceneCamera, DeltaTime, 6,
 		{
 			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),
@@ -164,7 +185,9 @@ void Start()
 	// Set Position
 	HexagonMesh->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
 
+	//
 	// Second Hexagon Mesh
+	//
 	HexagonMesh2 = new Mesh(std::move(HexagonMesh->GetVertexArrayID()), *SceneCamera, DeltaTime, 6,
 		{
 			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
@@ -215,6 +238,9 @@ void Update()
 /// </summary>
 void Render()
 {
+	// Background / CapGuyPath
+	CapGuyPathMesh->Draw();
+
 	// First Hexagon
 	HexagonMesh->Draw();
 
@@ -248,6 +274,11 @@ int Cleanup()
 	if (CapGuyMesh != nullptr)
 		delete CapGuyMesh;
 	CapGuyMesh = nullptr;
+
+	// Cleanup Cap Guy
+	if (CapGuyPathMesh != nullptr)
+		delete CapGuyPathMesh;
+	CapGuyPathMesh = nullptr;
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)

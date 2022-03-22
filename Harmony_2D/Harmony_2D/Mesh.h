@@ -26,7 +26,7 @@ public:
 	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, unsigned&& _numberOfAnimationFrames = 8, std::vector<Texture>&& _textures = {});
 	
 	/// <summary>
-	/// Non-Animated Mesh Constructor With Copied VAO (VBO & EBO)
+	/// Non-Animated Mesh Constructor With Copied VAO (VBO and EBO)
 	/// </summary>
 	/// <param name="_camera"></param>
 	/// <param name="_deltaTime"></param>
@@ -35,7 +35,7 @@ public:
 	Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, std::vector<Texture>&& _textures = {});
 
 	/// <summary>
-	/// Animated Mesh Contructor With Copied VAO (VBO & EBO)
+	/// Animated Mesh Contructor With Copied VAO (VBO and EBO)
 	/// </summary>
 	/// <param name="_camera"></param>
 	/// <param name="_deltaTime"></param>
@@ -138,7 +138,7 @@ private:
 	void Init();
 
 	/// <summary>
-	/// Initializes the mesh ready for drawing using the already created VAO (VBO & EBO). Will be called on mesh construction.
+	/// Initializes the mesh ready for drawing using the already created VAO (VBO and EBO). Will be called on mesh construction.
 	/// </summary>
 	void Init(GLuint& _vertexArrayID);
 

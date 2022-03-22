@@ -40,6 +40,7 @@ Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigne
 	m_DeltaTime = &_deltaTime;
 	m_NumberOfSides = _numberOfSides;
 	m_VertexArrayID = _vertexArrayID;
+
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (int i = 0; i < _textures.size(); i++)
 	{
@@ -117,7 +118,6 @@ void Mesh::Init()
 
 	// Create A Shader And Copy The ID
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
-	glUseProgram(m_ShaderID);
 
 	// Vertex Array
 	glGenVertexArrays(1, &m_VertexArrayID);
@@ -168,7 +168,6 @@ void Mesh::Init()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glUseProgram(0);
 }
 
 void Mesh::Init(GLuint& _vertexArray)
@@ -178,7 +177,6 @@ void Mesh::Init(GLuint& _vertexArray)
 	GeneratePolygonIndices(m_NumberOfSides);
 
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
-	glUseProgram(m_ShaderID);
 
 	glBindVertexArray(m_VertexArrayID);
 
@@ -207,7 +205,6 @@ void Mesh::Init(GLuint& _vertexArray)
 	// Unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glUseProgram(0);
 }
 
 void Mesh::Draw()
@@ -331,7 +328,7 @@ void Mesh::ScaleToTexture()
 
 void Mesh::GeneratePolygonVertices(const int _numberOfSides)
 {
-	float angle = 0.0f, increment = (float)TWOPI / _numberOfSides;
+	float angle = 0.0f, increment = ((float)TWOPI / _numberOfSides);
 
 	// If Its A Sqaure, Turn It 45% Degrees
 	if (_numberOfSides == 4)
@@ -364,13 +361,13 @@ void Mesh::GenerateGenericQuadVertices()
 
 void Mesh::GenerateGenericQuadIndices()
 {
-	m_Indices.emplace_back(0);
-	m_Indices.emplace_back(1);
-	m_Indices.emplace_back(2);
-	m_Indices.emplace_back(0);
-	m_Indices.emplace_back(2);
-	m_Indices.emplace_back(3);
-	m_Indices.emplace_back(0);
+	m_Indices.emplace_back(0);	// Top Left
+	m_Indices.emplace_back(1);	// Bottom Left
+	m_Indices.emplace_back(2);	// Bottom Right
+	m_Indices.emplace_back(0);	// Top Left
+	m_Indices.emplace_back(2);	// Bottom Right
+	m_Indices.emplace_back(3);	// Top Right
+	m_Indices.emplace_back(0);	// Top Left
 }
 
 float Mesh::ToTexCoord(float _position)
