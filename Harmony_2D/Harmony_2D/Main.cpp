@@ -161,6 +161,7 @@ void Start()
 	CapGuyMesh->ToggleAnimating();
 	// Set Starting Animation Frame
 	CapGuyMesh->SetAnimationFrame(0);
+	CapGuyMesh->SetAnimationFrameTime(0.08f);
 
 	//
 	// Path
@@ -227,7 +228,7 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		HexagonMesh->Rotate({ 0,0,1 }, DeltaTime * 10);
+		HexagonMesh->Rotate({ 0,0,1 }, (float)DeltaTime * 10);
 
 		// Main Render
 		Render();

@@ -105,6 +105,11 @@ void Mesh::SetAnimationFrame(unsigned&& _frame)
 	}
 }
 
+void Mesh::SetAnimationFrameTime(float&& _frameTime_s)
+{
+	m_FrameTime_s = _frameTime_s;
+}
+
 void Mesh::SetTextureFadeSpeed(float&& _newSpeed)
 {
 	m_TextureFadeSpeed = _newSpeed;
@@ -223,27 +228,29 @@ void Mesh::Draw()
 	// Unbind Uniform Buffer
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	//
 	// Uniforms
+	//
 	// Model Matrix
-	ShaderLoader::SetUniformMatrix4fv(m_ShaderID, "Model", m_Transform.tranform);
+	ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "Model", std::move(m_Transform.tranform));
 	// Elapsed Time
-	ShaderLoader::SetUniform1f(m_ShaderID, "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
+	ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
 
 	// Textures
-	ShaderLoader::SetUniform1i(m_ShaderID, "TextureCount", (GLint)m_ActiveTextures.size());
+	ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
 	for (int i = 0; i < m_ActiveTextures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
-		ShaderLoader::SetUniform1i(m_ShaderID, "Texture" + std::to_string(i), i);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
 	}
 
 	// Animated Texture / Sprite Sheet
 	if (m_Animated)
 	{
-		ShaderLoader::SetUniform1i(m_ShaderID, "IsAnimation", 1);
-		ShaderLoader::SetUniform1i(m_ShaderID, "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
-		ShaderLoader::SetUniform1i(m_ShaderID, "CurrentAnimationFrame", m_CurrentAnimationFrame);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 1);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "CurrentAnimationFrame", m_CurrentAnimationFrame);
 		
 		// If animating then change current frame to next with some delay m_FrameTime_s
 		if (m_Animating)
@@ -261,7 +268,7 @@ void Mesh::Draw()
 	}
 	else
 	{
-		ShaderLoader::SetUniform1i(m_ShaderID, "IsAnimation", 0);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 0);
 	}
 
 	// Draw
@@ -326,7 +333,7 @@ void Mesh::ScaleToTexture()
 	UpdateModelValueOfTransform(m_Transform);
 }
 
-void Mesh::GeneratePolygonVertices(const int _numberOfSides)
+void Mesh::GeneratePolygonVertices(int&& _numberOfSides)
 {
 	float angle = 0.0f, increment = ((float)TWOPI / _numberOfSides);
 
@@ -346,7 +353,7 @@ void Mesh::GeneratePolygonVertices(const int _numberOfSides)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
-		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
+		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(std::move(xPos)),ToTexCoord(std::move(yPos))}});
 		angle += increment;
 	}
 }
@@ -370,12 +377,12 @@ void Mesh::GenerateGenericQuadIndices()
 	m_Indices.emplace_back(0);	// Top Left
 }
 
-float Mesh::ToTexCoord(float _position)
+float Mesh::ToTexCoord(float&& _position)
 {
 	return (_position + 1) * 0.5f;
 }
 
-void Mesh::GeneratePolygonIndices(const int _numberOfSides)
+void Mesh::GeneratePolygonIndices(int&& _numberOfSides)
 {
 	if (_numberOfSides == 4)
 	{

@@ -17,7 +17,7 @@ ShaderLoader::~ShaderLoader()
     m_Uniforms.clear();
 }
 
-GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
+GLuint ShaderLoader::CreateShader(std::string_view&& _vertexShader, std::string_view&& _fragmentShader)
 {
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_ShaderPrograms)
@@ -36,8 +36,8 @@ GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_vi
     GLuint program = glCreateProgram();
 
     // Create Shaders And Store There ID's Locally
-    GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
-    GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
+    GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(std::move(_vertexShader)));
+    GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(std::move(_fragmentShader)));
 
     // Attach Shaders To Program
     if (IsDebug)
@@ -80,7 +80,7 @@ GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_vi
     return program;
 }
 
-void ShaderLoader::SetUniform1i(const GLuint& _program, std::string_view _location, GLint _value)
+void ShaderLoader::SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint&& _value)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -95,7 +95,7 @@ void ShaderLoader::SetUniform1i(const GLuint& _program, std::string_view _locati
     glUniform1i(m_Uniforms.back().second, _value);
 }
 
-void ShaderLoader::SetUniform1f(const GLuint& _program, std::string_view _location, GLfloat _value)
+void ShaderLoader::SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -110,7 +110,7 @@ void ShaderLoader::SetUniform1f(const GLuint& _program, std::string_view _locati
     glUniform1f(m_Uniforms.back().second, _value);
 }
 
-void ShaderLoader::SetUniform2i(const GLuint& _program, std::string_view _location, GLint _value, GLint _value2)
+void ShaderLoader::SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -125,7 +125,7 @@ void ShaderLoader::SetUniform2i(const GLuint& _program, std::string_view _locati
     glUniform2i(m_Uniforms.back().second, _value, _value2);
 }
 
-void ShaderLoader::SetUniform2f(const GLuint& _program, std::string_view _location, GLfloat _value, GLfloat _value2)
+void ShaderLoader::SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -140,7 +140,7 @@ void ShaderLoader::SetUniform2f(const GLuint& _program, std::string_view _locati
     glUniform2f(m_Uniforms.back().second, _value, _value2);
 }
 
-void ShaderLoader::SetUniform3i(const GLuint& _program, std::string_view _location, GLint _value, GLint _value2, GLint _value3)
+void ShaderLoader::SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2, GLint&& _value3)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -155,7 +155,7 @@ void ShaderLoader::SetUniform3i(const GLuint& _program, std::string_view _locati
     glUniform3i(m_Uniforms.back().second, _value, _value2, _value3);
 }
 
-void ShaderLoader::SetUniform3f(const GLuint& _program, std::string_view _location, GLfloat _value, GLfloat _value2, GLfloat _value3)
+void ShaderLoader::SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2, GLfloat&& _value3)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -170,7 +170,7 @@ void ShaderLoader::SetUniform3f(const GLuint& _program, std::string_view _locati
     glUniform3f(m_Uniforms.back().second, _value, _value2, _value3);
 }
 
-void ShaderLoader::SetUniform3fv(const GLuint& _program, std::string_view _location, const glm::vec3& _value)
+void ShaderLoader::SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3&& _value)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -185,7 +185,7 @@ void ShaderLoader::SetUniform3fv(const GLuint& _program, std::string_view _locat
     glUniform3fv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
 }
 
-void ShaderLoader::SetUniform3iv(const GLuint& _program, std::string_view _location, const glm::ivec3& _value)
+void ShaderLoader::SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3&& _value)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -200,7 +200,7 @@ void ShaderLoader::SetUniform3iv(const GLuint& _program, std::string_view _locat
     glUniform3iv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
 }
 
-void ShaderLoader::SetUniformMatrix4fv(const GLuint& _program, std::string_view _location, const glm::mat4& _value)
+void ShaderLoader::SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4&& _value)
 {
     GLint location = 0;
     for (auto& item : m_Uniforms)
@@ -215,7 +215,7 @@ void ShaderLoader::SetUniformMatrix4fv(const GLuint& _program, std::string_view 
     glUniformMatrix4fv(m_Uniforms.back().second, 1, GL_FALSE, glm::value_ptr(_value));
 }
 
-GLuint ShaderLoader::CompileShader(GLenum _type, std::string _source)
+GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)
 {
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_Shaders)
@@ -289,7 +289,7 @@ GLuint ShaderLoader::CompileShader(GLenum _type, std::string _source)
     return shader;
 }
 
-std::string ShaderLoader::PassFileToString(std::string_view _fileAddress)
+std::string ShaderLoader::PassFileToString(std::string_view&& _fileAddress)
 {
     // Container For File Information
     std::string content{ "" };

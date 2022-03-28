@@ -120,6 +120,13 @@ public:
 	void SetAnimationFrame(unsigned&& _frame);
 
 	/// <summary>
+	/// Sets the speed / pause on each animation frame in seconds.
+	/// This will determine the overall animation speed.
+	/// </summary>
+	/// <param name="_frameSpeed_s"></param>
+	void SetAnimationFrameTime(float&& _frameSpeed_s);
+
+	/// <summary>
 	/// Sets the value m_TextureFadeSpeed to _newSpeed.
 	/// Modulates the speed in which two textures fade between eachother.
 	/// </summary>
@@ -152,14 +159,14 @@ private:
 	/// Default Side count is 6. (Hexagon)
 	/// </summary>
 	/// <param name="_numberOfSides"></param>
-	void GeneratePolygonIndices(const int _numberOfSides = 6);
+	void GeneratePolygonIndices(int&& _numberOfSides = 6);
 
 	/// <summary>
 	/// Populates the vertex array with values for a polygon of N Sides.
 	/// Default Side count is 6. (Hexagon)
 	/// </summary>
 	/// <param name="_numberOfSides"></param>
-	void GeneratePolygonVertices(const int _numberOfSides = 6);
+	void GeneratePolygonVertices(int&& _numberOfSides = 6);
 
 	/// <summary>
 	/// Populates the vertex array with values for a generic quad.
@@ -176,7 +183,7 @@ private:
 	/// </summary>
 	/// <param name="_position"></param>
 	/// <returns></returns>
-	float ToTexCoord(float _position);
+	float ToTexCoord(float&& _position);
 
 	GLuint m_ShaderID;
 	GLuint m_VertexArrayID;
