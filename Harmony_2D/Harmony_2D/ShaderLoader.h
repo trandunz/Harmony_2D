@@ -95,6 +95,14 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
+    static void SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4&& _value);
+
+    /// <summary>
+    /// Sets Uniform 4fv At Location Using Caching Optimization
+    /// </summary>
+    /// <param name="_program"></param>
+    /// <param name="_location"></param>
+    /// <param name="_value"></param>
     static void SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4&& _value);
 private:
     /// <summary>

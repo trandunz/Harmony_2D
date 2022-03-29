@@ -83,9 +83,9 @@ Mesh::~Mesh()
 	// Delete
 	{
 		glDeleteBuffers(1, &m_UniformBufferID);
-		glDeleteVertexArrays(1, &m_VertexArrayID);
 		glDeleteBuffers(1, &m_VertexBufferID);
 		glDeleteBuffers(1, &m_IndexBufferID);
+		glDeleteVertexArrays(1, &m_VertexArrayID);
 	}
 	m_Vertices.clear();
 	m_Indices.clear();

@@ -64,5 +64,11 @@
     <None Include="Resources\Shaders\basic.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\TextLabel.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\TextLabel.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

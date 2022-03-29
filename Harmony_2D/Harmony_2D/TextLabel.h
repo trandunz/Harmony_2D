@@ -2,12 +2,14 @@
 #include "Helper.h"
 #include "TextureLoader.h"
 #include "ShaderLoader.h"
-#include <FREETYPE/ft2build.h>
+
+#include <ft2build.h>
 #include FT_FREETYPE_H
+
 class TextLabel
 {
 public:
-	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 1.0f, 1.0f, 1.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
+	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 1.0f, 1.0f, 1.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
 	~TextLabel();
 
 	void Draw();
@@ -26,7 +28,13 @@ private:
 		GLuint m_Advance = 0; // Distance To Next Character
 	};
 
-	GLuint GenerateTexture(FT_Face _face);
+	/// <summary>
+	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.
+	/// </summary>
+	/// <param name="_filePath"></param>
+	/// <returns></returns>
+	GLuint LoadFontTexture(FT_Face&& _fontFace);
+
 	const int m_CharacterLimit = 128;
 	bool m_Initialized = false;
 

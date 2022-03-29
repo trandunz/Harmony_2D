@@ -200,6 +200,21 @@ void ShaderLoader::SetUniform3iv(GLuint&& _program, std::string_view&& _location
     glUniform3iv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
 }
 
+void ShaderLoader::SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4&& _value)
+{
+    GLint location = 0;
+    for (auto& item : m_Uniforms)
+    {
+        if (item.first.program == _program && item.first.location == _location.data())
+        {
+            glUniform4fv(item.second, 1, glm::value_ptr(_value));
+            return;
+        }
+    }
+    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
+    glUniform4fv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
+}
+
 void ShaderLoader::SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4&& _value)
 {
     GLint location = 0;
@@ -274,7 +289,7 @@ GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)_malloca(length * sizeof(char));
         glGetShaderInfoLog(shader, length, &length, message);
-        std::string debugOutput = "Failed to Compile Vertex Shader";
+        std::string debugOutput = "Failed to Compile Shader : ";
         if (message != 0)
             debugOutput += message;
         Print(debugOutput);
