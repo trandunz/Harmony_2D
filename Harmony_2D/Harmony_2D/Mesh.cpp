@@ -312,6 +312,18 @@ void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
+void Mesh::SetTranslation(glm::vec3&& _newPosition)
+{
+	m_Transform.translation = _newPosition;
+	UpdateModelValueOfTransform(m_Transform);
+}
+
+void Mesh::Translate(glm::vec3&& _direction)
+{
+	m_Transform.translation += _direction;
+	UpdateModelValueOfTransform(m_Transform);
+}
+
 void Mesh::SetScaleToAnimationFrameSize()
 {
 	SetScale({ m_ActiveTextures[0].Dimensions.x / m_NumberOfAnimationFrames ,m_ActiveTextures[0].Dimensions.y,0 });

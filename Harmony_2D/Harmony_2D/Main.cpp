@@ -228,7 +228,18 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
+		// Rotate The Left Hexagon In The Z Axis By 10 units * deltaTime
 		HexagonMesh->Rotate({ 0,0,1 }, (float)DeltaTime * 10);
+
+		// Translate CapGuy in the X Axis by 200 Units * deltaTime
+		CapGuyMesh->Translate({ (float)DeltaTime * 200 , 0, 0});
+
+		// If CapGuy Walks Of Screen, Loop Him Too The Other Side
+		glm::vec3 capGuyCurrentPosition = CapGuyMesh->GetTransform().translation;
+		if (capGuyCurrentPosition.x > WindowSize.x / 1.5f)
+		{
+			CapGuyMesh->SetTranslation({ -WindowSize.x / 1.5f, capGuyCurrentPosition.y, capGuyCurrentPosition.z });
+		}
 
 		// Main Render
 		Render();

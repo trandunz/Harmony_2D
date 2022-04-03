@@ -1,2 +1,8 @@
-﻿  Main.cpp
-  Harmony_2D.vcxproj -> D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe
+﻿  Camera.cpp
+  Main.cpp
+  Mesh.cpp
+  ShaderLoader.cpp
+  TextureLoader.cpp
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\x64\Debug\Harmony_2D.exe

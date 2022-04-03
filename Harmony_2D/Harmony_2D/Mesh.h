@@ -92,6 +92,18 @@ public:
 	void Rotate(glm::vec3&& _axis, float&& _degrees);
 
 	/// <summary>
+	/// Sets the meshes transform translation to the specified position
+	/// </summary>
+	/// <param name="_newPosition"></param>
+	void SetTranslation(glm::vec3&& _newPosition);
+
+	/// <summary>
+	/// Translates the meshes transform by the specified vector
+	/// </summary>
+	/// <param name="_direction"></param>
+	void Translate(glm::vec3&& _direction);
+
+	/// <summary>
 	/// Scales the mesh to the size of one animation frame. 
 	/// Requires the mesh to be animated.
 	/// </summary>

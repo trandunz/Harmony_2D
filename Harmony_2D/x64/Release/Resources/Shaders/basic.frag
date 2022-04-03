@@ -1,11 +1,14 @@
 #version 460 core
 #define PI 3.141592654
 
+// Output to C++
 layout (location = 0) out vec4 FragColor;
 
+// Input from Previous Shader
 in vec3 Position;
 in vec2 TexCoords;
 
+// Outside Variables Passed In As 'Uniforms'
 uniform float Time;
 
 uniform int TextureCount;
@@ -14,9 +17,11 @@ uniform bool IsAnimation;
 
 uniform sampler2D Texture0, Texture1;
 
+// Available Helper function Forward Declerations
 float ClampedSin(float _value);
 vec4 ColourFromTexturesORWhite(vec2 _texCoords);
 
+// Main function that gets called per vertex fragment.
 void main()
 {
     if (IsAnimation  == true)
@@ -37,6 +42,8 @@ float ClampedSin(float _value)
     return ((sin(_value + (PI/2)))/2) + 0.5f;
 }
 
+// Checks for number of active textures and returns the colour output accordingly.
+// If two textures are passed into the shader, they are mixed with a clamped sin function.
 vec4 ColourFromTexturesORWhite(vec2 _texCoords)
 {
     vec4 outputColour;
