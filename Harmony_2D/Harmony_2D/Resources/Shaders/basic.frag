@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : basic.frag
+// Description : Generic fragment shader for handling both animated meshes and non animated meshes
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #version 460 core
 #define PI 3.141592654
 

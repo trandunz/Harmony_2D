@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : Mesh.cpp 
+// Description : Mesh Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #include "Mesh.h"
 
 Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::vector<Texture>&& _textures)

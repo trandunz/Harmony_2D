@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : TextureLoader.cpp 
+// Description : TextureLoader Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #include "TextureLoader.h"
 
 #define STB_IMAGE_IMPLEMENTATION

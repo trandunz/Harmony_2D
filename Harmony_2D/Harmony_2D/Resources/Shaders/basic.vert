@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : basic.vert
+// Description : Generic vertex shader for handling position and textture coordinate layouts
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #version 460 core
 
 // Input locations from vertex buffer
