@@ -9,6 +9,7 @@
 // Mail : william.inman@mds.ac.nz
 
 #include "Mesh.h"
+#include "TextLabel.h"
 
 static glm::ivec2 WindowSize{ 1080,1080 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
@@ -21,6 +22,7 @@ static Mesh* HexagonMesh = nullptr;
 static Mesh* HexagonMesh2 = nullptr;
 static Mesh* CapGuyMesh = nullptr;
 static Mesh* CapGuyPathMesh = nullptr;
+static TextLabel* m_TextLabelTest = nullptr;
 
 void InitGLFW();
 void InitGLEW();
@@ -211,6 +213,8 @@ void Start()
 	HexagonMesh2->SetTextureFadeSpeed(0.5f);
 	// Set Position
 	HexagonMesh2->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
+
+	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF");
 }
 
 /// <summary>
@@ -273,6 +277,8 @@ void Render()
 	// Draw Cap Guy
 	CapGuyMesh->Draw();
 
+	m_TextLabelTest->Draw();
+
 	// Swap Front Buffer And Back Buffer
 	glfwSwapBuffers(RenderWindow);
 }
@@ -302,6 +308,10 @@ int Cleanup()
 	if (CapGuyPathMesh != nullptr)
 		delete CapGuyPathMesh;
 	CapGuyPathMesh = nullptr;
+
+	if (m_TextLabelTest != nullptr)
+		delete m_TextLabelTest;
+	m_TextLabelTest = nullptr;
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)

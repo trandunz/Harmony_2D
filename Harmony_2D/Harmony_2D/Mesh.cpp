@@ -17,7 +17,7 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::
 	m_NumberOfSides = _numberOfSides;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
-	for (int i = 0; i < _textures.size(); i++)
+	for (unsigned i = 0; i < _textures.size(); i++)
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
@@ -35,7 +35,7 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsig
 	m_Animated = true;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
-	for (int i = 0; i < _textures.size(); i++)
+	for (unsigned i = 0; i < _textures.size(); i++)
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
@@ -52,7 +52,7 @@ Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigne
 	m_VertexArrayID = _vertexArrayID;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
-	for (int i = 0; i < _textures.size(); i++)
+	for (unsigned i = 0; i < _textures.size(); i++)
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
@@ -71,7 +71,7 @@ Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigne
 	m_VertexArrayID = _vertexArrayID;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
-	for (int i = 0; i < _textures.size(); i++)
+	for (unsigned i = 0; i < _textures.size(); i++)
 	{
 		m_ActiveTextures.emplace_back(_textures[i]);
 	}
@@ -248,7 +248,7 @@ void Mesh::Draw()
 
 	// Textures
 	ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
-	for (int i = 0; i < m_ActiveTextures.size(); i++)
+	for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
