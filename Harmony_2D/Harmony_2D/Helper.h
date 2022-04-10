@@ -95,6 +95,11 @@ static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 	return _transform.tranform;
 }
 
+static inline float ClampedSin(float _angle)
+{
+	return ((sinf(_angle + ((float)PI / 2))) / 2) + 0.5f;
+}
+
 /// <summary>
 /// Prints the given string withought a heap allocation to the console output stream.
 /// </summary>
@@ -108,7 +113,7 @@ static inline void Print(std::string_view _string)
 /// Prints the given integer to the console output stream.
 /// </summary>
 /// <param name="_int"></param>
-static inline void Print(const int&& _int)
+static inline void Print(int&& _int)
 {
 	std::cout << _int << std::endl;
 }
@@ -117,7 +122,7 @@ static inline void Print(const int&& _int)
 /// Prints the given float to the console output Stream.
 /// </summary>
 /// <param name="_float"></param>
-static inline void Print(const float&& _float)
+static inline void Print(float&& _float)
 {
 	std::cout << _float << std::endl;
 }

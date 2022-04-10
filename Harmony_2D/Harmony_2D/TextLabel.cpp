@@ -1,12 +1,13 @@
 #include "TextLabel.h"
 
-TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
+TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, double& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
 {
 	SetText(std::move(_text));
 	SetPosition(std::move(_position));
 	SetColour(std::move(_colour));
 	SetScale(std::move(_scale));
 	m_WindowSize = _windowSize;
+	m_DeltaTime = &_deltaTime;
 
 	m_ProjectionMatrix = glm::ortho(0.0f, (float)m_WindowSize->x, 0.0f, (float)m_WindowSize->y, 0.0f, 100.0f);
 	m_ProgramID = ShaderLoader::CreateShader("Resources/Shaders/TextLabel.vert", "Resources/Shaders/TextLabel.frag");
@@ -27,7 +28,6 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::str
 		return;
 	}
 
-	// Need to fix this
 	FT_Set_Pixel_Sizes(fontFace, 0, 100);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -59,13 +59,25 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::str
 
 	glGenBuffers(1, &m_VertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * 4, nullptr, GL_DYNAMIC_DRAW);
+
+	GLuint indices[6]
+	{
+		0,1,2,
+		0,2,3
+	};
+
+	glGenBuffers(1, &m_IndexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * 6, &indices[0], GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	
 
 	m_Initialized = true;
 }
@@ -73,6 +85,11 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::str
 TextLabel::~TextLabel()
 {
 	m_WindowSize = nullptr;
+	m_DeltaTime = nullptr;
+}
+
+void TextLabel::Update()
+{
 }
 
 void TextLabel::Draw()
@@ -82,10 +99,14 @@ void TextLabel::Draw()
 		glUseProgram(m_ProgramID);
 		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", std::move(m_Colour));
 		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "ProjectionMatrix", std::move(m_ProjectionMatrix));
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", 200.0f);
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", 1000.0f);
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "DeltaTime", (float)glfwGetTime());
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ScrollSpeed", std::move(m_ScrollSpeed));
 
 		glBindVertexArray(m_VertexArrayID);
 		glm::vec2 origin = m_Position;
-
+		
 		for (auto& character : m_Text)
 		{
 			FontChar fontCharacter = m_CharacterMap[character];
@@ -94,27 +115,29 @@ void TextLabel::Draw()
 			GLfloat width = fontCharacter.m_Size.x * m_Scale.x;
 			GLfloat height = fontCharacter.m_Size.y* m_Scale.y;
 
-			GLfloat vertices[6][4]
+			GLfloat vertices[4][4]
 			{
-				{posX, posY + height, 0.0f, 0.0f}, {posX, posY, 0.0f, 1.0f}, {posX + width, posY , 1.0f, 1.0f},
-				{posX, posY + height, 0.0f, 0.0f}, {posX + width, posY, 1.0f, 1.0f}, {posX + width, posY + height, 1.0f, 0.0f}
+				{posX, posY + height, 0.0f, 0.0f}, // 0
+				{posX, posY, 0.0f, 1.0f}, // 1
+				{posX + width, posY , 1.0f, 1.0f}, // 2
+				{posX + width, posY + height, 1.0f, 0.0f} // 3
 			};
 
 			glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 6 * 4, vertices);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 4 * 4, vertices);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, fontCharacter.m_TextureID);
 			ShaderLoader::SetUniform1i(std::move(m_ProgramID), "Texture", 0);
 
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
+			glDrawElements(GL_TRIANGLES, sizeof(GLuint) * 6, GL_UNSIGNED_INT, nullptr);
+			
 			origin.x += fontCharacter.m_Advance * m_Scale.x;
 		}
 
 		glUseProgram(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }

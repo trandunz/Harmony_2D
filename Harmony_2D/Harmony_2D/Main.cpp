@@ -131,6 +131,7 @@ void InitGLEW()
 	glEnable(GL_BLEND);
 	// Set Blending To Handle Alpha On Texture
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Set Window Clear Colour To Sky Blue
 	glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
 }
@@ -214,7 +215,7 @@ void Start()
 	// Set Position
 	HexagonMesh2->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
 
-	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF");
+	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 2 }, {0,0,0,1});
 }
 
 /// <summary>
@@ -254,6 +255,8 @@ void Update()
 		{
 			CapGuyMesh->SetTranslation({ -WindowSize.x / 1.5f, capGuyCurrentPosition.y, capGuyCurrentPosition.z });
 		}
+
+		m_TextLabelTest->Update();
 
 		// Main Render
 		Render();

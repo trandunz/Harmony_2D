@@ -9,8 +9,10 @@
 class TextLabel
 {
 public:
-	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 1.0f, 1.0f, 1.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
+	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 1.0f, 1.0f, 1.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
 	~TextLabel();
+
+	void Update();
 
 	void Draw();
 	
@@ -37,6 +39,9 @@ private:
 
 	const int m_CharacterLimit = 128;
 	bool m_Initialized = false;
+	double* m_DeltaTime = nullptr;
+	float m_ScrollSpeed = 100;
+	float m_LargestGlyphWidth = 0;
 
 	std::string m_Text{ "" };
 	glm::vec2 m_Scale{ 1.0f, 1.0f };
@@ -45,6 +50,7 @@ private:
 
 	GLuint m_VertexArrayID;
 	GLuint m_VertexBufferID;
+	GLuint m_IndexBufferID;
 	GLuint m_ProgramID;
 	glm::mat4 m_ProjectionMatrix;
 	glm::ivec2* m_WindowSize = nullptr;
