@@ -30,7 +30,20 @@ glm::mat4 Camera::GetViewMatrix()
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
-    return glm::ortho((float)-m_WindowSize->x / 2, (float)m_WindowSize->x / 2, (float)-m_WindowSize->y / 2, (float)m_WindowSize->y / 2, m_NearPlane, m_FarPlane);
+    return m_Perspective ? glm::perspective(glm::radians(m_Zoom), (float)m_WindowSize->x / (float)m_WindowSize->y, m_NearPlane, m_FarPlane) : glm::ortho((float)-m_WindowSize->x / 2, (float)m_WindowSize->x / 2, (float)-m_WindowSize->y / 2, (float)m_WindowSize->y / 2, m_NearPlane, m_FarPlane);
+}
+
+void Camera::UpdateRotationVectors()
+{
+    glm::vec3 newFront =
+    {
+        cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch)),
+        sin(glm::radians(m_Pitch)),
+        sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch))
+    };
+    m_Front = glm::normalize(newFront);
+    m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
+    m_Up = glm::normalize(glm::cross(m_Right, m_Front));
 }
 
 glm::mat4 Camera::GetPVMatrix()
@@ -46,14 +59,30 @@ void Camera::SetNearAndFarPlane(glm::vec2 _nearAndFar)
 
 void Camera::Movement(const long double& _dt)
 {
+    UpdateRotationVectors();
     UpdatePosition(_dt);
 }
 
 bool Camera::UpdatePosition(const long double& _dt)
 {
     bool moved = false;
-    float x = m_InputVec.x * m_MoveSpeed * m_WindowSize->x;
-    float y = m_InputVec.y * m_MoveSpeed * m_WindowSize->x;
+    float x;
+    float y;
+
+    if (m_Perspective)
+    {
+        x = m_InputVec.x * m_MoveSpeed;
+        y = m_InputVec.y * m_MoveSpeed;
+
+    }
+    else
+    {
+        x = m_InputVec.x * m_MoveSpeed * m_WindowSize->x;
+        y = m_InputVec.y * m_MoveSpeed * m_WindowSize->x;
+
+    }
+   
+   
 
     if (x >= 0.000000001f || x <= -0.000000001f)
     {
@@ -62,7 +91,7 @@ bool Camera::UpdatePosition(const long double& _dt)
     }
     if (y >= 0.000000001f || y <= -0.000000001f)
     {
-        m_Position += m_Up * y * (float)_dt;
+        m_Position += m_Front * y * (float)_dt;
         moved = true;
     }
 

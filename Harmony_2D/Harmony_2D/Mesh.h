@@ -25,6 +25,8 @@ public:
 	/// <param name="_textures"></param>
 	Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides = 4, std::vector<Texture>&& _textures = {});
 
+	Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures = {});
+
 	/// <summary>
 	/// Animated Mesh Contructor
 	/// </summary>
@@ -167,6 +169,11 @@ private:
 	void Init();
 
 	/// <summary>
+	/// Initializes the mesh ready for drawing. Will be called on mesh construction.
+	/// </summary>
+	void Init(SHAPE&& _shape);
+
+	/// <summary>
 	/// Initializes the mesh ready for drawing using the already created VAO (VBO and EBO). Will be called on mesh construction.
 	/// </summary>
 	void Init(GLuint& _vertexArrayID);
@@ -191,6 +198,18 @@ private:
 	void GeneratePolygonVertices(int&& _numberOfSides = 6);
 
 	/// <summary>
+	/// Populates the indices array with values for a shape (e.g Cube).
+	/// </summary>
+	/// <param name="_shape"></param>
+	void GenerateShapeIndices(SHAPE _shape = SHAPE::CUBE);
+
+	/// <summary>
+	/// Populates the vertex array with values for a shape (e.g Cube).
+	/// </summary>
+	/// <param name="_shape"></param>
+	void GenerateShapeVertices(SHAPE _shape = SHAPE::CUBE);
+
+	/// <summary>
 	/// Populates the vertex array with values for a generic quad.
 	/// </summary>
 	void GenerateGenericQuadVertices();
@@ -205,7 +224,7 @@ private:
 	/// </summary>
 	/// <param name="_position"></param>
 	/// <returns></returns>
-	float ToTexCoord(float&& _position);
+	float ToTexCoord(float& _position);
 
 	GLuint m_ShaderID;
 	GLuint m_VertexArrayID;
@@ -214,6 +233,7 @@ private:
 	GLuint m_UniformBufferID;
 	bool m_Animated = false;
 	bool m_Animating = false;
+	bool m_IsShape = false;
 	double* m_DeltaTime = nullptr;
 	unsigned m_NumberOfSides = 4;
 	unsigned m_CurrentAnimationFrame = 0;

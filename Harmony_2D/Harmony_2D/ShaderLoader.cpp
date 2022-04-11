@@ -27,7 +27,7 @@ ShaderLoader::~ShaderLoader()
     m_Uniforms.clear();
 }
 
-GLuint ShaderLoader::CreateShader(std::string_view&& _vertexShader, std::string_view&& _fragmentShader)
+GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
 {
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_ShaderPrograms)

@@ -27,7 +27,7 @@ public:
     /// <param name="_vertexShader"></param>
     /// <param name="_fragmentShader"></param>
     /// <returns></returns>
-    static GLuint CreateShader(std::string_view&& _vertexShader, std::string_view&& _fragmentShader);
+    static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader);
 
     /// <summary>
     /// Sets Uniform 1i At Location Using Caching Optimization

@@ -18,10 +18,7 @@ static bool IsMouseVisible = false, ExitProcess = false;
 static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
-static Mesh* HexagonMesh = nullptr;
-static Mesh* HexagonMesh2 = nullptr;
-static Mesh* CapGuyMesh = nullptr;
-static Mesh* CapGuyPathMesh = nullptr;
+static Mesh* CubeMesh = nullptr;
 static TextLabel* m_TextLabelTest = nullptr;
 
 void InitGLFW();
@@ -160,62 +157,14 @@ void Start()
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,1});
 
-	//
-	// Cap Guy Mesh / Quad
-	//
-	CapGuyMesh = new Mesh(*SceneCamera, DeltaTime, 4, 8,
+	CubeMesh = new Mesh(*SceneCamera, DeltaTime, SHAPE::CUBE, 
 		{ 
-			TextureLoader::LoadTexture("Resources/Textures/Capguy_Walk.png")
-		});
-	// Set Its Position To Bottom Middle
-	CapGuyMesh->SetPosition({ 0.0f, -WindowSize.y / 5.5f, 0 });
-	CapGuyMesh->Scale({ 1.5f, 1.5f, 1 });
-	// Start Animation
-	CapGuyMesh->ToggleAnimating();
-	// Set Starting Animation Frame
-	CapGuyMesh->SetAnimationFrame(0);
-	CapGuyMesh->SetAnimationFrameTime(0.08f);
-
-	//
-	// Path
-	//
-	CapGuyPathMesh = new Mesh(*SceneCamera, DeltaTime, 4,
-		{
-			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
-		});
-	CapGuyPathMesh->SetPosition({ 0.0f, (- WindowSize.y / 3.5f), 0});
-
-	//
-	// First Hexagon Mesh
-	//
-	HexagonMesh = new Mesh(*SceneCamera, DeltaTime, 6,
-		{
-			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png"),
-			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")
-		});
-	// Set To Half Current Size
-	HexagonMesh->Scale({ 0.5f, 0.5f, 1.0f });
-	// Set Fade Speed
-	HexagonMesh->SetTextureFadeSpeed(0.5f);
-	// Set Position
-	HexagonMesh->SetPosition({ -WindowSize.x / 4, WindowSize.y / 4, 0 });
-
-	//
-	// Second Hexagon Mesh
-	//
-	HexagonMesh2 = new Mesh(std::move(HexagonMesh->GetVertexArrayID()), *SceneCamera, DeltaTime, 6,
-		{
+			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
 			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
 			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")
 		});
-	// Set To Half Current Size
-	HexagonMesh2->SetScale(std::move(HexagonMesh->GetTransform().scale));
-	// Set Fade Speed
-	HexagonMesh2->SetTextureFadeSpeed(0.5f);
-	// Set Position
-	HexagonMesh2->SetPosition({ WindowSize.x / 4, WindowSize.y / 4, 0 });
 
-	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 2 }, {0,0,0,1});
+	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 1.1f }, {0,0,0,1});
 }
 
 /// <summary>
@@ -226,7 +175,7 @@ void Update()
 	while (ExitProcess == false)
 	{
 		// Clear Default Frame Buffer Of Colour
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Calculate DeltaTime
 		CalculateDeltaTime();
@@ -243,18 +192,7 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		// Rotate The Left Hexagon In The Z Axis By 10 units * deltaTime
-		HexagonMesh->Rotate({ 0,0,1 }, (float)DeltaTime * 10);
-
-		// Translate CapGuy in the X Axis by 200 Units * deltaTime
-		CapGuyMesh->Translate({ (float)DeltaTime * 200 , 0, 0});
-
-		// If CapGuy Walks Of Screen, Loop Him Too The Other Side
-		glm::vec3 capGuyCurrentPosition = CapGuyMesh->GetTransform().translation;
-		if (capGuyCurrentPosition.x > WindowSize.x / 1.5f)
-		{
-			CapGuyMesh->SetTranslation({ -WindowSize.x / 1.5f, capGuyCurrentPosition.y, capGuyCurrentPosition.z });
-		}
+		CubeMesh->Rotate({ DeltaTime * 200,DeltaTime * 100,DeltaTime * 75 }, DeltaTime * 100);
 
 		m_TextLabelTest->Update();
 
@@ -268,17 +206,8 @@ void Update()
 /// </summary>
 void Render()
 {
-	// Background / CapGuyPath
-	CapGuyPathMesh->Draw();
-
-	// First Hexagon
-	HexagonMesh->Draw();
-
-	// Second Hexagon
-	HexagonMesh2->Draw();
-
-	// Draw Cap Guy
-	CapGuyMesh->Draw();
+	// Cube 1
+	CubeMesh->Draw();
 
 	m_TextLabelTest->Draw();
 
@@ -293,24 +222,10 @@ void Render()
 /// <returns></returns>
 int Cleanup()
 {
-	// Cleanup Hexagons
-	if (HexagonMesh != nullptr)
-		delete HexagonMesh;
-	HexagonMesh = nullptr;
-
-	if (HexagonMesh2 != nullptr)
-		delete HexagonMesh2;
-	HexagonMesh2 = nullptr;
-
-	// Cleanup Cap Guy
-	if (CapGuyMesh != nullptr)
-		delete CapGuyMesh;
-	CapGuyMesh = nullptr;
-
-	// Cleanup Cap Guy
-	if (CapGuyPathMesh != nullptr)
-		delete CapGuyPathMesh;
-	CapGuyPathMesh = nullptr;
+	// Cleanup Cube 1
+	if (CubeMesh != nullptr)
+		delete CubeMesh;
+	CubeMesh = nullptr;
 
 	if (m_TextLabelTest != nullptr)
 		delete m_TextLabelTest;

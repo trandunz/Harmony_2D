@@ -75,13 +75,18 @@ struct Texture
 	const char* FilePath = "";
 };
 
+enum class SHAPE
+{
+	CUBE
+};
+
 /// <summary>
 /// Updates the provided transform's model matrix with 
 /// its positional, rotational and scaling values.
 /// </summary>
 /// <param name="_transform"></param>
 /// <returns></returns>
-static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
+inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 {
 	_transform.tranform = glm::mat4(1);
 	_transform.tranform = glm::translate(_transform.tranform, _transform.translation);
@@ -95,7 +100,7 @@ static inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 	return _transform.tranform;
 }
 
-static inline float ClampedSin(float _angle)
+inline float ClampedSin(float _angle)
 {
 	return ((sinf(_angle + ((float)PI / 2))) / 2) + 0.5f;
 }
@@ -104,7 +109,7 @@ static inline float ClampedSin(float _angle)
 /// Prints the given string withought a heap allocation to the console output stream.
 /// </summary>
 /// <param name="_string"></param>
-static inline void Print(std::string_view _string)
+inline void Print(std::string_view _string)
 {
 	std::cout << _string << std::endl;
 }
@@ -113,7 +118,7 @@ static inline void Print(std::string_view _string)
 /// Prints the given integer to the console output stream.
 /// </summary>
 /// <param name="_int"></param>
-static inline void Print(int&& _int)
+inline void Print(int&& _int)
 {
 	std::cout << _int << std::endl;
 }
@@ -122,7 +127,7 @@ static inline void Print(int&& _int)
 /// Prints the given float to the console output Stream.
 /// </summary>
 /// <param name="_float"></param>
-static inline void Print(float&& _float)
+inline void Print(float&& _float)
 {
 	std::cout << _float << std::endl;
 }

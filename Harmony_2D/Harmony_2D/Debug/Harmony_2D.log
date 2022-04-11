@@ -1,4 +1,10 @@
 ﻿  Main.cpp
-  TextLabel.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Main.cpp(195,82): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Mesh.cpp
+C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Harmony_2D\Mesh.cpp(324,58): warning C4244: 'argument': conversion from 'genType' to 'const unsigned int', possible loss of data
+          with
+          [
+              genType=float
+          ]
   Generating Code...
   Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Debug\Harmony_2D.exe

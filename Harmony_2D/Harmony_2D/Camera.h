@@ -87,15 +87,23 @@ private:
     /// <returns></returns>
     glm::mat4 GetProjectionMatrix();
 
-    float m_MoveSpeed = 1.0f;
+    void UpdateRotationVectors();
+
+    float m_MoveSpeed = 10.0f;
     std::map<int, bool>* m_KeyPresses = nullptr;
     glm::ivec2* m_WindowSize = nullptr;
 
+    bool m_Perspective = true;
+
     float m_NearPlane = 0.1f, m_FarPlane = 100.0f;
+    float m_Yaw = -45.0f;
+    float m_Pitch = -45.0f;
+    float m_Zoom = 100.0f;
     glm::vec3 m_InputVec{ 0,0,0 };
     glm::vec3 m_Position{ 0,0,0 };
     glm::vec3 m_Front{ 0,0,-1 };
     glm::vec3 m_Up{0,1,0};
+    glm::vec3 m_WorldUp{ 0,1,0 };
     glm::vec3 m_Right{ 1,0,0 };
 };
 

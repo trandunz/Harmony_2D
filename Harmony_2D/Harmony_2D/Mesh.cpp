@@ -26,6 +26,22 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, std::
 	Init();
 }
 
+Mesh::Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures)
+{
+	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
+	m_IsShape = true;
+
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (unsigned i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
+
+	// Create and initalize the mesh ready for drawing
+	Init(std::move(_shape));
+}
+
 Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsigned&& _numberOfAnimationFrames, std::vector<Texture>&& _textures)
 {
 	m_Camera = &_camera;
@@ -185,6 +201,56 @@ void Mesh::Init()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Mesh::Init(SHAPE&& _shape)
+{
+	// Generate N Sided Polygon
+	GenerateShapeVertices(_shape);
+	GenerateShapeIndices(_shape);
+
+	// Create A Shader And Copy The ID
+	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
+
+	// Vertex Array
+	glGenVertexArrays(1, &m_VertexArrayID);
+	glBindVertexArray(m_VertexArrayID);
+
+	// Vertex Buffer
+	glGenBuffers(1, &m_VertexBufferID);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
+
+	// Index Buffer
+	glGenBuffers(1, &m_IndexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_DYNAMIC_DRAW);
+
+	// Layouts
+	// Position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	// TexCoords
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+
+	// Uniform Buffer
+	// Generate Uniform Buffer
+	glGenBuffers(1, &m_UniformBufferID);
+	// Get Block Binding Index (Similar To Get Location)
+	unsigned matrixBlockIndex = glGetUniformBlockIndex(m_ShaderID, "Matrices");
+	// Assign Binding Point To Uniform Block
+	glUniformBlockBinding(m_ShaderID, matrixBlockIndex, 0);
+	// Bind Uniform Buffer
+	glBindBuffer(GL_UNIFORM_BUFFER, m_UniformBufferID);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
+
+	// Unbind
+	glBindVertexArray(0);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void Mesh::Init(GLuint& _vertexArray)
 {
 	// Generate N Sided Polygon
@@ -246,47 +312,74 @@ void Mesh::Draw()
 	// Elapsed Time
 	ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
 
-	// Textures
-	ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
-	for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
+	if (m_IsShape)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
-	}
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 
-	// Animated Texture / Sprite Sheet
-	if (m_Animated)
-	{
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 1);
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "CurrentAnimationFrame", m_CurrentAnimationFrame);
-		
-		// If animating then change current frame to next with some delay m_FrameTime_s
-		if (m_Animating)
+		std::vector<unsigned> indicesCache(m_Indices);
+		glActiveTexture(GL_TEXTURE0);
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
+		for (int i = 0; i < 6; i++)
 		{
-			if (m_AnimationTimer > 0)
-			{
-				m_AnimationTimer -= (float)*m_DeltaTime;
-			}
-			else
-			{
-				m_AnimationTimer = m_FrameTime_s;
-				m_CurrentAnimationFrame++;
-			}
+			glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[glm::mod((float)i, (float)(m_ActiveTextures.size()))].ID);
+
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+
+			// Draw
+			m_Indices = {indicesCache[i * 6], indicesCache[(i * 6) + 1] ,indicesCache[(i * 6) + 2] ,indicesCache[(i * 6) + 3] ,indicesCache[(i * 6) + 4] ,indicesCache[(i * 6) + 5]};
+			// Stream In PVMat Data
+			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned) * 6 , m_Indices.data());
+			
+			glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 		}
+		m_Indices = indicesCache;
 	}
 	else
 	{
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 0);
-	}
+		// Textures
+		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
+		for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
+		}
 
-	// Draw
-	glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+		// Animated Texture / Sprite Sheet
+		if (m_Animated)
+		{
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 1);
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfAnimationFrames", m_NumberOfAnimationFrames);
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "CurrentAnimationFrame", m_CurrentAnimationFrame);
+
+			// If animating then change current frame to next with some delay m_FrameTime_s
+			if (m_Animating)
+			{
+				if (m_AnimationTimer > 0)
+				{
+					m_AnimationTimer -= (float)*m_DeltaTime;
+				}
+				else
+				{
+					m_AnimationTimer = m_FrameTime_s;
+					m_CurrentAnimationFrame++;
+				}
+			}
+		}
+		else
+		{
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "IsAnimation", 0);
+		}
+
+		// Draw
+		glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+	}
+	
 
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glUseProgram(0);
 }
 
@@ -375,9 +468,111 @@ void Mesh::GeneratePolygonVertices(int&& _numberOfSides)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
-		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(std::move(xPos)),ToTexCoord(std::move(yPos))}});
+		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
 		angle += increment;
 	}
+}
+
+void Mesh::GenerateShapeIndices(SHAPE _shape)
+{
+	switch (_shape)
+	{
+	case SHAPE::CUBE:
+	{
+		m_Indices.emplace_back(0);
+		m_Indices.emplace_back(1);
+		m_Indices.emplace_back(2);
+		m_Indices.emplace_back(0);
+		m_Indices.emplace_back(2);
+		m_Indices.emplace_back(3);
+
+		m_Indices.emplace_back(4);
+		m_Indices.emplace_back(5);
+		m_Indices.emplace_back(6);
+		m_Indices.emplace_back(4);
+		m_Indices.emplace_back(6);
+		m_Indices.emplace_back(7);
+
+		m_Indices.emplace_back(8);
+		m_Indices.emplace_back(9);
+		m_Indices.emplace_back(10);
+		m_Indices.emplace_back(8);
+		m_Indices.emplace_back(10);
+		m_Indices.emplace_back(11);
+
+		m_Indices.emplace_back(12);
+		m_Indices.emplace_back(13);
+		m_Indices.emplace_back(14);
+		m_Indices.emplace_back(12);
+		m_Indices.emplace_back(14);
+		m_Indices.emplace_back(15);
+
+		m_Indices.emplace_back(16);
+		m_Indices.emplace_back(17);
+		m_Indices.emplace_back(18);
+		m_Indices.emplace_back(16);
+		m_Indices.emplace_back(18);
+		m_Indices.emplace_back(19);
+
+		m_Indices.emplace_back(20);
+		m_Indices.emplace_back(21);
+		m_Indices.emplace_back(22);
+		m_Indices.emplace_back(20);
+		m_Indices.emplace_back(22);
+		m_Indices.emplace_back(23);
+
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+}
+
+void Mesh::GenerateShapeVertices(SHAPE _shape)
+{
+	switch (_shape)
+	{
+	case SHAPE::CUBE:
+	{
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f} });
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+	
 }
 
 void Mesh::GenerateGenericQuadVertices()
@@ -399,7 +594,7 @@ void Mesh::GenerateGenericQuadIndices()
 	m_Indices.emplace_back(0);	// Top Left
 }
 
-float Mesh::ToTexCoord(float&& _position)
+float Mesh::ToTexCoord(float& _position)
 {
 	return (_position + 1) * 0.5f;
 }
