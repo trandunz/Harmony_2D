@@ -132,3 +132,13 @@ inline void Print(float&& _float)
 	std::cout << _float << std::endl;
 }
 
+inline float ToRadians(float&& _degrees)
+{
+	return (_degrees * (float)PI) / 180.0f;
+}
+
+inline float ToDegrees(float&& _radians)
+{
+	return (_radians * 180.0f) / (float)PI;
+}
+

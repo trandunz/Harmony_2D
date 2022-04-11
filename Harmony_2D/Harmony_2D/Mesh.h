@@ -103,6 +103,8 @@ public:
 	/// <param name="_value"></param>
 	void Rotate(glm::vec3&& _axis, float&& _degrees);
 
+	void RotateAround(glm::vec3&& _position, float&& _degrees);
+
 	/// <summary>
 	/// Sets the meshes transform translation to the specified position
 	/// </summary>

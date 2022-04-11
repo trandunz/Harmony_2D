@@ -415,6 +415,17 @@ void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
+void Mesh::RotateAround(glm::vec3&& _position, float&& _degrees)
+{
+	glm::vec3 direction = _position - m_Transform.translation;
+	glm::mat4 newtransform(1);
+	newtransform = glm::translate(newtransform, -direction);
+	
+	newtransform = glm::rotate(newtransform, _degrees, { 0, 1, 0 });
+	newtransform = glm::translate(newtransform, direction);
+	m_Transform.tranform = newtransform;
+}
+
 void Mesh::SetTranslation(glm::vec3&& _newPosition)
 {
 	m_Transform.translation = _newPosition;

@@ -161,8 +161,10 @@ void Start()
 		{ 
 			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
 			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
-			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")
+			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
+			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png")
 		});
+	CubeMesh->SetPosition({ 5,0,0 });
 
 	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 1.1f }, {0,0,0,1});
 }
@@ -192,7 +194,7 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		CubeMesh->Rotate({ DeltaTime * 200,DeltaTime * 100,DeltaTime * 75 }, DeltaTime * 100);
+		CubeMesh->RotateAround({ 0,0,0 }, DeltaTime);
 
 		m_TextLabelTest->Update();
 
