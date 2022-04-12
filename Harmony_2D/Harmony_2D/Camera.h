@@ -96,9 +96,9 @@ private:
     bool m_Perspective = true;
 
     float m_NearPlane = 0.1f, m_FarPlane = 100.0f;
-    float m_Yaw = -45.0f;
-    float m_Pitch = -45.0f;
-    float m_Zoom = 100.0f;
+    float m_Yaw = -90.0f;
+    float m_Pitch = 0.0f;
+    float m_Fov = 45.0f;
     glm::vec3 m_InputVec{ 0,0,0 };
     glm::vec3 m_Position{ 0,0,0 };
     glm::vec3 m_Front{ 0,0,-1 };

@@ -19,6 +19,7 @@ static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
 static Mesh* CubeMesh = nullptr;
+static Mesh* CubeMesh2 = nullptr;
 static TextLabel* m_TextLabelTest = nullptr;
 
 void InitGLFW();
@@ -128,6 +129,7 @@ void InitGLEW()
 	glEnable(GL_BLEND);
 	// Set Blending To Handle Alpha On Texture
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Set Window Clear Colour To Sky Blue
 	glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
@@ -159,12 +161,22 @@ void Start()
 
 	CubeMesh = new Mesh(*SceneCamera, DeltaTime, SHAPE::CUBE, 
 		{ 
-			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
-			TextureLoader::LoadTexture("Resources/Textures/Raven.png"),
-			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
-			TextureLoader::LoadTexture("Resources/Textures/AwesomeFace.png")
+			TextureLoader::LoadTexture("Resources/Textures/DiceSix.png"),
+			TextureLoader::LoadTexture("Resources/Textures/DiceOne.png"),
+			TextureLoader::LoadTexture("Resources/Textures/DiceFive.png"),
+			TextureLoader::LoadTexture("Resources/Textures/DiceTwo.png"),
+			TextureLoader::LoadTexture("Resources/Textures/DiceFour.png"),
+			TextureLoader::LoadTexture("Resources/Textures/DiceThree.png")
 		});
-	CubeMesh->SetPosition({ 5,0,0 });
+	CubeMesh->SetPosition({ 0,0,-5 });
+
+	CubeMesh2 = new Mesh(std::move(CubeMesh->GetVertexArrayID()), std::move(CubeMesh->GetIndexBufferID()),*SceneCamera, DeltaTime, SHAPE::CUBE,
+		{
+			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
+			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
+			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
+		});
+	CubeMesh2->SetPosition({ 0,0,-5 });
 
 	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 1.1f }, {0,0,0,1});
 }
@@ -194,7 +206,8 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		CubeMesh->RotateAround({ 0,0,0 }, DeltaTime);
+		CubeMesh->RotateAround({0,0,0}, {0,1,0}, DeltaTime);
+		CubeMesh2->RotateAround({ 0,0,0 }, { 1,0,0 }, DeltaTime);
 
 		m_TextLabelTest->Update();
 
@@ -210,6 +223,9 @@ void Render()
 {
 	// Cube 1
 	CubeMesh->Draw();
+
+	// Cube 2
+	CubeMesh2->Draw();
 
 	m_TextLabelTest->Draw();
 
@@ -228,6 +244,11 @@ int Cleanup()
 	if (CubeMesh != nullptr)
 		delete CubeMesh;
 	CubeMesh = nullptr;
+
+	// Cleanup Cube 2
+	if (CubeMesh2 != nullptr)
+		delete CubeMesh2;
+	CubeMesh2 = nullptr;
 
 	if (m_TextLabelTest != nullptr)
 		delete m_TextLabelTest;

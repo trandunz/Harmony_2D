@@ -27,6 +27,8 @@ public:
 
 	Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures = {});
 
+	Mesh(GLuint&& _vertexArrayID, GLuint&& _indexBufferID, Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures = {});
+
 	/// <summary>
 	/// Animated Mesh Contructor
 	/// </summary>
@@ -103,7 +105,7 @@ public:
 	/// <param name="_value"></param>
 	void Rotate(glm::vec3&& _axis, float&& _degrees);
 
-	void RotateAround(glm::vec3&& _position, float&& _degrees);
+	void RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees);
 
 	/// <summary>
 	/// Sets the meshes transform translation to the specified position
@@ -164,6 +166,12 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	GLuint& GetVertexArrayID() { return m_VertexArrayID; }
+
+	/// <summary>
+	/// Returns the EBO ID of the Mesh
+	/// </summary>
+	/// <returns></returns>
+	GLuint& GetIndexBufferID() { return m_IndexBufferID; }
 private:
 	/// <summary>
 	/// Initializes the mesh ready for drawing. Will be called on mesh construction.
@@ -238,6 +246,7 @@ private:
 	bool m_IsShape = false;
 	double* m_DeltaTime = nullptr;
 	unsigned m_NumberOfSides = 4;
+	SHAPE m_Shape = SHAPE::CUBE;
 	unsigned m_CurrentAnimationFrame = 0;
 	unsigned m_NumberOfAnimationFrames = 8;
 	float m_FrameTime_s = 0.09f;

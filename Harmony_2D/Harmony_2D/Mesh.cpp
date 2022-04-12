@@ -42,6 +42,25 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Text
 	Init(std::move(_shape));
 }
 
+Mesh::Mesh(GLuint&& _vertexArrayID, GLuint&& _indexBufferID, Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures)
+{
+	m_Camera = &_camera;
+	m_DeltaTime = &_deltaTime;
+	m_IsShape = true;
+	m_Shape = _shape;
+	m_VertexArrayID = _vertexArrayID;
+	m_IndexBufferID = _indexBufferID;
+
+	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
+	for (unsigned i = 0; i < _textures.size(); i++)
+	{
+		m_ActiveTextures.emplace_back(_textures[i]);
+	}
+
+	// Create and initalize the mesh ready for drawing
+	Init(_vertexArrayID);
+}
+
 Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsigned&& _numberOfAnimationFrames, std::vector<Texture>&& _textures)
 {
 	m_Camera = &_camera;
@@ -253,9 +272,18 @@ void Mesh::Init(SHAPE&& _shape)
 
 void Mesh::Init(GLuint& _vertexArray)
 {
-	// Generate N Sided Polygon
-	GeneratePolygonVertices(m_NumberOfSides);
-	GeneratePolygonIndices(m_NumberOfSides);
+	if (m_IsShape)
+	{
+		// Generate Shape Vertices And Indices
+		GenerateShapeVertices(m_Shape);
+		GenerateShapeIndices(m_Shape);
+	}
+	else
+	{
+		// Generate N Sided Polygon
+		GeneratePolygonVertices(m_NumberOfSides);
+		GeneratePolygonIndices(m_NumberOfSides);
+	}
 
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
 
@@ -273,14 +301,17 @@ void Mesh::Init(GLuint& _vertexArray)
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
 
-	// Scale The Mesh To The Texture OR Animation Frame Size
-	if (m_Animated)
+	if (!m_IsShape)
 	{
-		SetScaleToAnimationFrameSize();
-	}
-	else
-	{
-		ScaleToTexture();
+		// Scale The Mesh To The Texture OR Animation Frame Size
+		if (m_Animated)
+		{
+			SetScaleToAnimationFrameSize();
+		}
+		else
+		{
+			ScaleToTexture();
+		}
 	}
 
 	// Unbind
@@ -314,25 +345,34 @@ void Mesh::Draw()
 
 	if (m_IsShape)
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-
-		std::vector<unsigned> indicesCache(m_Indices);
-		glActiveTexture(GL_TEXTURE0);
-		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
-		for (int i = 0; i < 6; i++)
+		switch (m_Shape)
 		{
-			glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[glm::mod((float)i, (float)(m_ActiveTextures.size()))].ID);
+		case SHAPE::CUBE:
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
 
-			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+			std::vector<unsigned> indicesCache(m_Indices);
+			glActiveTexture(GL_TEXTURE0);
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
+			for (int i = 0; i < 6; i++)
+			{
+				glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[glm::mod((float)i, (float)(m_ActiveTextures.size()))].ID);
 
-			// Draw
-			m_Indices = {indicesCache[i * 6], indicesCache[(i * 6) + 1] ,indicesCache[(i * 6) + 2] ,indicesCache[(i * 6) + 3] ,indicesCache[(i * 6) + 4] ,indicesCache[(i * 6) + 5]};
-			// Stream In PVMat Data
-			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned) * 6 , m_Indices.data());
-			
-			glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+				ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+
+				// Draw
+				m_Indices = { indicesCache[i * 6], indicesCache[(i * 6) + 1] ,indicesCache[(i * 6) + 2] ,indicesCache[(i * 6) + 3] ,indicesCache[(i * 6) + 4] ,indicesCache[(i * 6) + 5] };
+				// Stream In PVMat Data
+				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned) * m_Indices.size(), m_Indices.data());
+
+				glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+			}
+			m_Indices = indicesCache;
+			break;
 		}
-		m_Indices = indicesCache;
+		default:
+			break;
+		}
 	}
 	else
 	{
@@ -374,7 +414,6 @@ void Mesh::Draw()
 		// Draw
 		glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 	}
-	
 
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -415,15 +454,13 @@ void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
-void Mesh::RotateAround(glm::vec3&& _position, float&& _degrees)
+void Mesh::RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees)
 {
-	glm::vec3 direction = _position - m_Transform.translation;
-	glm::mat4 newtransform(1);
-	newtransform = glm::translate(newtransform, -direction);
-	
-	newtransform = glm::rotate(newtransform, _degrees, { 0, 1, 0 });
-	newtransform = glm::translate(newtransform, direction);
-	m_Transform.tranform = newtransform;
+	glm::vec3 direction = m_Transform.translation - _position;
+	m_Transform.tranform = glm::translate(m_Transform.tranform, -direction);
+	m_Transform.tranform = glm::rotate(m_Transform.tranform, _degrees, _axis);
+	m_Transform.tranform = glm::translate(m_Transform.tranform, direction);
+	m_Transform.tranform = glm::scale(m_Transform.tranform, m_Transform.scale);
 }
 
 void Mesh::SetTranslation(glm::vec3&& _newPosition)
