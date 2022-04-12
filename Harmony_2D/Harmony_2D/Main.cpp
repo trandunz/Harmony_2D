@@ -157,7 +157,7 @@ void Start()
 		});
 
 	// Create The Scene Camera
-	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,1});
+	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,10});
 
 	CubeMesh = new Mesh(*SceneCamera, DeltaTime, SHAPE::CUBE, 
 		{ 
@@ -168,7 +168,7 @@ void Start()
 			TextureLoader::LoadTexture("Resources/Textures/DiceFour.png"),
 			TextureLoader::LoadTexture("Resources/Textures/DiceThree.png")
 		});
-	CubeMesh->SetPosition({ 0,0,-5 });
+	CubeMesh->SetPosition({ 0,0,-1 });
 
 	CubeMesh2 = new Mesh(std::move(CubeMesh->GetVertexArrayID()), std::move(CubeMesh->GetIndexBufferID()),*SceneCamera, DeltaTime, SHAPE::CUBE,
 		{
@@ -176,9 +176,10 @@ void Start()
 			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
 			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
 		});
-	CubeMesh2->SetPosition({ 0,0,-5 });
+	CubeMesh2->SetPosition({ 0,0,-0.8f });
 
 	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 1.1f }, {0,0,0,1});
+	m_TextLabelTest->SetScrolling(false);
 }
 
 /// <summary>
@@ -206,10 +207,12 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		CubeMesh->RotateAround({0,0,0}, {0,1,0}, DeltaTime);
-		CubeMesh2->RotateAround({ 0,0,0 }, { 1,0,0 }, DeltaTime);
+		CubeMesh->RotateAround({0,0,0 }, {0,1,0}, (float)DeltaTime);
+		CubeMesh2->RotateAround({ 0,0,0 }, { 1,0,0 }, (float)DeltaTime);
 
+		//m_TextLabelTest->SetScale({ ClampedSin(ToRadians((float)glfwGetTime() * 100)),ClampedSin(ToRadians((float)glfwGetTime() * 100))});
 		m_TextLabelTest->Update();
+		
 
 		// Main Render
 		Render();

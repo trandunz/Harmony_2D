@@ -356,7 +356,7 @@ void Mesh::Draw()
 			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
 			for (int i = 0; i < 6; i++)
 			{
-				glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[glm::mod((float)i, (float)(m_ActiveTextures.size()))].ID);
+				glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[(unsigned)glm::mod((float)i, (float)(m_ActiveTextures.size()))].ID);
 
 				ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
 
@@ -456,11 +456,11 @@ void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
 
 void Mesh::RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees)
 {
-	glm::vec3 direction = m_Transform.translation - _position;
-	m_Transform.tranform = glm::translate(m_Transform.tranform, -direction);
-	m_Transform.tranform = glm::rotate(m_Transform.tranform, _degrees, _axis);
+	glm::vec3 direction = glm::abs(_position - m_Transform.translation);
 	m_Transform.tranform = glm::translate(m_Transform.tranform, direction);
-	m_Transform.tranform = glm::scale(m_Transform.tranform, m_Transform.scale);
+	m_Transform.tranform = glm::rotate(m_Transform.tranform, _degrees, _axis);
+	m_Transform.tranform = glm::translate(m_Transform.tranform, -direction);
+	
 }
 
 void Mesh::SetTranslation(glm::vec3&& _newPosition)

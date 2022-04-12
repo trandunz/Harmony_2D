@@ -2,7 +2,7 @@
 
 TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, double& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
 {
-	SetText(std::move(_text));
+	SetText(_text);
 	SetPosition(std::move(_position));
 	SetColour(std::move(_colour));
 	SetScale(std::move(_scale));
@@ -96,14 +96,16 @@ void TextLabel::Draw()
 {
 	if (m_Initialized)
 	{
+		
 		glUseProgram(m_ProgramID);
 		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", std::move(m_Colour));
-		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "ProjectionMatrix", std::move(m_ProjectionMatrix));
+		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "PMatrix", std::move(m_ProjectionMatrix));
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", 200.0f);
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", 1000.0f);
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "DeltaTime", (float)glfwGetTime());
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ScrollSpeed", std::move(m_ScrollSpeed));
 		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrollingRight", std::move(m_ScrollRight));
+		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrolling", std::move(m_IsScrolling));
 
 		glBindVertexArray(m_VertexArrayID);
 		glm::vec2 origin = m_Position;
@@ -114,7 +116,7 @@ void TextLabel::Draw()
 			GLfloat posX = origin.x + fontCharacter.m_Bearing.x * m_Scale.x;
 			GLfloat posY = origin.y - (fontCharacter.m_Size.y - fontCharacter.m_Bearing.y) * m_Scale.y;
 			GLfloat width = fontCharacter.m_Size.x * m_Scale.x;
-			GLfloat height = fontCharacter.m_Size.y* m_Scale.y;
+			GLfloat height = fontCharacter.m_Size.y * m_Scale.y;
 
 			GLfloat vertices[4][4]
 			{
@@ -144,7 +146,7 @@ void TextLabel::Draw()
 	}
 }
 
-void TextLabel::SetText(std::string_view&& _newText)
+void TextLabel::SetText(std::string_view _newText)
 {
 	m_Text = _newText;
 }
@@ -167,6 +169,11 @@ void TextLabel::SetPosition(glm::vec2&& _newPosition)
 void TextLabel::SetScrollingRight(bool&& _isScrollingRight)
 {
 	m_ScrollRight = _isScrollingRight;
+}
+
+void TextLabel::SetScrolling(bool&& _isScrolling)
+{
+	m_IsScrolling = _isScrolling;
 }
 
 GLuint TextLabel::LoadFontTexture(FT_Face&& _fontFace)

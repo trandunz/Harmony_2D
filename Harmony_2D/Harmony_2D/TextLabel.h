@@ -16,11 +16,12 @@ public:
 
 	void Draw();
 	
-	void SetText(std::string_view&& _newText);
+	void SetText(std::string_view _newText);
 	void SetColour(glm::vec4&& _newColour);
 	void SetScale(glm::vec2&& _newScale);
 	void SetPosition(glm::vec2&& _newPosition);
 	void SetScrollingRight(bool&& _isScrollingRight);
+	void SetScrolling(bool&& _isScrolling);
 
 private:
 	struct FontChar
@@ -40,6 +41,7 @@ private:
 
 	const int m_CharacterLimit = 128;
 	bool m_Initialized = false;
+	bool m_IsScrolling = false;
 	bool m_ScrollRight = true;
 	double* m_DeltaTime = nullptr;
 	float m_ScrollSpeed = 100;

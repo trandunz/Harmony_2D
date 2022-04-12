@@ -66,17 +66,9 @@ public:
     /// </summary>
     /// <returns></returns>
     inline float GetFarPlane() { return m_FarPlane; }
-private:
 
     /// <summary>
-    /// Updates The Cameras Position Based On Input
-    /// </summary>
-    /// <param name="_dt"></param>
-    /// <returns></returns>
-    bool UpdatePosition(const long double& _dt);
-
-    /// <summary>
-    /// Creeates And Returns The Cameras View Matrix
+    /// Creates And Returns The Cameras View Matrix
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetViewMatrix();
@@ -86,6 +78,14 @@ private:
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetProjectionMatrix();
+private:
+
+    /// <summary>
+    /// Updates The Cameras Position Based On Input
+    /// </summary>
+    /// <param name="_dt"></param>
+    /// <returns></returns>
+    bool UpdatePosition(const long double& _dt);
 
     void UpdateRotationVectors();
 
