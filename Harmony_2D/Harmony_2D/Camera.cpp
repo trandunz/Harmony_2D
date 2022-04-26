@@ -81,8 +81,6 @@ bool Camera::UpdatePosition(const long double& _dt)
         y = m_InputVec.y * m_MoveSpeed * m_WindowSize->x;
 
     }
-   
-   
 
     if (x >= 0.000000001f || x <= -0.000000001f)
     {

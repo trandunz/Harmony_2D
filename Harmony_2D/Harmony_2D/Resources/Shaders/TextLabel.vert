@@ -13,7 +13,7 @@ out float RightClipPass;
 uniform mat4 PMatrix;
 uniform float LeftClip;
 uniform float RightClip;
-uniform float DeltaTime;
+uniform float ElapsedTime;
 uniform float ScrollSpeed;
 uniform bool IsScrollingRight;
 uniform bool IsScrolling;
@@ -31,11 +31,11 @@ void main()
 	{
 		if (IsScrollingRight)
 		{
-			alteredPosition.x = mod((l_vertex.x + DeltaTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
+			alteredPosition.x = mod((l_vertex.x + ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
 		}
 		else
 		{
-			alteredPosition.x = mod((l_vertex.x - DeltaTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
+			alteredPosition.x = mod((l_vertex.x - ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
 		}
 	}
 		

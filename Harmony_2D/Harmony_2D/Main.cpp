@@ -11,16 +11,22 @@
 #include "Mesh.h"
 #include "TextLabel.h"
 
-static glm::ivec2 WindowSize{ 1080,1080 };
+static glm::ivec2 WindowSize{ 1000,1000 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
-static bool IsMouseVisible = false, ExitProcess = false;
+static bool IsMouseVisible = false, IsWireframe = false, EnterUsername = false ,ExitProcess = false;
+static std::string Username = "";
 
 static Camera* SceneCamera = nullptr;
 static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
 static Mesh* CubeMesh = nullptr;
 static Mesh* CubeMesh2 = nullptr;
-static TextLabel* m_TextLabelTest = nullptr;
+static TextLabel* EnterToTypePromptText = nullptr;
+static TextLabel* BackSpaceToDeletePromptText = nullptr;
+static TextLabel* TabToToggleMousePromptText = nullptr;
+static TextLabel* EscapeToCloseWindowPromptText = nullptr;
+static TextLabel* CapsToToggleWireframeText = nullptr;
+static TextLabel* UsernameText = nullptr;
 
 void InitGLFW();
 void InitGLEW();
@@ -57,6 +63,18 @@ static inline void WindowResizeCallback(GLFWwindow* _renderWindow, int _width, i
 	WindowSize = { _width , _height};
 }
 
+static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpos, double _ypos)
+{
+	if (IsMouseVisible)
+	{
+		std::string cursorPosition = "Cursor Position | X: ";
+		cursorPosition += std::to_string((int)_xpos);
+		cursorPosition += " Y: ";
+		cursorPosition += std::to_string((int)_ypos);
+		Print(cursorPosition);
+	}
+}
+
 /// <summary>
 /// GLFW Key Callback Function
 /// </summary>
@@ -76,6 +94,22 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 	// Handle Input
 	if (SceneCamera)
 		SceneCamera->Input();
+}
+
+static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCode)
+{
+	if (EnterUsername)
+	{
+		// If Name Does Not Exceed Bounds
+		if ((UsernameText->GetPosition().x + (Username.size() * UsernameText->GetAverageCharacterAdvance() * UsernameText->GetScale().x)) < UsernameText->GetRightClip() - 110)
+		{
+			// Grab Entered Character
+			Username += (char)_uniCode;
+
+			// Update Username Text
+			UsernameText->SetText(Username);
+		}
+	}
 }
 
 /// <summary>
@@ -112,6 +146,8 @@ void InitGLFW()
 	// Set Callback Functions
 	glfwSetKeyCallback(RenderWindow, KeyCallback);
 	glfwSetWindowSizeCallback(RenderWindow, WindowResizeCallback);
+	glfwSetCursorPosCallback(RenderWindow, CursorPositionCallback);
+	glfwSetCharCallback(RenderWindow, CharacterCallback);
 }
 
 /// <summary>
@@ -130,7 +166,6 @@ void InitGLEW()
 	// Set Blending To Handle Alpha On Texture
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// Set Window Clear Colour To Sky Blue
 	glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
 }
@@ -168,7 +203,7 @@ void Start()
 			TextureLoader::LoadTexture("Resources/Textures/DiceFour.png"),
 			TextureLoader::LoadTexture("Resources/Textures/DiceThree.png")
 		});
-	CubeMesh->SetPosition({ 0,0,-1 });
+	CubeMesh->SetPosition({ 0,0,-2 });
 
 	CubeMesh2 = new Mesh(std::move(CubeMesh->GetVertexArrayID()), std::move(CubeMesh->GetIndexBufferID()),*SceneCamera, DeltaTime, SHAPE::CUBE,
 		{
@@ -176,10 +211,36 @@ void Start()
 			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
 			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
 		});
-	CubeMesh2->SetPosition({ 0,0,-0.8f });
+	CubeMesh2->SetPosition({ 0,0,-1.8f });
 
-	m_TextLabelTest = new TextLabel(&WindowSize, "Yay!", "Resources/Fonts/ARIAL.TTF", DeltaTime, { WindowSize.x / 2, WindowSize.y / 1.1f }, {0,0,0,1});
-	m_TextLabelTest->SetScrolling(false);
+	EnterToTypePromptText = new TextLabel(&WindowSize, "Enter To Type UserName ", "Resources/Fonts/ARIAL.TTF", DeltaTime, {0.0f, 15.0f }, { 0.8f, 0.2f , 1.0f, 1.0f });
+	EnterToTypePromptText->SetClip(0.0f, 500.0f);
+	EnterToTypePromptText->SetScale({ 0.25f, 0.25f });
+	EnterToTypePromptText->SetScrolling(true);
+
+	BackSpaceToDeletePromptText = new TextLabel(&WindowSize, "BackSpace To Delete Last Character ", "Resources/Fonts/ARIAL.TTF", DeltaTime, { (float)WindowSize.x / 2.0f, 15.0f }, { 0.8f, 0.1f , 0.1f, 1.0f });
+	BackSpaceToDeletePromptText->SetClip(500.0f, 1000.0f);
+	BackSpaceToDeletePromptText->SetScale({ 0.25f, 0.25f });
+	BackSpaceToDeletePromptText->SetScrolling(true);
+	BackSpaceToDeletePromptText->SetScrollingRight(false);
+	BackSpaceToDeletePromptText->SetScrollSpeed(0.5f);
+
+	UsernameText = new TextLabel(&WindowSize, "Username", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 350.0f, 50.0f });
+	UsernameText->SetClip(350.0f, 650.0f);
+	UsernameText->SetScale({ 0.25f, 0.25f });
+
+	TabToToggleMousePromptText = new TextLabel(&WindowSize, "TAB To Toggle Mouse", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 0.0f, (float)WindowSize.y - 35.0f });
+	TabToToggleMousePromptText->SetClip(0.0f, 400.0f);
+	TabToToggleMousePromptText->SetScale({ 0.25f, 0.25f });
+
+	CapsToToggleWireframeText = new TextLabel(&WindowSize, "CAPSLOCK To Toggle Wireframe", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 0.0f, (float)WindowSize.y - 65.0f });
+	CapsToToggleWireframeText->SetClip(0.0f, 500.0f);
+	CapsToToggleWireframeText->SetScale({ 0.25f, 0.25f });
+
+	EscapeToCloseWindowPromptText = new TextLabel(&WindowSize, "ESC To Close Window", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 640.0f, (float)WindowSize.y - 35.0f });
+	EscapeToCloseWindowPromptText->SetClip(640.0f, 1000.0f);
+	EscapeToCloseWindowPromptText->SetScale({ 0.25f, 0.25f });
+	
 }
 
 /// <summary>
@@ -210,8 +271,18 @@ void Update()
 		CubeMesh->RotateAround({0,0,0 }, {0,1,0}, (float)DeltaTime);
 		CubeMesh2->RotateAround({ 0,0,0 }, { 1,0,0 }, (float)DeltaTime);
 
-		//m_TextLabelTest->SetScale({ ClampedSin(ToRadians((float)glfwGetTime() * 100)),ClampedSin(ToRadians((float)glfwGetTime() * 100))});
-		m_TextLabelTest->Update();
+		//m_TextLabelTest->SetScale({ ClampedSin((float)glfwGetTime()) + 0.5f, ClampedSin((float)glfwGetTime()) + 0.5f });
+		EnterToTypePromptText->Update();
+
+		UsernameText->Update();
+
+		BackSpaceToDeletePromptText->Update();
+
+		TabToToggleMousePromptText->Update();
+
+		EscapeToCloseWindowPromptText->Update();
+
+		CapsToToggleWireframeText->Update();
 		
 
 		// Main Render
@@ -224,13 +295,29 @@ void Update()
 /// </summary>
 void Render()
 {
+	// Update PolygonMode Based On Bool
+	if (IsWireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	// Cube 1
 	CubeMesh->Draw();
 
 	// Cube 2
 	CubeMesh2->Draw();
 
-	m_TextLabelTest->Draw();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	EnterToTypePromptText->Draw();
+
+	UsernameText->Draw();
+
+	BackSpaceToDeletePromptText->Draw();
+
+	TabToToggleMousePromptText->Draw();
+
+	EscapeToCloseWindowPromptText->Draw();
+
+	CapsToToggleWireframeText->Draw();
 
 	// Swap Front Buffer And Back Buffer
 	glfwSwapBuffers(RenderWindow);
@@ -253,9 +340,25 @@ int Cleanup()
 		delete CubeMesh2;
 	CubeMesh2 = nullptr;
 
-	if (m_TextLabelTest != nullptr)
-		delete m_TextLabelTest;
-	m_TextLabelTest = nullptr;
+	if (EnterToTypePromptText != nullptr)
+		delete EnterToTypePromptText;
+	EnterToTypePromptText = nullptr;
+
+	if (BackSpaceToDeletePromptText != nullptr)
+		delete BackSpaceToDeletePromptText;
+	BackSpaceToDeletePromptText = nullptr;
+
+	if (TabToToggleMousePromptText != nullptr)
+		delete TabToToggleMousePromptText;
+	TabToToggleMousePromptText = nullptr;
+
+	if (CapsToToggleWireframeText != nullptr)
+		delete CapsToToggleWireframeText;
+	CapsToToggleWireframeText = nullptr;
+
+	if (UsernameText != nullptr)
+		delete UsernameText;
+	UsernameText = nullptr;
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)
@@ -284,10 +387,58 @@ void HandleKeymapActions()
 			{
 			case GLFW_KEY_TAB:
 			{
-				// Toggle Mouse Visible
-				IsMouseVisible = !IsMouseVisible;
-				// Update Based On Bool
-				HandleMouseVisible();
+				if (!EnterUsername)
+				{
+					// Toggle Mouse Visible
+					IsMouseVisible = !IsMouseVisible;
+					// Update Based On Bool
+					HandleMouseVisible();
+				}
+
+				// On Button Down Instead Of Hold
+				item.second = false;
+				break;
+			}
+			case GLFW_KEY_CAPS_LOCK:
+			{
+				if (!EnterUsername)
+				{
+					// Toggle Wireframe
+					IsWireframe = !IsWireframe;
+				}
+
+				// On Button Down Instead Of Hold
+				item.second = false;
+				break;
+			}
+			case GLFW_KEY_ENTER:
+			{
+				// Toggle Enter Username
+				EnterUsername = !EnterUsername;
+
+				if (EnterUsername)
+				{
+					Username = "";
+
+				}
+				else
+					if (Username.size() <= 0)
+						Username = "Username";
+
+				UsernameText->SetText(Username);
+
+				// On Button Down Instead Of Hold
+				item.second = false;
+				break;
+			}
+			case GLFW_KEY_BACKSPACE:
+			{
+				// Backspace Username
+				if (EnterUsername && Username.size() > 0)
+				{
+					Username.pop_back();
+					UsernameText->SetText(Username);
+				}
 
 				// On Button Down Instead Of Hold
 				item.second = false;

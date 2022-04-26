@@ -96,20 +96,30 @@ void TextLabel::Draw()
 {
 	if (m_Initialized)
 	{
-		
 		glUseProgram(m_ProgramID);
 		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", std::move(m_Colour));
 		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "PMatrix", std::move(m_ProjectionMatrix));
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", 200.0f);
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", 1000.0f);
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "DeltaTime", (float)glfwGetTime());
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", std::move(m_LeftClip));
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", std::move(m_RightClip));
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ElapsedTime", (float)glfwGetTime());
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ScrollSpeed", std::move(m_ScrollSpeed));
 		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrollingRight", std::move(m_ScrollRight));
 		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrolling", std::move(m_IsScrolling));
 
 		glBindVertexArray(m_VertexArrayID);
 		glm::vec2 origin = m_Position;
+		origin.x += m_OriginOffset;
+		if (!m_IsScrolling)
+		{
+			origin.x += 50.0f;
+		}
 		
+		float textSize = 0.0f;
+		for (auto& glyph : m_Text)
+		{
+			FontChar fontCharacter = m_CharacterMap[glyph];
+			textSize += (fontCharacter.m_Advance);
+		}
 		for (auto& character : m_Text)
 		{
 			FontChar fontCharacter = m_CharacterMap[character];
@@ -126,6 +136,7 @@ void TextLabel::Draw()
 				{posX + width, posY + height, 1.0f, 0.0f} // 3
 			};
 
+
 			glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
@@ -134,21 +145,56 @@ void TextLabel::Draw()
 			ShaderLoader::SetUniform1i(std::move(m_ProgramID), "Texture", 0);
 
 			glDrawElements(GL_TRIANGLES, sizeof(GLuint) * 6, GL_UNSIGNED_INT, nullptr);
-			
-			origin.x += fontCharacter.m_Advance * m_Scale.x;
+
+			origin.x += (fontCharacter.m_Advance  * m_Scale.x) ;
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glUseProgram(0);
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
 	}
+}
+
+glm::vec2 TextLabel::GetScale()
+{
+	return m_Scale;
+}
+
+glm::vec2 TextLabel::GetPosition()
+{
+	return m_Position;
+}
+
+float TextLabel::GetRightClip()
+{
+	return m_RightClip;
+}
+
+float TextLabel::GetAverageCharacterAdvance()
+{
+	if (m_Text.size() <= 0)
+	{
+		return 0;
+	}
+	float averageLength = 0.0f;
+	for (auto& character : m_Text)
+	{
+		FontChar fontCharacter = m_CharacterMap[character];
+		averageLength += fontCharacter.m_Advance;
+	}
+	averageLength /= m_Text.size();
+	return averageLength;
 }
 
 void TextLabel::SetText(std::string_view _newText)
 {
 	m_Text = _newText;
+}
+
+void TextLabel::SetOriginOffset(float&& _offset)
+{
+	m_OriginOffset = _offset;
 }
 
 void TextLabel::SetColour(glm::vec4&& _newColour)
@@ -166,6 +212,11 @@ void TextLabel::SetPosition(glm::vec2&& _newPosition)
 	m_Position = _newPosition;
 }
 
+void TextLabel::SetScrollSpeed(float&& _newSpeed)
+{
+	m_ScrollSpeed = 100.0f * _newSpeed;
+}
+
 void TextLabel::SetScrollingRight(bool&& _isScrollingRight)
 {
 	m_ScrollRight = _isScrollingRight;
@@ -174,6 +225,12 @@ void TextLabel::SetScrollingRight(bool&& _isScrollingRight)
 void TextLabel::SetScrolling(bool&& _isScrolling)
 {
 	m_IsScrolling = _isScrolling;
+}
+
+void TextLabel::SetClip(float&& _leftClip, float&& _rightClip)
+{
+	m_LeftClip = _leftClip;
+	m_RightClip = _rightClip;
 }
 
 GLuint TextLabel::LoadFontTexture(FT_Face&& _fontFace)

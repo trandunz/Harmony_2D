@@ -376,6 +376,7 @@ void Mesh::Draw()
 	}
 	else
 	{
+
 		// Textures
 		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
 		for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
