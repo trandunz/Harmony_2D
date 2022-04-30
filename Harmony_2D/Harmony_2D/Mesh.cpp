@@ -30,7 +30,7 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Text
 {
 	m_Camera = &_camera;
 	m_DeltaTime = &_deltaTime;
-	m_IsShape = true;
+	m_MeshData.shape = _shape;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (unsigned i = 0; i < _textures.size(); i++)
@@ -42,14 +42,12 @@ Mesh::Mesh(Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Text
 	Init(std::move(_shape));
 }
 
-Mesh::Mesh(GLuint&& _vertexArrayID, GLuint&& _indexBufferID, Camera& _camera, double& _deltaTime, SHAPE&& _shape, std::vector<Texture>&& _textures)
+Mesh::Mesh(MeshData& _meshData, Camera& _camera, double& _deltaTime, std::vector<Texture>&& _textures)
 {
 	m_Camera = &_camera;
 	m_DeltaTime = &_deltaTime;
-	m_IsShape = true;
-	m_Shape = _shape;
-	m_VertexArrayID = _vertexArrayID;
-	m_IndexBufferID = _indexBufferID;
+	m_MeshData = _meshData;
+	m_Copied = true;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (unsigned i = 0; i < _textures.size(); i++)
@@ -58,7 +56,7 @@ Mesh::Mesh(GLuint&& _vertexArrayID, GLuint&& _indexBufferID, Camera& _camera, do
 	}
 
 	// Create and initalize the mesh ready for drawing
-	Init(_vertexArrayID);
+	Init(_meshData.vertexArrayID);
 }
 
 Mesh::Mesh(Camera& _camera, double& _deltaTime, unsigned&& _numberOfSides, unsigned&& _numberOfAnimationFrames, std::vector<Texture>&& _textures)
@@ -84,7 +82,8 @@ Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigne
 	m_Camera = &_camera;
 	m_DeltaTime = &_deltaTime;
 	m_NumberOfSides = _numberOfSides;
-	m_VertexArrayID = _vertexArrayID;
+	m_MeshData.vertexArrayID = _vertexArrayID;
+	m_Copied = true;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (unsigned i = 0; i < _textures.size(); i++)
@@ -103,7 +102,8 @@ Mesh::Mesh(GLuint&& _vertexArrayID, Camera& _camera, double& _deltaTime, unsigne
 	m_NumberOfSides = _numberOfSides;
 	m_NumberOfAnimationFrames = _numberOfAnimationFrames;
 	m_Animated = true;
-	m_VertexArrayID = _vertexArrayID;
+	m_MeshData.vertexArrayID = _vertexArrayID;
+	m_Copied = true;
 
 	// Take A Copy Of The Texture Ids And Store Them In Active Textures Array
 	for (unsigned i = 0; i < _textures.size(); i++)
@@ -128,12 +128,12 @@ Mesh::~Mesh()
 	// Delete
 	{
 		glDeleteBuffers(1, &m_UniformBufferID);
-		glDeleteVertexArrays(1, &m_VertexArrayID);
+		glDeleteVertexArrays(1, &m_MeshData.vertexArrayID);
 		glDeleteBuffers(1, &m_VertexBufferID);
-		glDeleteBuffers(1, &m_IndexBufferID);
+		glDeleteBuffers(1, &m_MeshData.indexBufferID);
 	}
-	m_Vertices.clear();
-	m_Indices.clear();
+	m_MeshData.vertices.clear();
+	m_MeshData.indices.clear();
 	m_ActiveTextures.clear();
 	m_Camera = nullptr;
 	m_DeltaTime = nullptr;
@@ -160,6 +160,11 @@ void Mesh::SetTextureFadeSpeed(float&& _newSpeed)
 	m_TextureFadeSpeed = _newSpeed;
 }
 
+MeshData& Mesh::GetMeshData()
+{
+	return m_MeshData;
+}
+
 void Mesh::Init()
 {
 	// Generate N Sided Polygon
@@ -170,18 +175,18 @@ void Mesh::Init()
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
 
 	// Vertex Array
-	glGenVertexArrays(1, &m_VertexArrayID);
-	glBindVertexArray(m_VertexArrayID);
+	glGenVertexArrays(1, &m_MeshData.vertexArrayID);
+	glBindVertexArray(m_MeshData.vertexArrayID);
 
 	// Vertex Buffer
 	glGenBuffers(1, &m_VertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_MeshData.vertices.size() * sizeof(Vertex), m_MeshData.vertices.data(), GL_STATIC_DRAW);
 
 	// Index Buffer
-	glGenBuffers(1, &m_IndexBufferID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &m_MeshData.indexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_MeshData.indexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_MeshData.indices.size() * sizeof(unsigned int), m_MeshData.indices.data(), GL_STATIC_DRAW);
 
 	// Layouts
 	// Position
@@ -230,18 +235,18 @@ void Mesh::Init(SHAPE&& _shape)
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
 
 	// Vertex Array
-	glGenVertexArrays(1, &m_VertexArrayID);
-	glBindVertexArray(m_VertexArrayID);
+	glGenVertexArrays(1, &m_MeshData.vertexArrayID);
+	glBindVertexArray(m_MeshData.vertexArrayID);
 
 	// Vertex Buffer
 	glGenBuffers(1, &m_VertexBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_MeshData.vertices.size() * sizeof(Vertex), m_MeshData.vertices.data(), GL_STATIC_DRAW);
 
 	// Index Buffer
-	glGenBuffers(1, &m_IndexBufferID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_DYNAMIC_DRAW);
+	glGenBuffers(1, &m_MeshData.indexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_MeshData.indexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_MeshData.indices.size() * sizeof(unsigned int), m_MeshData.indices.data(), GL_DYNAMIC_DRAW);
 
 	// Layouts
 	// Position
@@ -272,13 +277,7 @@ void Mesh::Init(SHAPE&& _shape)
 
 void Mesh::Init(GLuint& _vertexArray)
 {
-	if (m_IsShape)
-	{
-		// Generate Shape Vertices And Indices
-		GenerateShapeVertices(m_Shape);
-		GenerateShapeIndices(m_Shape);
-	}
-	else
+	if (m_MeshData.shape == SHAPE::UNASSIGNED)
 	{
 		// Generate N Sided Polygon
 		GeneratePolygonVertices(m_NumberOfSides);
@@ -287,7 +286,7 @@ void Mesh::Init(GLuint& _vertexArray)
 
 	m_ShaderID = ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag");
 
-	glBindVertexArray(m_VertexArrayID);
+	glBindVertexArray(m_MeshData.vertexArrayID);
 
 	// Uniform Buffer
 	// Generate Uniform Buffer
@@ -301,7 +300,7 @@ void Mesh::Init(GLuint& _vertexArray)
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, matrixBlockIndex, m_UniformBufferID, 0, sizeof(glm::mat4));
 
-	if (!m_IsShape)
+	if (m_MeshData.shape == SHAPE::UNASSIGNED)
 	{
 		// Scale The Mesh To The Texture OR Animation Frame Size
 		if (m_Animated)
@@ -323,7 +322,7 @@ void Mesh::Draw()
 {
 	// Bind
 	glUseProgram(m_ShaderID);
-	glBindVertexArray(m_VertexArrayID);
+	glBindVertexArray(m_MeshData.vertexArrayID);
 
 	// Get PVMatrix From Camera
 	m_PVMatrix = m_Camera->GetPVMatrix();
@@ -343,15 +342,15 @@ void Mesh::Draw()
 	// Elapsed Time
 	ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
 
-	if (m_IsShape)
+	if (m_MeshData.shape != SHAPE::UNASSIGNED)
 	{
-		switch (m_Shape)
+		switch (m_MeshData.shape)
 		{
 		case SHAPE::CUBE:
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_MeshData.indexBufferID);
 
-			std::vector<unsigned> indicesCache(m_Indices);
+			std::vector<unsigned> indicesCache(m_MeshData.indices);
 			glActiveTexture(GL_TEXTURE0);
 			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
 			for (int i = 0; i < 6; i++)
@@ -361,22 +360,32 @@ void Mesh::Draw()
 				ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
 
 				// Draw
-				m_Indices = { indicesCache[i * 6], indicesCache[(i * 6) + 1] ,indicesCache[(i * 6) + 2] ,indicesCache[(i * 6) + 3] ,indicesCache[(i * 6) + 4] ,indicesCache[(i * 6) + 5] };
+				m_MeshData.indices = { indicesCache[i * 6], indicesCache[(i * 6) + 1] ,indicesCache[(i * 6) + 2] ,indicesCache[(i * 6) + 3] ,indicesCache[(i * 6) + 4] ,indicesCache[(i * 6) + 5] };
 				// Stream In PVMat Data
-				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned) * m_Indices.size(), m_Indices.data());
+				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned) * m_MeshData.indices.size(), m_MeshData.indices.data());
 
-				glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+				glDrawElements(GL_TRIANGLES, (GLsizei)m_MeshData.indices.size(), GL_UNSIGNED_INT, nullptr);
 			}
-			m_Indices = indicesCache;
+			m_MeshData.indices = indicesCache;
 			break;
 		}
 		default:
+		{
+			// Textures
+			ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
+			for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
+			{
+				glActiveTexture(GL_TEXTURE0 + i);
+				glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
+				ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
+			}
+			glDrawElements(GL_TRIANGLES, (GLsizei)m_MeshData.indices.size(), GL_UNSIGNED_INT, nullptr);
 			break;
+		}
 		}
 	}
 	else
 	{
-
 		// Textures
 		ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
 		for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
@@ -413,7 +422,7 @@ void Mesh::Draw()
 		}
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, (GLsizei)m_MeshData.indices.size(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	// Unbind
@@ -509,7 +518,7 @@ void Mesh::GeneratePolygonVertices(int&& _numberOfSides)
 	}
 
 	// Centre
-	m_Vertices.emplace_back(Vertex{{0.0f,  0.0f, 0.0f}, {0.5f,0.5f}});
+	m_MeshData.vertices.emplace_back(Vertex{{0.0f,  0.0f, 0.0f}, {0.5f,0.5f}});
 
 	// Fan Around Centre
 	float xPos, yPos;
@@ -517,7 +526,7 @@ void Mesh::GeneratePolygonVertices(int&& _numberOfSides)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
-		m_Vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
+		m_MeshData.vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
 		angle += increment;
 	}
 }
@@ -528,48 +537,71 @@ void Mesh::GenerateShapeIndices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
-		m_Indices.emplace_back(0);
-		m_Indices.emplace_back(1);
-		m_Indices.emplace_back(2);
-		m_Indices.emplace_back(0);
-		m_Indices.emplace_back(2);
-		m_Indices.emplace_back(3);
+		m_MeshData.indices.emplace_back(0);
+		m_MeshData.indices.emplace_back(1);
+		m_MeshData.indices.emplace_back(2);
+		m_MeshData.indices.emplace_back(0);
+		m_MeshData.indices.emplace_back(2);
+		m_MeshData.indices.emplace_back(3);
 
-		m_Indices.emplace_back(4);
-		m_Indices.emplace_back(5);
-		m_Indices.emplace_back(6);
-		m_Indices.emplace_back(4);
-		m_Indices.emplace_back(6);
-		m_Indices.emplace_back(7);
+		m_MeshData.indices.emplace_back(4);
+		m_MeshData.indices.emplace_back(5);
+		m_MeshData.indices.emplace_back(6);
+		m_MeshData.indices.emplace_back(4);
+		m_MeshData.indices.emplace_back(6);
+		m_MeshData.indices.emplace_back(7);
 
-		m_Indices.emplace_back(8);
-		m_Indices.emplace_back(9);
-		m_Indices.emplace_back(10);
-		m_Indices.emplace_back(8);
-		m_Indices.emplace_back(10);
-		m_Indices.emplace_back(11);
+		m_MeshData.indices.emplace_back(8);
+		m_MeshData.indices.emplace_back(9);
+		m_MeshData.indices.emplace_back(10);
+		m_MeshData.indices.emplace_back(8);
+		m_MeshData.indices.emplace_back(10);
+		m_MeshData.indices.emplace_back(11);
 
-		m_Indices.emplace_back(12);
-		m_Indices.emplace_back(13);
-		m_Indices.emplace_back(14);
-		m_Indices.emplace_back(12);
-		m_Indices.emplace_back(14);
-		m_Indices.emplace_back(15);
+		m_MeshData.indices.emplace_back(12);
+		m_MeshData.indices.emplace_back(13);
+		m_MeshData.indices.emplace_back(14);
+		m_MeshData.indices.emplace_back(12);
+		m_MeshData.indices.emplace_back(14);
+		m_MeshData.indices.emplace_back(15);
 
-		m_Indices.emplace_back(16);
-		m_Indices.emplace_back(17);
-		m_Indices.emplace_back(18);
-		m_Indices.emplace_back(16);
-		m_Indices.emplace_back(18);
-		m_Indices.emplace_back(19);
+		m_MeshData.indices.emplace_back(16);
+		m_MeshData.indices.emplace_back(17);
+		m_MeshData.indices.emplace_back(18);
+		m_MeshData.indices.emplace_back(16);
+		m_MeshData.indices.emplace_back(18);
+		m_MeshData.indices.emplace_back(19);
 
-		m_Indices.emplace_back(20);
-		m_Indices.emplace_back(21);
-		m_Indices.emplace_back(22);
-		m_Indices.emplace_back(20);
-		m_Indices.emplace_back(22);
-		m_Indices.emplace_back(23);
+		m_MeshData.indices.emplace_back(20);
+		m_MeshData.indices.emplace_back(21);
+		m_MeshData.indices.emplace_back(22);
+		m_MeshData.indices.emplace_back(20);
+		m_MeshData.indices.emplace_back(22);
+		m_MeshData.indices.emplace_back(23);
 
+		break;
+	}
+	case SHAPE::PYRAMID:
+	{
+		m_MeshData.indices.emplace_back(1);
+		m_MeshData.indices.emplace_back(0);
+		m_MeshData.indices.emplace_back(3);
+		m_MeshData.indices.emplace_back(1);
+		m_MeshData.indices.emplace_back(3);
+		m_MeshData.indices.emplace_back(2);
+
+		m_MeshData.indices.emplace_back(4);
+		m_MeshData.indices.emplace_back(5);
+		m_MeshData.indices.emplace_back(12);
+		m_MeshData.indices.emplace_back(6);
+		m_MeshData.indices.emplace_back(7);
+		m_MeshData.indices.emplace_back(12);
+		m_MeshData.indices.emplace_back(8);
+		m_MeshData.indices.emplace_back(9);
+		m_MeshData.indices.emplace_back(12);
+		m_MeshData.indices.emplace_back(10);
+		m_MeshData.indices.emplace_back(11);
+		m_MeshData.indices.emplace_back(12);
 		break;
 	}
 	default:
@@ -585,35 +617,55 @@ void Mesh::GenerateShapeVertices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f} });
+		break;
+	}
+	case SHAPE::PYRAMID:
+	{
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f}, {0.0f,1.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {1.0f,1.0f} });
+
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f},  {1.0f,0.0f} });
+
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f},  {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {1.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {0.0f,0.0f} });
+		m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{1.0f,0.0f} });
+
+		m_MeshData.vertices.emplace_back(Vertex{ {0.0f,  1.0f, 0.0f}, {0.5f,1.0f} });
 		break;
 	}
 	default:
@@ -626,21 +678,21 @@ void Mesh::GenerateShapeVertices(SHAPE _shape)
 
 void Mesh::GenerateGenericQuadVertices()
 {
-	m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
-	m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
-	m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
-	m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
+	m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
+	m_MeshData.vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
+	m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
+	m_MeshData.vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
 }
 
 void Mesh::GenerateGenericQuadIndices()
 {
-	m_Indices.emplace_back(0);	// Top Left
-	m_Indices.emplace_back(1);	// Bottom Left
-	m_Indices.emplace_back(2);	// Bottom Right
-	m_Indices.emplace_back(0);	// Top Left
-	m_Indices.emplace_back(2);	// Bottom Right
-	m_Indices.emplace_back(3);	// Top Right
-	m_Indices.emplace_back(0);	// Top Left
+	m_MeshData.indices.emplace_back(0);	// Top Left
+	m_MeshData.indices.emplace_back(1);	// Bottom Left
+	m_MeshData.indices.emplace_back(2);	// Bottom Right
+	m_MeshData.indices.emplace_back(0);	// Top Left
+	m_MeshData.indices.emplace_back(2);	// Bottom Right
+	m_MeshData.indices.emplace_back(3);	// Top Right
+	m_MeshData.indices.emplace_back(0);	// Top Left
 }
 
 float Mesh::ToTexCoord(float& _position)
@@ -658,18 +710,18 @@ void Mesh::GeneratePolygonIndices(int&& _numberOfSides)
 	for (int i = 0; i < _numberOfSides; i++)
 	{
 		// Centre
-		m_Indices.push_back(0);
+		m_MeshData.indices.push_back(0);
 
 		// Back At Beginning?
 		if (i + 2 > _numberOfSides)
 		{
-			m_Indices.push_back(i + 1);
-			m_Indices.push_back(1);
+			m_MeshData.indices.push_back(i + 1);
+			m_MeshData.indices.push_back(1);
 		}
 		else
 		{
-			m_Indices.push_back(i + 1);
-			m_Indices.push_back(i + 2);
+			m_MeshData.indices.push_back(i + 1);
+			m_MeshData.indices.push_back(i + 2);
 		}
 	}
 }

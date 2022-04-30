@@ -77,8 +77,21 @@ struct Texture
 
 enum class SHAPE
 {
-	CUBE
+	UNASSIGNED,
+	CUBE,
+	PYRAMID
 };
+
+struct MeshData
+{
+	GLuint vertexArrayID{0};
+	GLuint indexBufferID{ 0 };
+	SHAPE shape = SHAPE::UNASSIGNED;
+	std::vector<unsigned> indices{};
+	std::vector<Vertex> vertices{};
+};
+
+
 
 /// <summary>
 /// Updates the provided transform's model matrix with 
