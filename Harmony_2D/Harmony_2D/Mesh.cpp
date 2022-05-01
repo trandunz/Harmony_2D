@@ -160,6 +160,16 @@ void Mesh::SetTextureFadeSpeed(float&& _newSpeed)
 	m_TextureFadeSpeed = _newSpeed;
 }
 
+void Mesh::SetActiveTextures(std::vector<Texture>&& _textures)
+{
+	m_ActiveTextures = _textures;
+}
+
+void Mesh::SetTransform(Transform& _transform)
+{
+	m_Transform = _transform;
+}
+
 MeshData& Mesh::GetMeshData()
 {
 	return m_MeshData;
@@ -338,7 +348,7 @@ void Mesh::Draw()
 	// Uniforms
 	//
 	// Model Matrix
-	ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "Model", std::move(m_Transform.tranform));
+	ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "Model", std::move(m_Transform.transform));
 	// Elapsed Time
 	ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime() * m_TextureFadeSpeed);
 
@@ -464,15 +474,6 @@ void Mesh::Rotate(glm::vec3&& _axis, float&& _degrees)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
-void Mesh::RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees)
-{
-	glm::vec3 direction = glm::abs(_position - m_Transform.translation);
-	m_Transform.tranform = glm::translate(m_Transform.tranform, direction);
-	m_Transform.tranform = glm::rotate(m_Transform.tranform, _degrees, _axis);
-	m_Transform.tranform = glm::translate(m_Transform.tranform, -direction);
-	
-}
-
 void Mesh::SetTranslation(glm::vec3&& _newPosition)
 {
 	m_Transform.translation = _newPosition;
@@ -526,7 +527,7 @@ void Mesh::GeneratePolygonVertices(int&& _numberOfSides)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
-		m_MeshData.vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
+		//m_MeshData.vertices.emplace_back(Vertex{{xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)}});
 		angle += increment;
 	}
 }
@@ -693,11 +694,6 @@ void Mesh::GenerateGenericQuadIndices()
 	m_MeshData.indices.emplace_back(2);	// Bottom Right
 	m_MeshData.indices.emplace_back(3);	// Top Right
 	m_MeshData.indices.emplace_back(0);	// Top Left
-}
-
-float Mesh::ToTexCoord(float& _position)
-{
-	return (_position + 1) * 0.5f;
 }
 
 void Mesh::GeneratePolygonIndices(int&& _numberOfSides)

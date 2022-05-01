@@ -3,13 +3,12 @@
 #include "TextureLoader.h"
 #include "ShaderLoader.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+
 
 class TextLabel
 {
 public:
-	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 0.0f, 0.0f, 0.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
+	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::map<GLchar, FontChar> _loadedFont, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 0.0f, 0.0f, 0.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
 	~TextLabel();
 
 	void Update();
@@ -19,6 +18,7 @@ public:
 	glm::vec2 GetScale();
 	glm::vec2 GetPosition();
 	float GetRightClip();
+	glm::vec4 GetBounds();
 
 	float GetAverageCharacterAdvance();
 	
@@ -33,23 +33,7 @@ public:
 	void SetClip(float&& _leftClip, float&& _rightClip);
 
 private:
-	struct FontChar
-	{
-		GLuint m_TextureID = 0; // Texture ID
-		glm::ivec2 m_Size{ 0,0 }; // Size of 'glyph'
-		glm::ivec2 m_Bearing{ 0,0 }; // Offset of 'glyph' from baseline
-		GLuint m_Advance = 0; // Distance To Next Character
-	};
-
-	/// <summary>
-	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.
-	/// </summary>
-	/// <param name="_filePath"></param>
-	/// <returns></returns>
-	GLuint LoadFontTexture(FT_Face&& _fontFace);
-
-	const int m_CharacterLimit = 128;
-	bool m_Initialized = false;
+	bool m_FontLoaded = false;
 	bool m_IsScrolling = false;
 	bool m_ScrollRight = true;
 	double* m_DeltaTime = nullptr;

@@ -20,6 +20,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <functional>
 
 #define PI 3.141592654
 #define TWOPI 6.283185307186
@@ -57,7 +58,7 @@ struct Vertex
 /// </summary>
 struct Transform
 {
-    glm::mat4 tranform = glm::mat4(1);
+    glm::mat4 transform = glm::mat4(1);
     glm::vec3 rotation_axis = { 0,0,0 };
     glm::vec3 translation = {0,0,0};
     glm::vec3 scale = {1,1,1};
@@ -91,7 +92,13 @@ struct MeshData
 	std::vector<Vertex> vertices{};
 };
 
-
+struct FontChar
+{
+	GLuint textureID = 0; // Texture ID
+	glm::ivec2 size{ 0,0 }; // Size of 'glyph'
+	glm::ivec2 bearing{ 0,0 }; // Offset of 'glyph' from baseline
+	GLuint advance = 0; // Distance To Next Character
+};
 
 /// <summary>
 /// Updates the provided transform's model matrix with 
@@ -101,21 +108,26 @@ struct MeshData
 /// <returns></returns>
 inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 {
-	_transform.tranform = glm::mat4(1);
-	_transform.tranform = glm::translate(_transform.tranform, _transform.translation);
+	_transform.transform = glm::mat4(1);
+	_transform.transform = glm::translate(_transform.transform, _transform.translation);
 	if (_transform.rotation_axis.x > 0 ||
 		_transform.rotation_axis.y > 0 ||
 		_transform.rotation_axis.z > 0)
 	{
-		_transform.tranform = glm::rotate(_transform.tranform, _transform.rotation_value, _transform.rotation_axis);
+		_transform.transform = glm::rotate(_transform.transform, _transform.rotation_value, _transform.rotation_axis);
 	}
-	_transform.tranform = glm::scale(_transform.tranform, _transform.scale);
-	return _transform.tranform;
+	_transform.transform = glm::scale(_transform.transform, _transform.scale);
+	return _transform.transform;
 }
 
-inline float ClampedSin(float _angle)
+inline float ClampedSin(float _angle, float _yScale, float _xScale, float _offset)
 {
-	return ((sinf(_angle + ((float)PI / 2))) / 2) + 0.5f;
+	return (sinf(_angle * _xScale) / _yScale) + _offset;
+}
+
+inline float Magnitude(glm::vec3 _vector)
+{
+	return sqrtf((_vector.x * _vector.x) + (_vector.y * _vector.y) + (_vector.z * _vector.z));
 }
 
 /// <summary>
@@ -125,6 +137,16 @@ inline float ClampedSin(float _angle)
 inline void Print(std::string_view _string)
 {
 	std::cout << _string << std::endl;
+}
+
+inline void Print(glm::vec3& _vector)
+{
+	std::cout << "Vector x:" << std::to_string(_vector.x) << "| Y: " << std::to_string(_vector.y) << "| Z:" << std::to_string(_vector.z) << std::endl;
+}
+
+inline void Print(glm::vec4 _vector)
+{
+	std::cout << "Vector x:" << std::to_string(_vector.x) << "| Y: " << std::to_string(_vector.y) << "| Z:" << std::to_string(_vector.z) << "| W:" << std::to_string(_vector.w) << std::endl;
 }
 
 /// <summary>

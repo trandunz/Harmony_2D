@@ -1,6 +1,6 @@
 #include "TextLabel.h"
 
-TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::string_view&& _font, double& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
+TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::map<GLchar, FontChar> _loadedFont, double& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
 {
 	SetText(_text);
 	SetPosition(std::move(_position));
@@ -8,51 +8,12 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::str
 	SetScale(std::move(_scale));
 	m_WindowSize = _windowSize;
 	m_DeltaTime = &_deltaTime;
+	m_CharacterMap = _loadedFont;
+	if (_loadedFont.size() > 0)
+		m_FontLoaded = true;
 
-	m_ProjectionMatrix = glm::ortho(0.0f, (float)m_WindowSize->x, 0.0f, (float)m_WindowSize->y, 0.0f, 100.0f);
+	m_ProjectionMatrix = glm::ortho(0.0f, (float)m_WindowSize->x, 0.0f, (float)m_WindowSize->y, 0.0f, 10.0f);
 	m_ProgramID = ShaderLoader::CreateShader("Resources/Shaders/TextLabel.vert", "Resources/Shaders/TextLabel.frag");
-
-	FT_Library fontLibrary;
-	FT_Face fontFace;
-
-	if (FT_Init_FreeType(&fontLibrary) != 0)
-	{
-		Print("Failed To Inialize FreeType Library");
-		return;
-	}
-	if (FT_New_Face(fontLibrary, _font.data(), 0, &fontFace) != 0)
-	{
-		std::string message = "Failed To Load Font: ";
-		message += _text;
-		Print(message);
-		return;
-	}
-
-	FT_Set_Pixel_Sizes(fontFace, 0, 100);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	for (GLubyte glyph = 0; glyph < m_CharacterLimit; glyph++)
-	{
-		if (FT_Load_Char(fontFace, glyph, FT_LOAD_RENDER))
-		{
-			std::string message = "Failed To Load Freetype Glyph: ";
-			message += (unsigned char)glyph;
-			Print(message);
-			continue;
-		}
-
-		FontChar fontCharacter =
-		{
-			LoadFontTexture(std::move(fontFace)), // Texture
-			{fontFace->glyph->bitmap.width,fontFace->glyph->bitmap.rows }, // Set Size
-			{fontFace->glyph->bitmap_left,fontFace->glyph->bitmap_top }, // Set Bearing
-			(GLuint)fontFace->glyph->advance.x / 64 // Set Advance
-		};
-		m_CharacterMap.emplace(std::make_pair(glyph, fontCharacter));
-	}
-
-	FT_Done_Face(fontFace);
-	FT_Done_FreeType(fontLibrary);
 
 	glGenVertexArrays(1, &m_VertexArrayID);
 	glBindVertexArray(m_VertexArrayID);
@@ -77,9 +38,6 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::str
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	
-
-	m_Initialized = true;
 }
 
 TextLabel::~TextLabel()
@@ -94,7 +52,7 @@ void TextLabel::Update()
 
 void TextLabel::Draw()
 {
-	if (m_Initialized)
+	if (m_FontLoaded)
 	{
 		glUseProgram(m_ProgramID);
 		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", std::move(m_Colour));
@@ -107,26 +65,30 @@ void TextLabel::Draw()
 		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrolling", std::move(m_IsScrolling));
 
 		glBindVertexArray(m_VertexArrayID);
+
+		FontChar fontCharacter;
+		GLfloat posX;
+		GLfloat posY;
+		GLfloat width;
+		GLfloat height;
 		glm::vec2 origin = m_Position;
+
 		origin.x += m_OriginOffset;
-		if (!m_IsScrolling)
-		{
-			origin.x += 50.0f;
-		}
-		
+
 		float textSize = 0.0f;
-		for (auto& glyph : m_Text)
-		{
-			FontChar fontCharacter = m_CharacterMap[glyph];
-			textSize += (fontCharacter.m_Advance);
-		}
 		for (auto& character : m_Text)
 		{
 			FontChar fontCharacter = m_CharacterMap[character];
-			GLfloat posX = origin.x + fontCharacter.m_Bearing.x * m_Scale.x;
-			GLfloat posY = origin.y - (fontCharacter.m_Size.y - fontCharacter.m_Bearing.y) * m_Scale.y;
-			GLfloat width = fontCharacter.m_Size.x * m_Scale.x;
-			GLfloat height = fontCharacter.m_Size.y * m_Scale.y;
+			textSize += fontCharacter.advance * m_Scale.x;
+		}
+
+		for (auto& character : m_Text)
+		{
+			fontCharacter = m_CharacterMap[character];
+			width = fontCharacter.size.x * m_Scale.x;
+			height = fontCharacter.size.y * m_Scale.y;
+			posX = (origin.x - (textSize / 2)) + fontCharacter.bearing.x * m_Scale.x;
+			posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
 
 			GLfloat vertices[4][4]
 			{
@@ -141,12 +103,12 @@ void TextLabel::Draw()
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, fontCharacter.m_TextureID);
+			glBindTexture(GL_TEXTURE_2D, fontCharacter.textureID);
 			ShaderLoader::SetUniform1i(std::move(m_ProgramID), "Texture", 0);
 
 			glDrawElements(GL_TRIANGLES, sizeof(GLuint) * 6, GL_UNSIGNED_INT, nullptr);
 
-			origin.x += (fontCharacter.m_Advance  * m_Scale.x) ;
+			origin.x += fontCharacter.advance * m_Scale.x;
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -171,6 +133,25 @@ float TextLabel::GetRightClip()
 	return m_RightClip;
 }
 
+glm::vec4 TextLabel::GetBounds()
+{
+	float textSizeX = 0.0f;
+	float largestSizeY = 0.0f;
+	
+	for (auto& character : m_Text)
+	{
+		FontChar fontCharacter = m_CharacterMap[character];
+		textSizeX += fontCharacter.advance * m_Scale.x;
+		float sizeY = fontCharacter.size.y * m_Scale.y;
+		if (sizeY > largestSizeY && sizeY > 0)
+		{
+			largestSizeY = sizeY;
+		}
+	}
+
+	return {m_Position.x - textSizeX /2.0, m_Position.x + textSizeX / 2.0f , m_WindowSize->y - m_Position.y,  m_WindowSize->y - (m_Position.y + largestSizeY) };
+}
+
 float TextLabel::GetAverageCharacterAdvance()
 {
 	if (m_Text.size() <= 0)
@@ -181,7 +162,7 @@ float TextLabel::GetAverageCharacterAdvance()
 	for (auto& character : m_Text)
 	{
 		FontChar fontCharacter = m_CharacterMap[character];
-		averageLength += fontCharacter.m_Advance;
+		averageLength += fontCharacter.advance;
 	}
 	averageLength /= m_Text.size();
 	return averageLength;
@@ -233,25 +214,4 @@ void TextLabel::SetClip(float&& _leftClip, float&& _rightClip)
 	m_RightClip = _rightClip;
 }
 
-GLuint TextLabel::LoadFontTexture(FT_Face&& _fontFace)
-{
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D,
-		0,
-		GL_RED,
-		_fontFace->glyph->bitmap.width,
-		_fontFace->glyph->bitmap.rows,
-		0,
-		GL_RED,
-		GL_UNSIGNED_BYTE,
-		_fontFace->glyph->bitmap.buffer);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	return textureID;
-}

@@ -15,10 +15,10 @@ layout (location = 0) in vec3 l_position;
 layout (location = 1) in vec2 l_texCoords;
 
 // Uniform Block at binding location 0 (shared across shader programs)
-layout (std140, binding = 0) uniform Matrices
-{
-    mat4 PVMatrix;
-};
+//layout (std140, binding = 0) uniform Matrices
+//{
+//    
+//};
 
 // Output data for next Shader
 out vec3 Position;
@@ -26,6 +26,7 @@ out vec2 TexCoords;
 
 // Outside Variables Passed In As 'Uniforms'
 uniform mat4 Model;
+uniform mat4 PVMatrix;
 
 // Main function that gets called per vertex.
 void main()

@@ -74,6 +74,8 @@ public:
 	/// <returns></returns>
 	inline Transform& GetTransform() { return m_Transform; }
 
+	void SetTransform(Transform& _transform);
+
 	/// <summary>
 	/// Sets the meshes transform translation to the specified Vec3
 	/// </summary>
@@ -104,8 +106,6 @@ public:
 	/// <param name="_axis"></param>
 	/// <param name="_value"></param>
 	void Rotate(glm::vec3&& _axis, float&& _degrees);
-
-	void RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees);
 
 	/// <summary>
 	/// Sets the meshes transform translation to the specified position
@@ -160,6 +160,8 @@ public:
 	/// </summary>
 	/// <param name="_newSpeed"></param>
 	void SetTextureFadeSpeed(float&& _newSpeed);
+
+	void SetActiveTextures(std::vector<Texture>&& _textures = {});
 
 	MeshData& GetMeshData();
 private:
@@ -219,12 +221,7 @@ private:
 	/// </summary>
 	void GenerateGenericQuadIndices();
 
-	/// <summary>
-	/// Converts a given positional value (e.g xPos) to texture coordinate space. (0.0f->1.0f)
-	/// </summary>
-	/// <param name="_position"></param>
-	/// <returns></returns>
-	float ToTexCoord(float& _position);
+
 
 	GLuint m_ShaderID;
 	GLuint m_VertexBufferID;

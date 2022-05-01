@@ -8,21 +8,15 @@
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
-#include "Mesh.h"
+#include "GameObject.h"
 #include "TextLabel.h"
+#include "FontLoader.h"
 
 static glm::ivec2 WindowSize{ 1000,1000 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
 static bool IsMouseVisible = false, IsWireframe = false, EnterUsername = false ,ExitProcess = false;
 static std::string Username = "";
-
-static Camera* SceneCamera = nullptr;
-static GLFWwindow* RenderWindow = nullptr;
 static std::map<int, bool> Keypresses;
-static Mesh* CubeMesh = nullptr;
-static Mesh* CubeMesh2 = nullptr;
-static Mesh* PyramidMesh = nullptr;
-static std::vector<TextLabel*> TextLabels{};
 
 void InitGLFW();
 void InitGLEW();
@@ -35,6 +29,19 @@ int Cleanup();
 
 void HandleKeymapActions();
 void HandleMouseVisible();
+
+GameObject* CubeObject = nullptr;
+GameObject* CubeObject2 = nullptr;
+GameObject* PyramidObject = nullptr;
+NewMesh* CubeMesh = nullptr;
+NewMesh* PyramidMesh = nullptr;
+NewMesh* QuadMesh = nullptr;
+
+std::vector<TextLabel*> TextLabels{};
+std::map<GLchar, FontChar> m_Arial;
+Camera* SceneCamera = nullptr;
+GLFWwindow* RenderWindow = nullptr;
+
 
 /// <summary>
 /// Calculates The Time Taken Between The Last Frame And The Current One
@@ -69,6 +76,18 @@ static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpo
 		cursorPosition += " Y: ";
 		cursorPosition += std::to_string((int)_ypos);
 		Print(cursorPosition);
+
+		if ((float)_xpos > TextLabels[5]->GetBounds().x
+			&& (float)_xpos < TextLabels[5]->GetBounds().y
+			&& (float)_ypos < TextLabels[5]->GetBounds().z
+			&& (float)_ypos > TextLabels[5]->GetBounds().w)
+		{
+			TextLabels[5]->SetColour({ 0.0f,1.0f,0.0f,1.0f });
+		}
+		else
+		{
+			TextLabels[5]->SetColour({ 0.0f,0.0f,0.0f,1.0f });
+		}
 	}
 }
 
@@ -87,6 +106,9 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 		Keypresses[_key] = true;
 	else if (_action == GLFW_RELEASE)
 		Keypresses[_key] = false;
+
+	if (PyramidObject)
+		PyramidObject->KeyboardInput(Keypresses);
 }
 
 static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCode)
@@ -94,7 +116,7 @@ static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCod
 	if (EnterUsername)
 	{
 		// If Name Does Not Exceed Bounds
-		if ((TextLabels[0]->GetPosition().x + (Username.size() * TextLabels[0]->GetAverageCharacterAdvance() * TextLabels[0]->GetScale().x)) < TextLabels[0]->GetRightClip() - 110)
+		if (TextLabels[0]->GetBounds().y < TextLabels[0]->GetRightClip())
 		{
 			// Grab Entered Character
 			Username += (char)_uniCode;
@@ -165,32 +187,36 @@ void InitGLEW()
 
 void InitTextLabels()
 {
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "Username", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 350.0f, 50.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Username", m_Arial, DeltaTime, { (float)WindowSize.x / 2.0f, 50.0f }));
 	TextLabels.back()->SetClip(350.0f, 650.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "Enter To Type UserName ", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 0.0f, 15.0f }, { 0.8f, 0.2f , 1.0f, 1.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Enter To Type UserName ", m_Arial, DeltaTime, { 0.0f, 15.0f }, { 0.8f, 0.2f , 1.0f, 1.0f }));
 	TextLabels.back()->SetClip(0.0f, 500.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 	TextLabels.back()->SetScrolling(true);
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "BackSpace To Delete Last Character ", "Resources/Fonts/ARIAL.TTF", DeltaTime, { (float)WindowSize.x / 2.0f, 15.0f }, { 0.8f, 0.1f , 0.1f, 1.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "BackSpace To Delete Last Character ", m_Arial, DeltaTime, { (float)WindowSize.x / 2.0f, 15.0f }, { 0.8f, 0.1f , 0.1f, 1.0f }));
 	TextLabels.back()->SetClip(500.0f, 1000.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 	TextLabels.back()->SetScrolling(true);
 	TextLabels.back()->SetScrollingRight(false);
 	TextLabels.back()->SetScrollSpeed(0.5f);
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "TAB To Toggle Mouse", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 0.0f, (float)WindowSize.y - 35.0f }));
-	TextLabels.back()->SetClip(0.0f, 400.0f);
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "TAB To Toggle Mouse", m_Arial, DeltaTime, { 250.0f, (float)WindowSize.y - 35.0f }));
+	TextLabels.back()->SetClip(0.0f, 450.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "CAPSLOCK To Toggle Wireframe", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 0.0f, (float)WindowSize.y - 65.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "CAPSLOCK To Toggle Wireframe", m_Arial, DeltaTime, { 250.0f, (float)WindowSize.y - 65.0f }));
 	TextLabels.back()->SetClip(0.0f, 500.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "ESC To Close Window", "Resources/Fonts/ARIAL.TTF", DeltaTime, { 640.0f, (float)WindowSize.y - 35.0f }));
-	TextLabels.back()->SetClip(640.0f, 1000.0f);
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Hover Over Me", m_Arial, DeltaTime, { 800.0f, (float)WindowSize.y - 105.0f }));
+	TextLabels.back()->SetClip(540.0f, 1100.0f);
+	TextLabels.back()->SetScale({ 0.25f, 0.25f });
+
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "ESC To Close Window", m_Arial, DeltaTime, { 800.0f, (float)WindowSize.y - 55.0f }));
+	TextLabels.back()->SetClip(540.0f, 1100.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 }
 
@@ -215,33 +241,29 @@ void Start()
 		"Resources/Textures/Gull.jpg"
 		});
 
+	m_Arial = FontLoader::LoadFont("Resources/Fonts/ARIAL.TTF");
+
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,10});
 
-	CubeMesh = new Mesh(*SceneCamera, DeltaTime, SHAPE::CUBE, 
-		{ 
-			TextureLoader::LoadTexture("Resources/Textures/DiceSix.png"),
-			TextureLoader::LoadTexture("Resources/Textures/DiceOne.png"),
-			TextureLoader::LoadTexture("Resources/Textures/DiceFive.png"),
-			TextureLoader::LoadTexture("Resources/Textures/DiceTwo.png"),
-			TextureLoader::LoadTexture("Resources/Textures/DiceFour.png"),
-			TextureLoader::LoadTexture("Resources/Textures/DiceThree.png")
-		});
-	CubeMesh->SetPosition({ 0,0,-2 });
+	CubeMesh = new NewMesh(SHAPE::CUBE);
+	PyramidMesh = new NewMesh(SHAPE::PYRAMID);
+	QuadMesh = new NewMesh(4);
 
-	CubeMesh2 = new Mesh(CubeMesh->GetMeshData(), *SceneCamera, DeltaTime,
-		{
-			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
-			TextureLoader::LoadTexture("Resources/Textures/Gull.jpg"),
-			TextureLoader::LoadTexture("Resources/Textures/path.jpg")
-		});
-	CubeMesh2->SetPosition({ 0,0,-1.8f });
+	CubeObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,-1 });
+	CubeObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	CubeObject->SetMesh(CubeMesh);
+	CubeObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg") });
 
-	PyramidMesh = new Mesh(*SceneCamera, DeltaTime, SHAPE::PYRAMID,
-		{
-			TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg"),
-		});
-	PyramidMesh->SetPosition({ 0,0,-2 });
+	CubeObject2 = new GameObject(*SceneCamera, DeltaTime, { 0,0,-2 });
+	CubeObject2->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	CubeObject2->SetMesh(CubeMesh);
+	CubeObject2->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/path.jpg") });
+
+	PyramidObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,0 });
+	PyramidObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	PyramidObject->SetMesh(PyramidMesh);
+	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")});
 
 	InitTextLabels();
 }
@@ -265,23 +287,27 @@ void Update()
 		// Input
 		HandleKeymapActions();
 
-		// Handle Camera Movement
+		// Handle Camera Vectors
 		if (SceneCamera)
 		{
 			SceneCamera->Movement(DeltaTime);
 		}
 
-		if (CubeMesh)
-			CubeMesh->RotateAround({0,0,0 }, {0,1,0}, (float)DeltaTime);
-		if (CubeMesh2)
-			CubeMesh2->RotateAround({ 0,0,0 }, { 1,0,0 }, (float)DeltaTime);
-
-		//m_TextLabelTest->SetScale({ ClampedSin((float)glfwGetTime()) + 0.5f, ClampedSin((float)glfwGetTime()) + 0.5f });
+		float xScale = ClampedSin((float)glfwGetTime(), 20, 2, 0.3f);
+		float yScale = ClampedSin((float)glfwGetTime(), 20, 2, 0.3f);
+		TextLabels.back()->SetScale({ xScale,yScale });
 
 		for (auto& textLabel : TextLabels)
 		{
 			textLabel->Update();
 		}
+
+		PyramidObject->Update();
+		CubeObject->Update();
+		CubeObject2->Update();
+
+		CubeObject->RotateAround({ 0,0,0 }, { 0,1,0 }, (float)DeltaTime);
+		CubeObject2->RotateAround({ 0,0,0 }, { 1,0,0 }, (float)DeltaTime);
 
 		// Main Render
 		Render();
@@ -297,15 +323,9 @@ void Render()
 	if (IsWireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// Cube 1
-	if (CubeMesh)
-		CubeMesh->Draw();
-
-	// Cube 2
-	if (CubeMesh2)
-		CubeMesh2->Draw();
-	
-	PyramidMesh->Draw();
+	CubeObject->Draw();
+	CubeObject2->Draw();
+	PyramidObject->Draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -325,20 +345,29 @@ void Render()
 /// <returns></returns>
 int Cleanup()
 {
-	// Cleanup Cube 1
 	if (CubeMesh != nullptr)
 		delete CubeMesh;
 	CubeMesh = nullptr;
 
-	// Cleanup Cube 2
-	if (CubeMesh2 != nullptr)
-		delete CubeMesh2;
-	CubeMesh2 = nullptr;
+	if (QuadMesh != nullptr)
+		delete QuadMesh;
+	QuadMesh = nullptr;
 
-	// Cleanup Pyramid Mesh
 	if (PyramidMesh != nullptr)
 		delete PyramidMesh;
 	PyramidMesh = nullptr;
+
+	if (PyramidObject != nullptr)
+		delete PyramidObject;
+	PyramidObject = nullptr;
+
+	if (CubeObject != nullptr)
+		delete CubeObject;
+	CubeObject = nullptr;
+
+	if (CubeObject2 != nullptr)
+		delete CubeObject2;
+	CubeObject2 = nullptr;
 
 	for (auto& textLabel : TextLabels)
 	{
@@ -347,6 +376,7 @@ int Cleanup()
 		textLabel = nullptr;
 	}
 	TextLabels.clear();
+	m_Arial.clear();
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)
@@ -439,70 +469,6 @@ void HandleKeymapActions()
 
 				// On Button Down Instead Of Hold
 				item.second = false;
-				break;
-			}
-			case GLFW_KEY_W:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ 0,0,-1 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_A:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ -1,0,0 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_S:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ 0,0,1 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_D:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ 1,0,0 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_Q:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ 0,1,0 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_E:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Translate(glm::vec3{ 0,-1,0 } *10.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_Z:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Rotate(glm::vec3{ 0,1,0 }, -50.0f * (float)DeltaTime);
-				}
-				break;
-			}
-			case GLFW_KEY_C:
-			{
-				if (PyramidMesh)
-				{
-					PyramidMesh->Rotate(glm::vec3{ 0,1,0 }, 50.0f * (float)DeltaTime);
-				}
 				break;
 			}
 			default:
