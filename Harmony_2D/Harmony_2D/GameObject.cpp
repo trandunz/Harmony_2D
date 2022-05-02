@@ -66,7 +66,27 @@ void GameObject::Draw()
 {
     if (m_Mesh)
     {
-        m_Mesh->Draw(m_Transform, m_ShaderID, m_ActiveCamera->GetProjectionMatrix(), m_ActiveCamera->GetViewMatrix(), m_ActiveTextures);
+        glUseProgram(m_ShaderID);
+
+        // Textures
+        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
+        for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
+            ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
+        }
+
+        // Model Matrix
+        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "Model", std::move(m_Transform.transform));
+
+        // Projection * View Matrix
+        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMatrix", m_ActiveCamera->GetPVMatrix());
+
+        // Elapsed Time
+        ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime());
+
+        m_Mesh->Draw();
     }
 }
 

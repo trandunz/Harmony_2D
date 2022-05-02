@@ -59,7 +59,6 @@ NewMesh::NewMesh(unsigned int _numberOfSides)
 	// TexCoords
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
-
 	// Unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -86,29 +85,9 @@ NewMesh::~NewMesh()
 	}
 }
 
-void NewMesh::Draw(Transform& _transform, GLuint _shaderID, glm::mat4 _projectionMatrix, glm::mat4 _viewMatrix, std::vector<Texture> _textures)
+void NewMesh::Draw()
 {
-	// Bind
-	glUseProgram(_shaderID);
 	glBindVertexArray(m_VertexArrayID);
-
-	// Textures
-	ShaderLoader::SetUniform1i(std::move(_shaderID), "TextureCount", (GLint)_textures.size());
-	for (unsigned i = 0; i < _textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, _textures[i].ID);
-		ShaderLoader::SetUniform1i(std::move(_shaderID), "Texture" + std::to_string(i), std::move(i));
-	}
-
-	// Model Matrix
-	ShaderLoader::SetUniformMatrix4fv(std::move(_shaderID), "Model", std::move(_transform.transform));
-
-	// Projection * View Matrix
-	ShaderLoader::SetUniformMatrix4fv(std::move(_shaderID), "PVMatrix", _projectionMatrix * _viewMatrix);
-
-	// Elapsed Time
-	ShaderLoader::SetUniform1f(std::move(_shaderID), "Time", (float)glfwGetTime());
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 
@@ -171,6 +150,45 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{1.0f,0.0f} });
 
 		m_Vertices.emplace_back(Vertex{ {0.0f,  1.0f, 0.0f}, {0.5f,1.0f} });
+		break;
+	}
+	case SHAPE::SPHERE:
+	{
+		// Angles to keep track of the sphere points 
+		float Phi = 0.0f;
+		float Theta = 0.0f;
+
+		// Each cycle moves down on the vertical (Y axis) to start the next ring
+		for (int i = 0; i < 360; i++)
+		{
+			// A new  horizontal ring starts at 0 degrees
+			Theta = 0.0f;
+
+			// Creates a horizontal ring and adds each new vertex point to the vertex array
+			for (int j = 0; j < 360; j++)
+			{
+				// Calculate the new vertex position point with the new angles
+				float x = cos(Phi) * sin(Theta);
+				float y = cos(Theta);
+				float z = sin(Phi) * sin(Theta);
+
+				// Set the position of the current vertex point
+				m_Vertices.emplace_back(Vertex{ 
+					{ x * 0.5f, y * 0.5f, z * 0.5f },
+					{ (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) },
+					//{ x,y,z } 
+					});
+
+				// Theta (Y axis) angle is incremented based on the angle created by number of sections
+				// As the sphere is built ring by ring, the theta is only needed to do half the circumferance therefore using just PI
+				Theta += ((float)PI / ((float)36 - 1.0f));
+			}
+
+			// Phi angle (X and Z axes) is incremented based on the angle created by the number of sections
+			// Angle uses 2*PI to get the full circumference as this layer is built as a full ring
+			Phi += (2.0f * (float)PI) / ((float)36 - 1.0f);
+		}
+		
 		break;
 	}
 	default:
@@ -253,6 +271,25 @@ void NewMesh::CreateShapeIndices(SHAPE _shape)
 		m_Indices.emplace_back(12);
 		break;
 	}
+	case SHAPE::SPHERE:
+	{
+		for (int i = 0; i < 36; i++)
+		{
+			for (int j = 0; j < 36; j++)
+			{
+				// First triangle of the quad
+				m_Indices.emplace_back((((i + 1) % 36) * 36) + ((j + 1) % 36));
+				m_Indices.emplace_back((i * 36) + (j));
+				m_Indices.emplace_back((((i + 1) % 36) * 36) + (j));
+
+				// Second triangle of the quad
+				m_Indices.emplace_back((i * 36) + ((j + 1) % 36));
+				m_Indices.emplace_back((i * 36) + (j));
+				m_Indices.emplace_back((((i + 1) % 36) * 36) + ((j + 1) % 36));
+			}
+		}
+		break;
+	}
 	default:
 	{
 		break;
@@ -279,7 +316,7 @@ void NewMesh::CreatePolygonVertices(unsigned int _numberOfSides)
 
 	// Fan Around Centre
 	float xPos, yPos;
-	for (int i = 0; i < _numberOfSides; i++)
+	for (unsigned i = 0; i < _numberOfSides; i++)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
@@ -304,7 +341,7 @@ void NewMesh::CreatePolygonIndices(unsigned int _numberOfSides)
 	}
 
 	// Generate Generalised Regular Polygon Indices
-	for (int i = 0; i < _numberOfSides; i++)
+	for (unsigned i = 0; i < _numberOfSides; i++)
 	{
 		// Centre
 		m_Indices.push_back(0);

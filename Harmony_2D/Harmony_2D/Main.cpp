@@ -36,6 +36,7 @@ GameObject* PyramidObject = nullptr;
 NewMesh* CubeMesh = nullptr;
 NewMesh* PyramidMesh = nullptr;
 NewMesh* QuadMesh = nullptr;
+NewMesh* SphereMesh = nullptr;
 
 std::vector<TextLabel*> TextLabels{};
 std::map<GLchar, FontChar> m_Arial;

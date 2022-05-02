@@ -49,8 +49,8 @@ struct UniformLocation
 /// </summary>
 struct Vertex
 {
-	glm::vec3 position;
-	glm::vec2 texCoords;
+	glm::vec3 position{0,0,0};
+	glm::vec2 texCoords{0,0};
 };
 
 /// <summary>
@@ -80,7 +80,8 @@ enum class SHAPE
 {
 	UNASSIGNED,
 	CUBE,
-	PYRAMID
+	PYRAMID,
+	SPHERE
 };
 
 struct MeshData
