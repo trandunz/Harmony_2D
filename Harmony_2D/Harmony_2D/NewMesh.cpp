@@ -23,9 +23,13 @@ NewMesh::NewMesh(SHAPE _shape)
 	// Position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	// TexCoords
+	// Normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normals)));
+	// TexCoords
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+	
 
 	// Unbind
 	glBindVertexArray(0);
@@ -56,9 +60,12 @@ NewMesh::NewMesh(unsigned int _numberOfSides)
 	// Position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	// TexCoords
+	// Normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normals)));
+	// TexCoords
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
 	// Unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -101,55 +108,55 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0,0,1.0f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f},{0,0,1.0f}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0,0,1.0f},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f},  {0,0,1.0f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f},  {0,0,-1.0f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0,0,-1.0f},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f},{0,0,-1.0f},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0,0,-1.0f}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0,0},{0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0,0},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f},{1.0f,0,0}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,0,0},{1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f},{-1.0f,0,0}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f},{-1.0f,0,0}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f},{-1.0f,0,0}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {-1.0f,0,0},{1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0,1.0f,0}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0,1.0f,0},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0,1.0f,0},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0,1.0f,0},{1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f},{0,-1.0f,0}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0,-1.0f,0},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0,-1.0f,0},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0,-1.0f,0},{1.0f,1.0f} });
 		break;
 	}
 	case SHAPE::PYRAMID:
 	{
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f},{}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f},{}, {1.0f,1.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f},  {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f},{}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {}, {1.0f,0.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f},  {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {}, {0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f},{}, {1.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {},{0.0f,0.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{},{1.0f,0.0f} });
 
-		m_Vertices.emplace_back(Vertex{ {0.0f,  1.0f, 0.0f}, {0.5f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.0f,  1.0f, 0.0f},{}, {0.5f,1.0f} });
 		break;
 	}
 	case SHAPE::SPHERE:
@@ -159,13 +166,13 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 		float Theta = 0.0f;
 
 		// Each cycle moves down on the vertical (Y axis) to start the next ring
-		for (int i = 0; i < 360; i++)
+		for (int i = 0; i < 36; i++)
 		{
 			// A new  horizontal ring starts at 0 degrees
 			Theta = 0.0f;
 
 			// Creates a horizontal ring and adds each new vertex point to the vertex array
-			for (int j = 0; j < 360; j++)
+			for (int j = 0; j < 36; j++)
 			{
 				// Calculate the new vertex position point with the new angles
 				float x = cos(Phi) * sin(Theta);
@@ -175,8 +182,8 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 				// Set the position of the current vertex point
 				m_Vertices.emplace_back(Vertex{ 
 					{ x * 0.5f, y * 0.5f, z * 0.5f },
-					{ (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) },
-					//{ x,y,z } 
+					{ x,y,z },
+					{ (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) }
 					});
 
 				// Theta (Y axis) angle is incremented based on the angle created by number of sections
@@ -302,17 +309,17 @@ void NewMesh::CreatePolygonVertices(unsigned int _numberOfSides)
 	// If Its Got 4 Sides, Create Generic Quad
 	if (_numberOfSides == 4)
 	{
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.0f}, {0.0f,1.0f} }); // Top Left
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.0f}, {0.0f,0.0f} }); // Bottom Left
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.0f}, {1.0f,0.0f} }); // Bottom Right
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.0f}, {1.0f,1.0f} }); // Top Right
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.0f},{}, {0.0f,1.0f} }); // Top Left
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.0f},{}, {0.0f,0.0f} }); // Bottom Left
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.0f}, {},{1.0f,0.0f} }); // Bottom Right
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.0f}, {},{1.0f,1.0f} }); // Top Right
 		return;
 	}
 
 	float angle = 0.0f, increment = ((float)TWOPI / _numberOfSides);
 
 	// Centre
-	m_Vertices.emplace_back(Vertex{ {0.0f,  0.0f, 0.0f}, {0.5f,0.5f} });
+	m_Vertices.emplace_back(Vertex{ {0.0f,  0.0f, 0.0f},{}, {0.5f,0.5f} });
 
 	// Fan Around Centre
 	float xPos, yPos;
@@ -320,7 +327,7 @@ void NewMesh::CreatePolygonVertices(unsigned int _numberOfSides)
 	{
 		xPos = cos(angle);
 		yPos = sin(angle);
-		m_Vertices.emplace_back(Vertex{ {xPos, yPos, 0 },{ToTexCoord(xPos),ToTexCoord(yPos)} });
+		m_Vertices.emplace_back(Vertex{ {xPos, yPos, 0 },{},{ToTexCoord(xPos),ToTexCoord(yPos)} });
 		angle += increment;
 	}
 }

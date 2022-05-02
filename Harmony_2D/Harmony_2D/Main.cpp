@@ -250,6 +250,7 @@ void Start()
 	CubeMesh = new NewMesh(SHAPE::CUBE);
 	PyramidMesh = new NewMesh(SHAPE::PYRAMID);
 	QuadMesh = new NewMesh(4);
+	SphereMesh = new NewMesh(SHAPE::SPHERE);
 
 	CubeObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,-1 });
 	CubeObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
@@ -263,8 +264,8 @@ void Start()
 
 	PyramidObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,0 });
 	PyramidObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
-	PyramidObject->SetMesh(PyramidMesh);
-	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")});
+	PyramidObject->SetMesh(SphereMesh);
+	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg")});
 
 	InitTextLabels();
 }
@@ -357,6 +358,10 @@ int Cleanup()
 	if (PyramidMesh != nullptr)
 		delete PyramidMesh;
 	PyramidMesh = nullptr;
+
+	if (SphereMesh != nullptr)
+		delete SphereMesh;
+	SphereMesh = nullptr;
 
 	if (PyramidObject != nullptr)
 		delete PyramidObject;

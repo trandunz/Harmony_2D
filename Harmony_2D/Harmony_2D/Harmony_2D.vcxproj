@@ -159,7 +159,6 @@
     <ClCompile Include="FontLoader.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="NewMesh.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="TextLabel.cpp" />
@@ -172,7 +171,6 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="NewMesh.h" />
     <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="TextLabel.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>

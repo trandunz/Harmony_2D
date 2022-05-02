@@ -17,6 +17,8 @@ layout (location = 0) out vec4 FragColor;
 // Input from Previous Shader
 in vec3 Position;
 in vec2 TexCoords;
+in vec3 Normals;
+in vec3 FragPosition;
 
 // Outside Variables Passed In As 'Uniforms'
 uniform float Time;
@@ -26,6 +28,28 @@ uniform int NumberOfAnimationFrames, CurrentAnimationFrame;
 uniform bool IsAnimation;
 
 uniform sampler2D Texture0, Texture1;
+uniform vec3 CameraPosition;
+
+uniform float AmbientStength;
+uniform vec3 AmbientColor;
+
+uniform vec3 LightColor = vec3(1.0f,1.0f,1.0f);
+uniform vec3 LightPosition = vec3(-2.0f,6.0f,3.0f);
+
+uniform float Shininess;
+
+vec4 Lighting;
+
+vec3 Ambient;
+
+float DiffuseStrength;
+vec3 Diffuse;
+vec3 LightDirection;
+
+float SpecularReflectivity;
+vec3 Specular;
+vec3 ReverseViewDirection;
+vec3 ReflectedDirection;
 
 // Available Helper function Forward Declerations
 float ClampedSin(float _value);
@@ -42,7 +66,21 @@ void main()
     }
     else
     {
-        FragColor = ColourFromTexturesORWhite(TexCoords);
+        Ambient = AmbientStength * AmbientColor;
+
+        vec3 normal = normalize(Normals);
+        LightDirection = normalize(FragPosition - LightPosition);
+
+        DiffuseStrength = max(dot(normal, -LightDirection), 0.0f);
+        Diffuse = DiffuseStrength * LightColor;
+
+        ReverseViewDirection = normalize(CameraPosition - FragPosition);
+        ReflectedDirection = reflect(LightDirection, normal);
+        SpecularReflectivity = pow(max(dot(ReverseViewDirection, ReflectedDirection), 0.0f), Shininess);
+        Specular = SpecularReflectivity * LightColor;
+
+        Lighting = vec4(Ambient + Diffuse + Specular, 1.0f);
+        FragColor = Lighting * ColourFromTexturesORWhite(TexCoords);
     }
 } 
 

@@ -51,6 +51,14 @@ void GameObject::KeyboardInput(std::map<int, bool>& _keypresses)
             {
                 m_Input.y += 1.0f;
             }
+            if (item.first == GLFW_KEY_Z)
+            {
+                Rotate({ 0,1,0 }, -100 * (float) * m_DeltaTime);
+            }
+            if (item.first == GLFW_KEY_C)
+            {
+                Rotate({ 0,1,0 }, 100 * (float)*m_DeltaTime);
+            }
         }
     }
     glm::normalize(m_Input);
@@ -85,6 +93,19 @@ void GameObject::Draw()
 
         // Elapsed Time
         ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime());
+
+        // Lighting
+
+        // Ambient Lighting Strength
+        ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStength", 0.15f);
+
+        // Ambient Lighting Strength
+        ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", {1,1,1});
+
+        // Ambient Lighting Strength
+        ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f);
+
+        ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPosition", std::move(m_ActiveCamera->GetPosition()));
 
         m_Mesh->Draw();
     }
