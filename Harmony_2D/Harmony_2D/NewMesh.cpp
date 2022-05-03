@@ -183,7 +183,7 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 				m_Vertices.emplace_back(Vertex{ 
 					{ x * 0.5f, y * 0.5f, z * 0.5f },
 					{ x,y,z },
-					{ (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) }
+					{ 1 - (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) }
 					});
 
 				// Theta (Y axis) angle is incremented based on the angle created by number of sections
