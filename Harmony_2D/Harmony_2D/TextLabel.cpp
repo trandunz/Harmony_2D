@@ -75,20 +75,38 @@ void TextLabel::Draw()
 
 		origin.x += m_OriginOffset;
 
-		float textSize = 0.0f;
-		for (auto& character : m_Text)
-		{
-			FontChar fontCharacter = m_CharacterMap[character];
-			textSize += fontCharacter.advance * m_Scale.x;
-		}
+		glm::vec2 textSize = GetTextSize();
 
 		for (auto& character : m_Text)
 		{
 			fontCharacter = m_CharacterMap[character];
 			width = fontCharacter.size.x * m_Scale.x;
 			height = fontCharacter.size.y * m_Scale.y;
-			posX = (origin.x - (textSize / 2)) + fontCharacter.bearing.x * m_Scale.x;
-			posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
+			switch (m_Alignment)
+			{
+			case TEXTALIGNMENT::LEFT:
+			{
+				posX = origin.x + fontCharacter.bearing.x * m_Scale.x;
+				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
+				break;
+			}
+			case TEXTALIGNMENT::MIDDLE:
+			{
+				posX = (origin.x - (textSize.x / 2)) + fontCharacter.bearing.x * m_Scale.x;
+				posY = (origin.y - (textSize.y / 2)) - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
+				break;
+			}
+			case TEXTALIGNMENT::RIGHT:
+			{
+				posX = (origin.x - textSize.x) + fontCharacter.bearing.x * m_Scale.x;
+				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
+				break;
+			}
+			default:
+				posX = origin.x + fontCharacter.bearing.x * m_Scale.x;
+				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
+				break;
+			}
 
 			GLfloat vertices[4][4]
 			{
@@ -135,9 +153,35 @@ float TextLabel::GetRightClip()
 
 glm::vec4 TextLabel::GetBounds()
 {
+	glm::vec2 textSize = GetTextSize();
+	switch (m_Alignment)
+	{
+	case TEXTALIGNMENT::LEFT:
+	{
+		return { m_Position.x, m_Position.x + textSize.x , m_WindowSize->y - m_Position.y,  m_WindowSize->y - (m_Position.y + textSize.y) };
+		break;
+	}
+	case TEXTALIGNMENT::MIDDLE:
+	{
+		return { m_Position.x - textSize.x / 2.0, m_Position.x + textSize.x / 2.0f , m_WindowSize->y - (m_Position.y - textSize.y / 2),  m_WindowSize->y - (m_Position.y + textSize.y / 2) };
+		break;
+	}
+	case TEXTALIGNMENT::RIGHT:
+	{
+		return { m_Position.x - textSize.x, m_Position.x , m_WindowSize->y - m_Position.y,  m_WindowSize->y - (m_Position.y + textSize.y) };
+		break;
+	}
+	default:
+		return glm::vec4(0);
+		break;
+	}
+}
+
+glm::vec2 TextLabel::GetTextSize()
+{
 	float textSizeX = 0.0f;
 	float largestSizeY = 0.0f;
-	
+
 	for (auto& character : m_Text)
 	{
 		FontChar fontCharacter = m_CharacterMap[character];
@@ -149,7 +193,7 @@ glm::vec4 TextLabel::GetBounds()
 		}
 	}
 
-	return {m_Position.x - textSizeX /2.0, m_Position.x + textSizeX / 2.0f , m_WindowSize->y - m_Position.y,  m_WindowSize->y - (m_Position.y + largestSizeY) };
+	return { textSizeX , largestSizeY };
 }
 
 float TextLabel::GetAverageCharacterAdvance()
@@ -212,6 +256,16 @@ void TextLabel::SetClip(float&& _leftClip, float&& _rightClip)
 {
 	m_LeftClip = _leftClip;
 	m_RightClip = _rightClip;
+}
+
+void TextLabel::SetAlignment(TEXTALIGNMENT _newAlignment)
+{
+	m_Alignment = _newAlignment;
+}
+
+TEXTALIGNMENT TextLabel::GetAlignment()
+{
+	return m_Alignment;
 }
 
 

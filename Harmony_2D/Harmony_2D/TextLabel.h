@@ -19,6 +19,7 @@ public:
 	glm::vec2 GetPosition();
 	float GetRightClip();
 	glm::vec4 GetBounds();
+	glm::vec2 GetTextSize();
 
 	float GetAverageCharacterAdvance();
 	
@@ -32,6 +33,8 @@ public:
 	void SetScrolling(bool&& _isScrolling);
 	void SetClip(float&& _leftClip, float&& _rightClip);
 
+	void SetAlignment(TEXTALIGNMENT _newAlignment);
+	TEXTALIGNMENT GetAlignment();
 private:
 	bool m_FontLoaded = false;
 	bool m_IsScrolling = false;
@@ -47,6 +50,8 @@ private:
 	glm::vec2 m_Scale{ 1.0f, 1.0f };
 	glm::vec2 m_Position{ 0.0f, 0.0f };
 	glm::vec4 m_Colour{ 1.0f,1.0f,1.0f,1.0f };
+
+	TEXTALIGNMENT m_Alignment = TEXTALIGNMENT::MIDDLE;
 
 	GLuint m_VertexArrayID;
 	GLuint m_VertexBufferID;

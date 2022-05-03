@@ -87,6 +87,9 @@ void GameObject::Draw()
         ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime());
 
         m_Mesh->Draw();
+
+        glUseProgram(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 

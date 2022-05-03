@@ -128,7 +128,7 @@ private:
     /// </summary>
     /// <param name="_fileAddress"></param>
     /// <returns></returns>
-    static std::string PassFileToString(std::string_view&& _fileAddress);
+    static std::string PassFileToString(std::string_view _fileAddress);
 
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> m_ShaderPrograms;
     inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;

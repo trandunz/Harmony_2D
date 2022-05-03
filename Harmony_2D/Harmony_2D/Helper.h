@@ -101,6 +101,13 @@ struct FontChar
 	GLuint advance = 0; // Distance To Next Character
 };
 
+enum class TEXTALIGNMENT
+{
+	LEFT,
+	MIDDLE,
+	RIGHT
+};
+
 /// <summary>
 /// Updates the provided transform's model matrix with 
 /// its positional, rotational and scaling values.

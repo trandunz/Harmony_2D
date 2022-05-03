@@ -46,8 +46,8 @@ GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_vi
     GLuint program = glCreateProgram();
 
     // Create Shaders And Store There ID's Locally
-    GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(std::move(_vertexShader)));
-    GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(std::move(_fragmentShader)));
+    GLuint vertShader = CompileShader(GL_VERTEX_SHADER, PassFileToString(_vertexShader));
+    GLuint fragShader = CompileShader(GL_FRAGMENT_SHADER, PassFileToString(_fragmentShader));
 
     // Attach Shaders To Program
     if (IsDebug)
@@ -314,7 +314,7 @@ GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)
     return shader;
 }
 
-std::string ShaderLoader::PassFileToString(std::string_view&& _fileAddress)
+std::string ShaderLoader::PassFileToString(std::string_view _fileAddress)
 {
     // Container For File Information
     std::string content{ "" };

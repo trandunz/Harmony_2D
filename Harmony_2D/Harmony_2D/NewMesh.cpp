@@ -31,6 +31,8 @@ NewMesh::NewMesh(SHAPE _shape)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
 }
 
 NewMesh::NewMesh(unsigned int _numberOfSides)
@@ -92,7 +94,6 @@ void NewMesh::Draw()
 	glDrawElements(GL_TRIANGLES, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, nullptr);
 
 	glBindVertexArray(0);
-	glUseProgram(0);
 }
 
 void NewMesh::CreateShapeVertices(SHAPE _shape)
@@ -175,7 +176,7 @@ void NewMesh::CreateShapeVertices(SHAPE _shape)
 				// Set the position of the current vertex point
 				m_Vertices.emplace_back(Vertex{ 
 					{ x * 0.5f, y * 0.5f, z * 0.5f },
-					{ (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) },
+					{ 1 - (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) },
 					//{ x,y,z } 
 					});
 
