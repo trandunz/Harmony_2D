@@ -4,21 +4,56 @@
 class Mesh
 {
 public:
+	/// <summary>
+	/// Contruct a mesh with the given shape
+	/// </summary>
+	/// <param name="_shape"></param>
 	Mesh(SHAPE _shape);
+	/// <summary>
+	/// Construct a 2D Mesh with the given number of sides
+	/// </summary>
+	/// <param name="_numberOfSides"></param>
 	Mesh(unsigned int _numberOfSides);
+	/// <summary>
+	/// Mesh Destructor
+	/// </summary>
 	~Mesh();
-
+	/// <summary>
+	/// Draws The Mesh
+	/// </summary>
 	void Draw();
 
 private:
+	/// <summary>
+	/// Populates the vertices vector with values required for the specified shape.
+	/// </summary>
+	/// <param name="_shape"></param>
 	void CreateShapeVertices(SHAPE _shape);
+	/// <summary>
+	/// Populates the indices vector with values required for the specified shape.
+	/// </summary>
+	/// <param name="_shape"></param>
 	void CreateShapeIndices(SHAPE _shape);
-
+	/// <summary>
+	/// Populates the vertices vector with values required for the specified 2D shape.
+	/// </summary>
+	/// <param name="_numberOfSides"></param>
 	void CreatePolygonVertices(unsigned int _numberOfSides);
+	/// <summary>
+	/// Populates the indices vector with values required for the specified 2 shape.
+	/// </summary>
+	/// <param name="_numberOfSides"></param>
 	void CreatePolygonIndices(unsigned int _numberOfSides);
-
+	/// <summary>
+	/// Creates the vertexArray, vertex buffer and index buffer, 
+	/// populating them with the vertices and indices values.
+	/// </summary>
 	void CreateAndInitializeBuffers();
-
+	/// <summary>
+	/// Converts the given positional value to texture coordinate space (0-1)
+	/// </summary>
+	/// <param name="_position"></param>
+	/// <returns></returns>
 	float ToTexCoord(float& _position);
 
 	std::vector<unsigned int> m_Indices{};

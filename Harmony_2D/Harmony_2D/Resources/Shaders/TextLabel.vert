@@ -18,6 +18,7 @@ uniform float ScrollSpeed;
 uniform bool IsScrollingRight;
 uniform bool IsScrolling;
 
+// Variables
 vec2 alteredPosition;
 
 // Main function that gets called per vertex.

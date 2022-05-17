@@ -1,6 +1,6 @@
 #include "FontLoader.h"
 
-std::map<GLchar, FontChar> FontLoader::LoadFont(std::string_view _filePath, unsigned _characterLimit)
+Font FontLoader::LoadFont(std::string_view _filePath, unsigned _characterLimit)
 {
 	FT_Library fontLibrary;
 	FT_Face fontFace;

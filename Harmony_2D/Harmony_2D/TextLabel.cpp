@@ -68,41 +68,12 @@ void TextLabel::Draw()
 		GLfloat width;
 		GLfloat height;
 		glm::vec2 origin = m_Position;
-
-		origin.x += m_OriginOffset;
-
-		glm::vec2 textSize = GetTextSize();
-
-		for (auto& character : m_Text)
+		for (auto& character : m_Label)
 		{
 			fontCharacter = m_CharacterMap[character];
 			width = fontCharacter.size.x * m_Scale.x;
 			height = fontCharacter.size.y * m_Scale.y;
-			switch (m_Alignment)
-			{
-			case TEXTALIGNMENT::LEFT:
-			{
-				posX = origin.x + fontCharacter.bearing.x * m_Scale.x;
-				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
-				break;
-			}
-			case TEXTALIGNMENT::MIDDLE:
-			{
-				posX = (origin.x - (textSize.x / 2)) + fontCharacter.bearing.x * m_Scale.x;
-				posY = (origin.y - (textSize.y / 2)) - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
-				break;
-			}
-			case TEXTALIGNMENT::RIGHT:
-			{
-				posX = (origin.x - textSize.x) + fontCharacter.bearing.x * m_Scale.x;
-				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
-				break;
-			}
-			default:
-				posX = origin.x + fontCharacter.bearing.x * m_Scale.x;
-				posY = origin.y - (fontCharacter.size.y - fontCharacter.bearing.y) * m_Scale.y;
-				break;
-			}
+			ApplyAlignment(posX, posY, origin, fontCharacter);
 
 			GLfloat vertices[4][4]
 			{
@@ -111,7 +82,6 @@ void TextLabel::Draw()
 				{posX + width, posY , 1.0f, 1.0f}, // 2
 				{posX + width, posY + height, 1.0f, 0.0f} // 3
 			};
-
 
 			glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -125,9 +95,9 @@ void TextLabel::Draw()
 			origin.x += fontCharacter.advance * m_Scale.x;
 		}
 
+		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glUseProgram(0);
-		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
@@ -178,7 +148,7 @@ glm::vec2 TextLabel::GetTextSize()
 	float textSizeX = 0.0f;
 	float largestSizeY = 0.0f;
 
-	for (auto& character : m_Text)
+	for (auto& character : m_Label)
 	{
 		FontChar fontCharacter = m_CharacterMap[character];
 		textSizeX += fontCharacter.advance * m_Scale.x;
@@ -189,7 +159,7 @@ glm::vec2 TextLabel::GetTextSize()
 		}
 	}
 
-	return { textSizeX , largestSizeY };
+	return { textSizeX , largestSizeY};
 }
 
 bool TextLabel::BoundsContain(glm::vec2 _position)
@@ -207,12 +177,7 @@ bool TextLabel::BoundsContain(glm::vec2 _position)
 
 void TextLabel::SetText(std::string_view _newText)
 {
-	m_Text = _newText;
-}
-
-void TextLabel::SetOriginOffset(float&& _offset)
-{
-	m_OriginOffset = _offset;
+	m_Label = _newText;
 }
 
 void TextLabel::SetColour(glm::vec4&& _newColour)
@@ -259,6 +224,36 @@ void TextLabel::SetAlignment(TEXTALIGNMENT _newAlignment)
 TEXTALIGNMENT TextLabel::GetAlignment()
 {
 	return m_Alignment;
+}
+
+void TextLabel::ApplyAlignment(GLfloat& _xPos, GLfloat& _yPos, glm::vec2& _origin, FontChar& _fontCharacter)
+{
+	glm::vec2 textSize = GetTextSize();
+	switch (m_Alignment)
+	{
+	case TEXTALIGNMENT::LEFT:
+	{
+		_xPos = _origin.x + _fontCharacter.bearing.x * m_Scale.x;
+		_yPos = _origin.y - (_fontCharacter.size.y - _fontCharacter.bearing.y) * m_Scale.y;
+		break;
+	}
+	case TEXTALIGNMENT::MIDDLE:
+	{
+		_xPos = (_origin.x - (textSize.x / 2)) + _fontCharacter.bearing.x * m_Scale.x;
+		_yPos = (_origin.y - (textSize.y / 2)) - (_fontCharacter.size.y - _fontCharacter.bearing.y) * m_Scale.y;
+		break;
+	}
+	case TEXTALIGNMENT::RIGHT:
+	{
+		_xPos = (_origin.x - textSize.x) + _fontCharacter.bearing.x * m_Scale.x;
+		_yPos = _origin.y - (_fontCharacter.size.y - _fontCharacter.bearing.y) * m_Scale.y;
+		break;
+	}
+	default:
+		_xPos = _origin.x + _fontCharacter.bearing.x * m_Scale.x;
+		_yPos = _origin.y - (_fontCharacter.size.y - _fontCharacter.bearing.y) * m_Scale.y;
+		break;
+	}
 }
 
 

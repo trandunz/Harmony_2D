@@ -3,10 +3,18 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+using Font = std::map<GLchar, FontChar>;
+
 class FontLoader
 {
 public:
-	static std::map<GLchar, FontChar> LoadFont(std::string_view _filePath, unsigned _characterLimit = 128);
+	/// <summary>
+	/// Loads the given font and returns it.
+	/// </summary>
+	/// <param name="_filePath"></param>
+	/// <param name="_characterLimit"></param>
+	/// <returns></returns>
+	static Font LoadFont(std::string_view _filePath, unsigned _characterLimit = 128);
 private:
 	/// <summary>
 	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.

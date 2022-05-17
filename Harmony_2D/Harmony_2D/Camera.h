@@ -68,30 +68,34 @@ public:
     inline float GetFarPlane() { return m_FarPlane; }
 
     /// <summary>
-    /// Creates And Returns The Cameras View Matrix
+    /// Creates And Returns The Cameras View Matrix.
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetViewMatrix();
 
     /// <summary>
-    /// Creates And Returns The Cameras Projection Matrix
+    /// Creates And Returns The Cameras Projection Matrix.
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetProjectionMatrix();
 private:
 
     /// <summary>
-    /// Updates The Cameras Position Based On Input
+    /// Updates The Cameras Position Based On Input.
     /// </summary>
     /// <param name="_dt"></param>
     /// <returns></returns>
     bool UpdatePosition(const long double& _dt);
 
+    /// <summary>
+    /// Updates the vectors (up, ront, right) for the camera based on pitch and yaw.
+    /// </summary>
     void UpdateRotationVectors();
 
-    float m_MoveSpeed = 10.0f;
     std::map<int, bool>* m_KeyPresses = nullptr;
     glm::ivec2* m_WindowSize = nullptr;
+
+    float m_MoveSpeed = 10.0f;
 
     bool m_Perspective = true;
 

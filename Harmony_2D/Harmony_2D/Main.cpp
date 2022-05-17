@@ -38,7 +38,7 @@ Mesh* CubeMesh = nullptr;
 Mesh* PyramidMesh = nullptr;
 
 std::vector<TextLabel*> TextLabels{};
-std::map<GLchar, FontChar> ArialFont;
+Font ArialFont;
 Camera* SceneCamera = nullptr;
 GLFWwindow* RenderWindow = nullptr;
 
@@ -113,7 +113,7 @@ static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCod
 	if (EnterUsername)
 	{
 		// If Name Does Not Exceed Bounds
-		if (TextLabels[0]->GetBounds().y < TextLabels[0]->GetRightClip())
+		if (TextLabels[0]->GetBounds().y < TextLabels[0]->GetRightClip() - 60)
 		{
 			// Grab Entered Character
 			Username += (char)_uniCode;
@@ -150,7 +150,7 @@ void InitGLFW()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create Window
-	RenderWindow = glfwCreateWindow(WindowSize.x, WindowSize.y, "GD1P04 - Assessment 1", NULL, NULL);
+	RenderWindow = glfwCreateWindow(WindowSize.x, WindowSize.y, "GD1P04 - Assessment 2", NULL, NULL);
 
 	// Set Context To New Window
 	glfwMakeContextCurrent(RenderWindow);

@@ -4,7 +4,6 @@ Mesh::Mesh(SHAPE _shape)
 {
 	CreateShapeVertices(_shape);
 	CreateShapeIndices(_shape);
-
 	CreateAndInitializeBuffers();
 }
 
@@ -12,7 +11,6 @@ Mesh::Mesh(unsigned int _numberOfSides)
 {
 	CreatePolygonVertices(_numberOfSides);
 	CreatePolygonIndices(_numberOfSides);
-
 	CreateAndInitializeBuffers();
 }
 
@@ -153,41 +151,42 @@ void Mesh::CreateShapeIndices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
+		// First Quad
 		m_Indices.emplace_back(0);
 		m_Indices.emplace_back(1);
 		m_Indices.emplace_back(2);
 		m_Indices.emplace_back(0);
 		m_Indices.emplace_back(2);
 		m_Indices.emplace_back(3);
-
+		// Second Quad
 		m_Indices.emplace_back(4);
 		m_Indices.emplace_back(5);
 		m_Indices.emplace_back(6);
 		m_Indices.emplace_back(4);
 		m_Indices.emplace_back(6);
 		m_Indices.emplace_back(7);
-
+		// Third Quad
 		m_Indices.emplace_back(8);
 		m_Indices.emplace_back(9);
 		m_Indices.emplace_back(10);
 		m_Indices.emplace_back(8);
 		m_Indices.emplace_back(10);
 		m_Indices.emplace_back(11);
-
+		// Fourth Quad
 		m_Indices.emplace_back(12);
 		m_Indices.emplace_back(13);
 		m_Indices.emplace_back(14);
 		m_Indices.emplace_back(12);
 		m_Indices.emplace_back(14);
 		m_Indices.emplace_back(15);
-
+		// Fith Quad
 		m_Indices.emplace_back(16);
 		m_Indices.emplace_back(17);
 		m_Indices.emplace_back(18);
 		m_Indices.emplace_back(16);
 		m_Indices.emplace_back(18);
 		m_Indices.emplace_back(19);
-
+		// Sixth Quad
 		m_Indices.emplace_back(20);
 		m_Indices.emplace_back(21);
 		m_Indices.emplace_back(22);

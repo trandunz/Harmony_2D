@@ -1,3 +1,5 @@
+// Jon lajoie
+
 #include "GameObject.h"
 
 GameObject::GameObject(Camera& _camera, double& _deltaTime, glm::vec3 _position)
@@ -58,6 +60,7 @@ void GameObject::KeyboardInput(std::map<int, bool>& _keypresses)
 
 void GameObject::Update()
 {
+    // If player provides input, Translate the gameobject accordingly.
     if (Magnitude(m_Input) > 0)
         Translate(m_Input * (float)*m_DeltaTime * m_MovementSpeed);
 }
@@ -66,6 +69,7 @@ void GameObject::Draw()
 {
     if (m_Mesh)
     {
+        // Bind shader
         glUseProgram(m_ShaderID);
 
         // Textures
@@ -80,8 +84,10 @@ void GameObject::Draw()
         // Projection * View * Model Matrix
         ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
 
+        // Draw the mesh
         m_Mesh->Draw();
 
+        // Unbind
         glUseProgram(0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -150,9 +156,13 @@ void GameObject::Scale(glm::vec3 _scaleFactor)
 
 void GameObject::RotateAround(glm::vec3&& _position, glm::vec3&& _axis, float&& _degrees)
 {
+    // get direction to the position
     glm::vec3 direction = glm::abs(_position - m_Transform.translation);
+    // Translate to wards it
     m_Transform.transform = glm::translate(m_Transform.transform, direction);
+    // Rotate
     m_Transform.transform = glm::rotate(m_Transform.transform, _degrees, _axis);
+    // Translate back
     m_Transform.transform = glm::translate(m_Transform.transform, -direction);
 }
 
@@ -188,3 +198,5 @@ GLuint GameObject::GetShader()
 {
     return m_ShaderID;
 }
+
+
