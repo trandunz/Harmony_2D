@@ -1,6 +1,6 @@
 #pragma once
 #include "Helper.h"
-#include "NewMesh.h"
+#include "Mesh.h"
 #include "Camera.h"
 class GameObject
 {
@@ -15,8 +15,8 @@ public:
 	void SetName(std::string_view _newName);
 	std::string_view GetName();
 
-	void SetMesh(NewMesh* _mesh);
-	NewMesh* GetMesh();
+	void SetMesh(Mesh* _mesh);
+	Mesh* GetMesh();
 
 	void SetTranslation(glm::vec3 _newPosition);
 	void Translate(glm::vec3 _translation);
@@ -43,7 +43,7 @@ private:
 	glm::uint m_ShaderID{0};
 	glm::vec3 m_Input{};
 	float m_MovementSpeed = 10.0f;
-	NewMesh* m_Mesh = nullptr;
+	Mesh* m_Mesh = nullptr;
 	Camera* m_ActiveCamera = nullptr;
 	double* m_DeltaTime = nullptr;
 	Transform m_Transform{};

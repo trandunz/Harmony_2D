@@ -3,12 +3,11 @@
   GameObject.cpp
   Main.cpp
   Mesh.cpp
-  NewMesh.cpp
   ShaderLoader.cpp
   TextLabel.cpp
   TextureLoader.cpp
   Generating code
   Previous IPDB not found, fall back to full compilation.
-  All 1223 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 1214 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
-  Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Release\Harmony_2D.exe
+  Harmony_2D.vcxproj -> D:\Users\mds00002d0\Documents\GitHub\Harmony_2D\Harmony_2D\Release\Harmony_2D.exe

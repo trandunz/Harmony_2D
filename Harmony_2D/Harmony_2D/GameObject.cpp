@@ -77,14 +77,8 @@ void GameObject::Draw()
             ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
         }
 
-        // Model Matrix
-        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "Model", std::move(m_Transform.transform));
-
-        // Projection * View Matrix
-        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMatrix", m_ActiveCamera->GetPVMatrix());
-
-        // Elapsed Time
-        ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Time", (float)glfwGetTime());
+        // Projection * View * Model Matrix
+        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
 
         m_Mesh->Draw();
 
@@ -103,12 +97,12 @@ std::string_view GameObject::GetName()
     return m_Name;
 }
 
-void GameObject::SetMesh(NewMesh* _mesh)
+void GameObject::SetMesh(Mesh* _mesh)
 {
     m_Mesh = _mesh;
 }
 
-NewMesh* GameObject::GetMesh()
+Mesh* GameObject::GetMesh()
 {
     if (m_Mesh)
         return m_Mesh;

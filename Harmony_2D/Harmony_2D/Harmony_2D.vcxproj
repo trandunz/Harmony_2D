@@ -160,7 +160,6 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="NewMesh.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="TextLabel.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
@@ -170,15 +169,14 @@
     <ClInclude Include="FontLoader.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Helper.h" />
-    <ClInclude Include="NewMesh.h" />
-    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="TextLabel.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\basic.frag" />
-    <None Include="Resources\Shaders\basic.vert" />
+    <None Include="Resources\Shaders\SingleTexture.frag" />
+    <None Include="Resources\Shaders\SingleTexture.vert" />
     <None Include="Resources\Shaders\TextLabel.frag" />
     <None Include="Resources\Shaders\TextLabel.vert" />
   </ItemGroup>

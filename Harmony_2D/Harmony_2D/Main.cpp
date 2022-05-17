@@ -14,7 +14,7 @@
 
 static glm::ivec2 WindowSize{ 1000,1000 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
-static bool IsMouseVisible = false, IsWireframe = false, EnterUsername = false ,ExitProcess = false;
+static bool IsMouseVisible = false, IsWireframe = false, EnterUsername = false;
 static std::string Username = "";
 static std::map<int, bool> Keypresses;
 
@@ -33,13 +33,12 @@ void HandleMouseVisible();
 GameObject* CubeObject = nullptr;
 GameObject* CubeObject2 = nullptr;
 GameObject* PyramidObject = nullptr;
-NewMesh* CubeMesh = nullptr;
-NewMesh* PyramidMesh = nullptr;
-NewMesh* QuadMesh = nullptr;
-NewMesh* SphereMesh = nullptr;
+
+Mesh* CubeMesh = nullptr;
+Mesh* PyramidMesh = nullptr;
 
 std::vector<TextLabel*> TextLabels{};
-std::map<GLchar, FontChar> m_Arial;
+std::map<GLchar, FontChar> ArialFont;
 Camera* SceneCamera = nullptr;
 GLFWwindow* RenderWindow = nullptr;
 
@@ -78,10 +77,7 @@ static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpo
 		cursorPosition += std::to_string((int)_ypos);
 		Print(cursorPosition);
 
-		if ((float)_xpos > TextLabels[5]->GetBounds().x
-			&& (float)_xpos < TextLabels[5]->GetBounds().y
-			&& (float)_ypos < TextLabels[5]->GetBounds().z
-			&& (float)_ypos > TextLabels[5]->GetBounds().w)
+		if (TextLabels[5]->BoundsContain({(float)_xpos , (float) _ypos}))
 		{
 			TextLabels[5]->SetColour({ 0.0f,1.0f,0.0f,1.0f });
 		}
@@ -188,35 +184,35 @@ void InitGLEW()
 
 void InitTextLabels()
 {
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "Username", m_Arial, DeltaTime, { (float)WindowSize.x / 2.0f, 50.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Username", ArialFont, DeltaTime, { (float)WindowSize.x / 2.0f, 50.0f }));
 	TextLabels.back()->SetClip(350.0f, 650.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "Enter To Type UserName ", m_Arial, DeltaTime, { 0.0f, 15.0f }, { 0.8f, 0.2f , 1.0f, 1.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Enter To Type UserName ", ArialFont, DeltaTime, { 0.0f, 15.0f }, { 0.8f, 0.2f , 1.0f, 1.0f }));
 	TextLabels.back()->SetClip(0.0f, 500.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 	TextLabels.back()->SetScrolling(true);
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "BackSpace To Delete Last Character ", m_Arial, DeltaTime, { (float)WindowSize.x / 2.0f, 15.0f }, { 0.8f, 0.1f , 0.1f, 1.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "BackSpace To Delete Last Character ", ArialFont, DeltaTime, { (float)WindowSize.x / 2.0f, 15.0f }, { 0.8f, 0.1f , 0.1f, 1.0f }));
 	TextLabels.back()->SetClip(500.0f, 1000.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 	TextLabels.back()->SetScrolling(true);
 	TextLabels.back()->SetScrollingRight(false);
 	TextLabels.back()->SetScrollSpeed(0.5f);
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "TAB To Toggle Mouse", m_Arial, DeltaTime, { 250.0f, (float)WindowSize.y - 35.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "TAB To Toggle Mouse", ArialFont, DeltaTime, { 250.0f, (float)WindowSize.y - 35.0f }));
 	TextLabels.back()->SetClip(0.0f, 450.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "CAPSLOCK To Toggle Wireframe", m_Arial, DeltaTime, { 250.0f, (float)WindowSize.y - 65.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "CAPSLOCK To Toggle Wireframe", ArialFont, DeltaTime, { 250.0f, (float)WindowSize.y - 65.0f }));
 	TextLabels.back()->SetClip(0.0f, 500.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "Hover Over Me", m_Arial, DeltaTime, { 800.0f, (float)WindowSize.y - 105.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "Hover Over Me", ArialFont, DeltaTime, { 800.0f, (float)WindowSize.y - 105.0f }));
 	TextLabels.back()->SetClip(540.0f, 1100.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 
-	TextLabels.emplace_back(new TextLabel(&WindowSize, "ESC To Close Window", m_Arial, DeltaTime, { 800.0f, (float)WindowSize.y - 55.0f }));
+	TextLabels.emplace_back(new TextLabel(&WindowSize, "ESC To Close Window", ArialFont, DeltaTime, { 800.0f, (float)WindowSize.y - 55.0f }));
 	TextLabels.back()->SetClip(540.0f, 1100.0f);
 	TextLabels.back()->SetScale({ 0.25f, 0.25f });
 }
@@ -242,27 +238,26 @@ void Start()
 		"Resources/Textures/Gull.jpg"
 		});
 
-	m_Arial = FontLoader::LoadFont("Resources/Fonts/ARIAL.TTF");
+	ArialFont = FontLoader::LoadFont("Resources/Fonts/ARIAL.TTF");
 
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,10});
 
-	CubeMesh = new NewMesh(SHAPE::CUBE);
-	PyramidMesh = new NewMesh(SHAPE::PYRAMID);
-	QuadMesh = new NewMesh(4);
+	CubeMesh = new Mesh(SHAPE::CUBE);
+	PyramidMesh = new Mesh(SHAPE::PYRAMID);
 
 	CubeObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,-1 });
-	CubeObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	CubeObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
 	CubeObject->SetMesh(CubeMesh);
 	CubeObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg") });
 
 	CubeObject2 = new GameObject(*SceneCamera, DeltaTime, { 0,0,-2 });
-	CubeObject2->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	CubeObject2->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
 	CubeObject2->SetMesh(CubeMesh);
 	CubeObject2->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/path.jpg") });
 
 	PyramidObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,0 });
-	PyramidObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/basic.vert", "Resources/Shaders/basic.frag"));
+	PyramidObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
 	PyramidObject->SetMesh(PyramidMesh);
 	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")});
 
@@ -274,7 +269,7 @@ void Start()
 /// </summary>
 void Update()
 {
-	while (ExitProcess == false)
+	while (glfwWindowShouldClose(RenderWindow) == false)
 	{
 		// Clear Default Frame Buffer Of Colour
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -297,11 +292,6 @@ void Update()
 		float xScale = ClampedSin((float)glfwGetTime(), 20, 2, 0.3f);
 		float yScale = ClampedSin((float)glfwGetTime(), 20, 2, 0.3f);
 		TextLabels.back()->SetScale({ xScale,yScale });
-
-		for (auto& textLabel : TextLabels)
-		{
-			textLabel->Update();
-		}
 
 		PyramidObject->Update();
 		CubeObject->Update();
@@ -346,18 +336,16 @@ void Render()
 /// <returns></returns>
 int Cleanup()
 {
+	// Cleanup Meshes
 	if (CubeMesh != nullptr)
 		delete CubeMesh;
 	CubeMesh = nullptr;
-
-	if (QuadMesh != nullptr)
-		delete QuadMesh;
-	QuadMesh = nullptr;
 
 	if (PyramidMesh != nullptr)
 		delete PyramidMesh;
 	PyramidMesh = nullptr;
 
+	// Cleanup Objects
 	if (PyramidObject != nullptr)
 		delete PyramidObject;
 	PyramidObject = nullptr;
@@ -370,6 +358,7 @@ int Cleanup()
 		delete CubeObject2;
 	CubeObject2 = nullptr;
 
+	// Clean up TextLabels
 	for (auto& textLabel : TextLabels)
 	{
 		if (textLabel)
@@ -377,7 +366,9 @@ int Cleanup()
 		textLabel = nullptr;
 	}
 	TextLabels.clear();
-	m_Arial.clear();
+
+	// Clean up Arial Font
+	ArialFont.clear();
 
 	// Cleanup Scene Camera
 	if (SceneCamera != nullptr)
@@ -466,7 +457,7 @@ void HandleKeymapActions()
 			case GLFW_KEY_ESCAPE:
 			{
 				// Set Window To Close At End Of Frame
-				ExitProcess = true;
+				glfwSetWindowShouldClose(RenderWindow, true);
 
 				// On Button Down Instead Of Hold
 				item.second = false;

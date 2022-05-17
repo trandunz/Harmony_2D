@@ -46,10 +46,6 @@ TextLabel::~TextLabel()
 	m_DeltaTime = nullptr;
 }
 
-void TextLabel::Update()
-{
-}
-
 void TextLabel::Draw()
 {
 	if (m_FontLoaded)
@@ -196,20 +192,17 @@ glm::vec2 TextLabel::GetTextSize()
 	return { textSizeX , largestSizeY };
 }
 
-float TextLabel::GetAverageCharacterAdvance()
+bool TextLabel::BoundsContain(glm::vec2 _position)
 {
-	if (m_Text.size() <= 0)
+	if (_position.x > GetBounds().x
+		&& _position.x < GetBounds().y
+		&& _position.y < GetBounds().z
+		&& _position.y > GetBounds().w)
 	{
-		return 0;
+		return true;
 	}
-	float averageLength = 0.0f;
-	for (auto& character : m_Text)
-	{
-		FontChar fontCharacter = m_CharacterMap[character];
-		averageLength += fontCharacter.advance;
-	}
-	averageLength /= m_Text.size();
-	return averageLength;
+	else
+		return false;
 }
 
 void TextLabel::SetText(std::string_view _newText)

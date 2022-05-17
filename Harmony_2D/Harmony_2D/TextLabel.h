@@ -3,15 +3,11 @@
 #include "TextureLoader.h"
 #include "ShaderLoader.h"
 
-
-
 class TextLabel
 {
 public:
 	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::map<GLchar, FontChar> _loadedFont, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 0.0f, 0.0f, 0.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
 	~TextLabel();
-
-	void Update();
 
 	void Draw();
 
@@ -21,7 +17,7 @@ public:
 	glm::vec4 GetBounds();
 	glm::vec2 GetTextSize();
 
-	float GetAverageCharacterAdvance();
+	bool BoundsContain(glm::vec2 _position);
 	
 	void SetText(std::string_view _newText);
 	void SetOriginOffset(float&& _offset);
