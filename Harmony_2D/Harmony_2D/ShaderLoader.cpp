@@ -27,7 +27,7 @@ ShaderLoader::~ShaderLoader()
     m_Uniforms.clear();
 }
 
-GLuint ShaderLoader::CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader)
+GLuint ShaderLoader::CreateShader(std::string&& _vertexShader, std::string&& _fragmentShader)
 {
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_ShaderPrograms)
@@ -314,19 +314,19 @@ GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)
     return shader;
 }
 
-std::string ShaderLoader::PassFileToString(std::string_view _fileAddress)
+std::string ShaderLoader::PassFileToString(const std::string& _fileName)
 {
     // Container For File Information
     std::string content{ "" };
 
     // File Stream
-    std::ifstream fileStream(_fileAddress.data());
+    std::ifstream fileStream("Resources/Shaders/" + _fileName);
 
     // If File Dident Open
     if (!fileStream.is_open())
     {
         std::string debugOutput = "Could not read file ";
-        debugOutput += _fileAddress.data();
+        debugOutput += _fileName;
         debugOutput += ". File does not exist.";
         Print(debugOutput);
         return content;

@@ -80,6 +80,7 @@ public:
 	/// </summary>
 	/// <param name="_newPosition"></param>
 	void SetPosition(glm::vec2&& _newPosition);
+
 	void SetScrollSpeed(float&& _newSpeed);
 	void SetScrollingRight(bool&& _isScrollingRight);
 	void SetScrolling(bool&& _isScrolling);

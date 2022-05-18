@@ -28,7 +28,7 @@ public:
 	/// </summary>
 	/// <param name="_filePath"></param>
 	/// <returns></returns>
-	static Texture LoadTexture(const char* _filePath);
+	static Texture LoadTexture(std::string&& _fileName);
 
 private:
 	inline static std::vector<Texture> m_Textures;

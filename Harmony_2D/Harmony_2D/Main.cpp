@@ -104,8 +104,11 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 	else if (_action == GLFW_RELEASE)
 		Keypresses[_key] = false;
 
-	if (PyramidObject)
+	if (PyramidObject && !EnterUsername)
 		PyramidObject->KeyboardInput(Keypresses);
+	else if (PyramidObject && EnterUsername)
+		PyramidObject->ClearInputVector();
+
 }
 
 static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCode)
@@ -230,15 +233,15 @@ void Start()
 	
 	// Initialize Texture Loader
 	TextureLoader::Init({ 
-		"Resources/Textures/Capguy_Walk.png", 
-		"Resources/Textures/path.jpg",
-		"Resources/Textures/AwesomeFace.png",
-		"Resources/Textures/Rayman.jpg" ,
-		"Resources/Textures/Raven.png",
-		"Resources/Textures/Gull.jpg"
+		"Capguy_Walk.png", 
+		"path.jpg",
+		"AwesomeFace.png",
+		"Rayman.jpg" ,
+		"Raven.png",
+		"Gull.jpg"
 		});
 
-	ArialFont = FontLoader::LoadFont("Resources/Fonts/ARIAL.TTF");
+	ArialFont = FontLoader::LoadFont("ARIAL.TTF");
 
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, Keypresses, {0,0,10});
@@ -247,19 +250,19 @@ void Start()
 	PyramidMesh = new Mesh(SHAPE::PYRAMID);
 
 	CubeObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,-1 });
-	CubeObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
+	CubeObject->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
 	CubeObject->SetMesh(CubeMesh);
-	CubeObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Rayman.jpg") });
+	CubeObject->SetActiveTextures({ TextureLoader::LoadTexture("Rayman.jpg") });
 
 	CubeObject2 = new GameObject(*SceneCamera, DeltaTime, { 0,0,-2 });
-	CubeObject2->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
+	CubeObject2->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
 	CubeObject2->SetMesh(CubeMesh);
-	CubeObject2->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/path.jpg") });
+	CubeObject2->SetActiveTextures({ TextureLoader::LoadTexture("path.jpg") });
 
 	PyramidObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,0 });
-	PyramidObject->SetShader(ShaderLoader::CreateShader("Resources/Shaders/SingleTexture.vert", "Resources/Shaders/SingleTexture.frag"));
+	PyramidObject->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
 	PyramidObject->SetMesh(PyramidMesh);
-	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Resources/Textures/Gull.jpg")});
+	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Gull.jpg")});
 
 	InitTextLabels();
 }

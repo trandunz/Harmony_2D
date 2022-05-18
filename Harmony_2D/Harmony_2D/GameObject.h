@@ -133,6 +133,10 @@ public:
 	/// <returns></returns>
 	GLuint GetShader();
 
+	/// <summary>
+	/// Clears the input vector to prevent further movement e.t.c
+	/// </summary>
+	void ClearInputVector();
 private:
 	std::vector<Texture> m_ActiveTextures{};
 	glm::uint m_ShaderID{0};

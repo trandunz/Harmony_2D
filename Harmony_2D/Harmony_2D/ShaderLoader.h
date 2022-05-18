@@ -27,7 +27,7 @@ public:
     /// <param name="_vertexShader"></param>
     /// <param name="_fragmentShader"></param>
     /// <returns></returns>
-    static GLuint CreateShader(std::string_view _vertexShader, std::string_view _fragmentShader);
+    static GLuint CreateShader(std::string&& _vertexShader, std::string&& _fragmentShader);
 
     /// <summary>
     /// Sets Uniform 1i At Location Using Caching Optimization
@@ -128,7 +128,7 @@ private:
     /// </summary>
     /// <param name="_fileAddress"></param>
     /// <returns></returns>
-    static std::string PassFileToString(std::string_view _fileAddress);
+    static std::string PassFileToString(const std::string& _fileName);
 
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> m_ShaderPrograms;
     inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;

@@ -32,21 +32,21 @@ void TextureLoader::Init(std::vector<const char*>&& _textures)
     }
 }
 
-Texture TextureLoader::LoadTexture(const char* _filePath)
+Texture TextureLoader::LoadTexture(std::string&& _fileName)
 {
     // Checks If A Texture With The Same File path Has Already Been Created
     for (auto& item : m_Textures)
     {
-        if (item.FilePath == _filePath)
+        if (item.FilePath == _fileName)
         {
             return item;
         }
     }
 
     GLint width, height, components;
-
+    _fileName = "Resources/Textures/" + _fileName;
     // Grab Image Data Using STB_Image And Store It In A const char*
-    GLubyte* imageData = stbi_load(_filePath, &width, &height, &components, 0);
+    GLubyte* imageData = stbi_load(_fileName.data(), &width, &height, &components, 0);
     
     // Generate And Bind A New Texture
     GLuint id;
@@ -75,7 +75,7 @@ Texture TextureLoader::LoadTexture(const char* _filePath)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // Add Newly Created Texture To Vector
-    m_Textures.emplace_back(Texture{ id , {width,height},_filePath });
+    m_Textures.emplace_back(Texture{ id , {width,height},_fileName.data() });
 
     // Return Newly Created Texture
     return m_Textures.back();

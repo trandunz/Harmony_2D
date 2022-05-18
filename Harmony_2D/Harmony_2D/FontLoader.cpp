@@ -1,17 +1,17 @@
 #include "FontLoader.h"
 
-Font FontLoader::LoadFont(std::string_view _filePath, unsigned _characterLimit)
+Font FontLoader::LoadFont(std::string&& _fileName, unsigned _characterLimit)
 {
 	FT_Library fontLibrary;
 	FT_Face fontFace;
 	std::map<GLchar, FontChar> characterMap{};
-
+	_fileName = "Resources/Fonts/" + _fileName;
 	if (FT_Init_FreeType(&fontLibrary) != 0)
 	{
 		Print("Failed To Inialize FreeType Library");
 		return characterMap;
 	}
-	if (FT_New_Face(fontLibrary, _filePath.data(), 0, &fontFace) != 0)
+	if (FT_New_Face(fontLibrary, _fileName.data(), 0, &fontFace) != 0)
 	{
 		Print("Failed To Load Font");
 		return characterMap;

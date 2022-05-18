@@ -14,7 +14,7 @@ public:
 	/// <param name="_filePath"></param>
 	/// <param name="_characterLimit"></param>
 	/// <returns></returns>
-	static Font LoadFont(std::string_view _filePath, unsigned _characterLimit = 128);
+	static Font LoadFont(std::string&& _fileName, unsigned _characterLimit = 128);
 private:
 	/// <summary>
 	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.

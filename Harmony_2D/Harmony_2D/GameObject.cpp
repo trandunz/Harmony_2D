@@ -199,4 +199,9 @@ GLuint GameObject::GetShader()
     return m_ShaderID;
 }
 
+void GameObject::ClearInputVector()
+{
+    m_Input = {};
+}
+
 

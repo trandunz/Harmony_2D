@@ -13,7 +13,7 @@ TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::map
 		m_FontLoaded = true;
 
 	m_ProjectionMatrix = glm::ortho(0.0f, (float)m_WindowSize->x, 0.0f, (float)m_WindowSize->y, 0.0f, 10.0f);
-	m_ProgramID = ShaderLoader::CreateShader("Resources/Shaders/TextLabel.vert", "Resources/Shaders/TextLabel.frag");
+	m_ProgramID = ShaderLoader::CreateShader("TextLabel.vert", "TextLabel.frag");
 
 	glGenVertexArrays(1, &m_VertexArrayID);
 	glBindVertexArray(m_VertexArrayID);
