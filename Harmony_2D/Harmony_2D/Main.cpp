@@ -14,8 +14,7 @@
 
 static glm::ivec2 WindowSize{ 1000,1000 };
 static double DeltaTime = 0.0, LastFrame = 0.0;
-static bool IsMouseVisible = false, IsWireframe = false, EnterUsername = false;
-static std::string Username = "";
+static bool IsMouseVisible = false, IsWireframe = false;
 static std::map<int, bool> Keypresses;
 
 void InitGLFW();
@@ -42,6 +41,8 @@ Font ArialFont;
 Camera* SceneCamera = nullptr;
 GLFWwindow* RenderWindow = nullptr;
 
+std::string Username = "";
+bool EnterUsername = false;
 
 /// <summary>
 /// Calculates The Time Taken Between The Last Frame And The Current One
@@ -69,22 +70,16 @@ static inline void WindowResizeCallback(GLFWwindow* _renderWindow, int _width, i
 
 static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpos, double _ypos)
 {
+	// If The Mouse Is Visible
 	if (IsMouseVisible)
 	{
+		// Add Cursor Position To String
 		std::string cursorPosition = "Cursor Position | X: ";
 		cursorPosition += std::to_string((int)_xpos);
 		cursorPosition += " Y: ";
 		cursorPosition += std::to_string((int)_ypos);
+		// Print it to console output stream
 		Print(cursorPosition);
-
-		if (TextLabels[5]->BoundsContain({(float)_xpos , (float) _ypos}))
-		{
-			TextLabels[5]->SetColour({ 0.0f,1.0f,0.0f,1.0f });
-		}
-		else
-		{
-			TextLabels[5]->SetColour({ 0.0f,0.0f,0.0f,1.0f });
-		}
 	}
 }
 
@@ -105,7 +100,7 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 		Keypresses[_key] = false;
 
 	if (PyramidObject && !EnterUsername)
-		PyramidObject->KeyboardInput(Keypresses);
+		PyramidObject->Movement_WASDEQ(Keypresses);
 	else if (PyramidObject && EnterUsername)
 		PyramidObject->ClearInputVector();
 
@@ -250,17 +245,17 @@ void Start()
 	PyramidMesh = new Mesh(SHAPE::PYRAMID);
 
 	CubeObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,-1 });
-	CubeObject->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
+	CubeObject->SetShader("SingleTexture.vert", "SingleTexture.frag");
 	CubeObject->SetMesh(CubeMesh);
 	CubeObject->SetActiveTextures({ TextureLoader::LoadTexture("Rayman.jpg") });
 
 	CubeObject2 = new GameObject(*SceneCamera, DeltaTime, { 0,0,-2 });
-	CubeObject2->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
+	CubeObject2->SetShader("SingleTexture.vert", "SingleTexture.frag");
 	CubeObject2->SetMesh(CubeMesh);
 	CubeObject2->SetActiveTextures({ TextureLoader::LoadTexture("path.jpg") });
 
 	PyramidObject = new GameObject(*SceneCamera, DeltaTime, { 0,0,0 });
-	PyramidObject->SetShader(ShaderLoader::CreateShader("SingleTexture.vert", "SingleTexture.frag"));
+	PyramidObject->SetShader("SingleTexture.vert", "SingleTexture.frag");
 	PyramidObject->SetMesh(PyramidMesh);
 	PyramidObject->SetActiveTextures({ TextureLoader::LoadTexture("Gull.jpg")});
 
@@ -302,6 +297,24 @@ void Update()
 
 		CubeObject->RotateAround({ 0,0,0 }, { 0,1,0 }, (float)DeltaTime);
 		CubeObject2->RotateAround({ 0,0,0 }, { 1,0,0 }, (float)DeltaTime);
+
+		// If the mouse is inside the "Hover Over Me" Text
+		// Turn it Red
+		// Else Make It White
+		double mouseX{ (double)WindowSize.x / 2 };
+		double mouseY{ (double)WindowSize.y / 2 };
+		if (IsMouseVisible)
+		{
+			glfwGetCursorPos(RenderWindow, &mouseX, &mouseY);
+		}
+		if (TextLabels[5]->BoundsContain({ (float)mouseX , (float)mouseY }))
+		{
+			TextLabels[5]->SetColour({ 0.0f,1.0f,0.0f,1.0f });
+		}
+		else
+		{
+			TextLabels[5]->SetColour({ 0.0f,0.0f,0.0f,1.0f });
+		}
 
 		// Main Render
 		Render();
@@ -371,6 +384,10 @@ int Cleanup()
 	TextLabels.clear();
 
 	// Clean up Arial Font
+	for (auto& fontCharacter : ArialFont)
+	{
+		glDeleteTextures(1, &fontCharacter.second.textureID);
+	}
 	ArialFont.clear();
 
 	// Cleanup Scene Camera
@@ -404,6 +421,9 @@ void HandleKeymapActions()
 				{
 					// Toggle Mouse Visible
 					IsMouseVisible = !IsMouseVisible;
+
+					glfwSetCursorPos(RenderWindow, (double)WindowSize.x / 2, (double)WindowSize.y / 2);
+
 					// Update Based On Bool
 					HandleMouseVisible();
 				}
@@ -481,7 +501,10 @@ void HandleMouseVisible()
 	if (IsMouseVisible)
 		glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	else
+	{
 		glfwSetInputMode(RenderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+		
 }
 
 

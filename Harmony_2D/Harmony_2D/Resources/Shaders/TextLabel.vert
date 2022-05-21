@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : basic.vert
+// Description : Generic vertex shader for handling TextLabels And Scrolling TextLabels
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #version 460 core
 
 // Input locations from vertex buffer
@@ -18,29 +28,26 @@ uniform float ScrollSpeed;
 uniform bool IsScrollingRight;
 uniform bool IsScrolling;
 
-// Variables
-vec2 alteredPosition;
-
 // Main function that gets called per vertex.
 void main()
 {
 	LeftClipPass = LeftClip;
 	RightClipPass = RightClip;
+
 	TexCoords = l_vertex.zw;
-	alteredPosition = l_vertex.xy;
+
+	Position = l_vertex.xy;
 	if (IsScrolling)
 	{
 		if (IsScrollingRight)
 		{
-			alteredPosition.x = mod((l_vertex.x + ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
+			Position.x = mod((l_vertex.x + ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
 		}
 		else
 		{
-			alteredPosition.x = mod((l_vertex.x - ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
+			Position.x = mod((l_vertex.x - ElapsedTime * ScrollSpeed) - LeftClip, RightClip - LeftClip) + LeftClip;
 		}
 	}
-		
-	Position = alteredPosition;
 
-	gl_Position = PMatrix * vec4(alteredPosition, 0.0f, 1.0f);
+	gl_Position = PMatrix * vec4(Position, 0.0f, 1.0f);
 }

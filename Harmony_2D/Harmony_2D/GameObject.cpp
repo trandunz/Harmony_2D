@@ -1,4 +1,12 @@
-// Jon lajoie
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : GameObject.cpp 
+// Description : GameObject Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
 
 #include "GameObject.h"
 
@@ -6,6 +14,7 @@ GameObject::GameObject(Camera& _camera, double& _deltaTime, glm::vec3 _position)
 {
     m_ActiveCamera = &_camera;
     m_DeltaTime = &_deltaTime;
+    // Set starting position
     SetTranslation(_position);
 }
 
@@ -22,8 +31,9 @@ GameObject::~GameObject()
     m_ActiveTextures.clear();
 }
 
-void GameObject::KeyboardInput(std::map<int, bool>& _keypresses)
+void GameObject::Movement_WASDEQ(std::map<int, bool>& _keypresses)
 {
+    // Grab keyboard input for moving Object With WASDQE
     m_Input = {};
     for (auto& item : _keypresses)
     {
@@ -55,6 +65,7 @@ void GameObject::KeyboardInput(std::map<int, bool>& _keypresses)
             }
         }
     }
+    // Normalize the input vecor.
     glm::normalize(m_Input);
 }
 
@@ -72,18 +83,23 @@ void GameObject::Draw()
         // Bind shader
         glUseProgram(m_ShaderID);
 
-        // Textures
-        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", (GLint)m_ActiveTextures.size());
-        for (unsigned i = 0; i < m_ActiveTextures.size(); i++)
+        // If shader program is single texture
+        if (m_ShaderLocation.vertShader == "SingleTexture.vert" && 
+            m_ShaderLocation.fragShader == "SingleTexture.frag")
         {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[i].ID);
-            ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture" + std::to_string(i), std::move(i));
+            // Apply Texture
+            if (m_ActiveTextures.size() > 0)
+            {
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+            }
+
+            // Projection * View * Model Matrix
+            ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
         }
-
-        // Projection * View * Model Matrix
-        ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
-
+        
         // Draw the mesh
         m_Mesh->Draw();
 
@@ -189,9 +205,10 @@ std::vector<Texture> GameObject::GetActiveTextures()
     return m_ActiveTextures;
 }
 
-void GameObject::SetShader(GLuint _newShader)
+void GameObject::SetShader(const char* _vertexSource,const char* _fragmentSource)
 {
-    m_ShaderID = _newShader;
+    m_ShaderID = ShaderLoader::CreateShader(_vertexSource, _fragmentSource);
+    m_ShaderLocation = { _vertexSource , _fragmentSource };
 }
 
 GLuint GameObject::GetShader()

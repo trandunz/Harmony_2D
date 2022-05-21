@@ -27,9 +27,9 @@ public:
     ~Camera();
 
     /// <summary>
-    /// Captures Camera Input
+    /// Captures Camera Input for movement
     /// </summary>
-    void Input();
+    void Movement_Capture();
 
     /// <summary>
     /// Handles Camera Movement Based On Input. Does Not Run If No Input.

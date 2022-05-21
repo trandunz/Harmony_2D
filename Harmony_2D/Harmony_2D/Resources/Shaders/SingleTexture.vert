@@ -4,7 +4,7 @@
 // New Zealand 
 // (c) Media Design School
 // File Name : basic.vert
-// Description : Generic vertex shader for handling position and textture coordinate layouts
+// Description : Generic vertex shader for handling position and texture coordinate layouts
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 

@@ -4,7 +4,7 @@
 // New Zealand 
 // (c) Media Design School
 // File Name : basic.frag
-// Description : Generic fragment shader for handling both animated meshes and non animated meshes
+// Description : Generic fragment shader for handling single textured Meshes
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 

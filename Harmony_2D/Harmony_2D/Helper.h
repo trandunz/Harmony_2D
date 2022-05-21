@@ -84,15 +84,6 @@ enum class SHAPE
 	SPHERE
 };
 
-struct MeshData
-{
-	GLuint vertexArrayID{0};
-	GLuint indexBufferID{ 0 };
-	SHAPE shape = SHAPE::UNASSIGNED;
-	std::vector<unsigned> indices{};
-	std::vector<Vertex> vertices{};
-};
-
 struct FontChar
 {
 	GLuint textureID = 0; // Texture ID

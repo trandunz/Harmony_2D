@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : FontLoader.h 
+// Description : FontLoader Header File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #pragma once
 #include "Helper.h"
 #include <ft2build.h>
@@ -17,9 +27,9 @@ public:
 	static Font LoadFont(std::string&& _fileName, unsigned _characterLimit = 128);
 private:
 	/// <summary>
-	/// Creates A Texture And Returns Its ID, FilePath And Dimentions In A The Struct Texture Using Cache Optimization.
+	/// Creates a texture for the given font face and returns its id.
 	/// </summary>
-	/// <param name="_filePath"></param>
+	/// <param name="_fontFace"></param>
 	/// <returns></returns>
 	static GLuint LoadFontTexture(FT_Face&& _fontFace);
 };

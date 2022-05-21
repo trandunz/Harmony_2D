@@ -30,7 +30,8 @@ glm::mat4 Camera::GetViewMatrix()
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
-    return m_Perspective ? glm::perspective(glm::radians(m_Fov), (float)m_WindowSize->x / (float)m_WindowSize->y, m_NearPlane, m_FarPlane) : glm::ortho((float)-m_WindowSize->x / 2, (float)m_WindowSize->x / 2, (float)-m_WindowSize->y / 2, (float)m_WindowSize->y / 2, m_NearPlane, m_FarPlane);
+    return m_Perspective ? glm::perspective(glm::radians(m_Fov), (float)m_WindowSize->x / (float)m_WindowSize->y, m_NearPlane, m_FarPlane) : 
+        glm::ortho((float)-m_WindowSize->x / 2, (float)m_WindowSize->x / 2, (float)-m_WindowSize->y / 2, (float)m_WindowSize->y / 2, m_NearPlane, m_FarPlane);
 }
 
 void Camera::UpdateRotationVectors()
@@ -96,11 +97,10 @@ bool Camera::UpdatePosition(const long double& _dt)
     return moved;
 }
 
-void Camera::Input()
+void Camera::Movement_Capture()
 {
     // Reset Input Vec
-    m_InputVec.x = 0.0f;
-    m_InputVec.y = 0.0f;
+    m_InputVec = {};
 
     for (auto& item : (*m_KeyPresses))
     {

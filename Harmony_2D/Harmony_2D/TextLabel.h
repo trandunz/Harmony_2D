@@ -1,7 +1,19 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : TextLabel.h 
+// Description : TextLabel Header File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #pragma once
 #include "Helper.h"
 #include "TextureLoader.h"
 #include "ShaderLoader.h"
+
+using Font = std::map<GLchar, FontChar>;
 
 class TextLabel
 {
@@ -17,7 +29,7 @@ public:
 	/// <param name="_position"></param>
 	/// <param name="_colour"></param>
 	/// <param name="_scale"></param>
-	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, std::map<GLchar, FontChar> _loadedFont, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 0.0f, 0.0f, 0.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
+	TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, Font& _loadedFont, double& _deltaTime, glm::vec2&& _position = { 0.0f,0.0f }, glm::vec4&& _colour = { 0.0f, 0.0f, 0.0f ,1.0f }, glm::vec2&& _scale = {1.0f,1.0f});
 	
 	/// <summary>
 	/// TextLabel Destructor.
@@ -131,6 +143,6 @@ private:
 	GLuint m_ProgramID;
 	glm::mat4 m_ProjectionMatrix;
 	glm::ivec2* m_WindowSize = nullptr;
-	std::map<GLchar, FontChar> m_CharacterMap;
+	Font* m_Font = nullptr;
 };
 

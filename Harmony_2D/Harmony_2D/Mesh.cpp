@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : Mesh.cpp 
+// Description : Mesh Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #include "Mesh.h"
 
 Mesh::Mesh(SHAPE _shape)
@@ -48,31 +58,32 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
+		// Quad 1
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
-
+		// Quad 2
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
-
+		// Quad 3
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
-
+		// Quad 4
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
-
+		// Quad 5
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
-
+		// Quad 6
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
@@ -96,6 +107,7 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f},{1.0f,0.0f} });
 
+		// Top point / peak
 		m_Vertices.emplace_back(Vertex{ {0.0f,  1.0f, 0.0f}, {0.5f,1.0f} });
 		break;
 	}
@@ -105,33 +117,35 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 		float Phi = 0.0f;
 		float Theta = 0.0f;
 
-		// Each cycle moves down on the vertical (Y axis) to start the next ring
-		for (int i = 0; i < 360; i++)
+		// Cycle through x axis by increments of 1 / fidelity level
+		for (int i = 0; i < 36; i++)
 		{
-			// A new  horizontal ring starts at 0 degrees
+			// Starting angle of 0 for each y axis ring
 			Theta = 0.0f;
 
-			// Creates a horizontal ring and adds each new vertex point to the vertex array
-			for (int j = 0; j < 360; j++)
+			// Cycle through y axis by increments of 1 / fidelity level
+			for (int j = 0; j < 36; j++)
 			{
-				// Calculate the new vertex position point with the new angles
+				// Calculate new vertex positions based on 
+				// current y axis angle and x axis angle
+				// To make a donut
 				float x = cos(Phi) * sin(Theta);
 				float y = cos(Theta);
 				float z = sin(Phi) * sin(Theta);
 
-				// Set the position of the current vertex point
+				// Add the new vertex point to the vertices vector
 				m_Vertices.emplace_back(Vertex{ 
-					{ x * 0.5f, y * 0.5f, z * 0.5f },
-					{ 1 - (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) },
-					//{ x,y,z } 
+					{ x * 0.5f, y * 0.5f, z * 0.5f }, // Position
+					{ 1 - (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) }, // Texture coords
+					//{ x,y,z } // Normals (unused as of yet)
 					});
 
-				// Theta (Y axis) angle is incremented based on the angle created by number of sections
-				// As the sphere is built ring by ring, the theta is only needed to do half the circumferance therefore using just PI
+				// update y axis angle by increments of PI / fidelity level
+				// As the sphere is built ring by ring, the angle is only needed to do half the circumferance therefore using just PI
 				Theta += ((float)PI / ((float)36 - 1.0f));
 			}
 
-			// Phi angle (X and Z axes) is incremented based on the angle created by the number of sections
+			// x and z axis angle is updated by increments of 2Pi / fidelity level
 			// Angle uses 2*PI to get the full circumference as this layer is built as a full ring
 			Phi += (2.0f * (float)PI) / ((float)36 - 1.0f);
 		}

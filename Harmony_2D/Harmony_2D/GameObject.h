@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : GameObject.h 
+// Description : GameObject Header File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #pragma once
 #include "Helper.h"
 #include "Mesh.h"
@@ -19,10 +29,16 @@ public:
 	~GameObject();
 
 	/// <summary>
-	/// Handles Input Actions
+	/// Handles moving the object with keyboard.
+	/// W: Forward
+	/// S: Backward
+	/// A: Left
+	/// D: Right
+	/// Q: Down
+	/// E: Up
 	/// </summary>
 	/// <param name="_keypresses"></param>
-	void KeyboardInput(std::map<int, bool>& _keypresses);
+	void Movement_WASDEQ(std::map<int, bool>& _keypresses);
 
 	/// <summary>
 	/// Update function for GameObject.
@@ -126,7 +142,7 @@ public:
 	/// Sets the shader program to use for rendering
 	/// </summary>
 	/// <param name="_newShader"></param>
-	void SetShader(GLuint _newShader);
+	void SetShader(const char* _vertexSource, const char* _fragmentSource);
 	/// <summary>
 	/// Returns the current shader program used for rendering
 	/// </summary>
@@ -140,6 +156,7 @@ public:
 private:
 	std::vector<Texture> m_ActiveTextures{};
 	glm::uint m_ShaderID{0};
+	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};
 	glm::vec3 m_Input{};
 	float m_MovementSpeed = 10.0f;
 	Mesh* m_Mesh = nullptr;
