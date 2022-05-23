@@ -63,6 +63,14 @@ void GameObject::Movement_WASDEQ(std::map<int, bool>& _keypresses)
             {
                 m_Input.y += 1.0f;
             }
+            if (item.first == GLFW_KEY_Z)
+            {
+                m_Input.w -= 1.0f;
+            }
+            if (item.first == GLFW_KEY_C)
+            {
+                m_Input.w += 1.0f;
+            }
         }
     }
     // Normalize the input vecor.
@@ -72,8 +80,11 @@ void GameObject::Movement_WASDEQ(std::map<int, bool>& _keypresses)
 void GameObject::Update()
 {
     // If player provides input, Translate the gameobject accordingly.
-    if (Magnitude(m_Input) > 0)
+    if (Magnitude((glm::vec3)m_Input) > 0)
         Translate(m_Input * (float)*m_DeltaTime * m_MovementSpeed);
+    // If player provides Rotational input, rotate accordingly
+    if (m_Input.w != 0)
+        Rotate({ 0,1,0 }, m_Input.w * (float)*m_DeltaTime * 100);
 }
 
 void GameObject::Draw()

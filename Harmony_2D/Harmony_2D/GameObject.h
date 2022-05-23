@@ -157,7 +157,7 @@ private:
 	std::vector<Texture> m_ActiveTextures{};
 	glm::uint m_ShaderID{0};
 	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};
-	glm::vec3 m_Input{};
+	glm::vec4 m_Input{};
 	float m_MovementSpeed = 10.0f;
 	Mesh* m_Mesh = nullptr;
 	Camera* m_ActiveCamera = nullptr;

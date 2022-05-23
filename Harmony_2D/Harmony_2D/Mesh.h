@@ -65,6 +65,8 @@ private:
 	/// <param name="_position"></param>
 	/// <returns></returns>
 	float ToTexCoord(float& _position);
+	void GenerateSphereVertices(int _fidelity);
+	void GenerateSphereIndices(int _fidelity);
 
 	std::vector<unsigned int> m_Indices{};
 	std::vector<Vertex> m_Vertices{};

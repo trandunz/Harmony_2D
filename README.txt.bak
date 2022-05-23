@@ -1,0 +1,41 @@
+CREATED BY WILLIAM INMAN
+
+CONTROLS
+------------
+W - Translate the pyramid away from the camera (z-axis)
+S - Translate the pyramid towards the camera (z-axis)
+
+A - Translate the pyramid left of the camera (x-axis)
+D - Translate the pyramid right of the camera (x-axis)
+
+Q - Translate the pyramid down of the camera (y-axis)
+E - Translate the pyramid up of the camera (y-axis)
+
+Z - Rotate the pyramid anticlockwise (about y-axis)
+C - Rotate the pyramid clockwise (about y-axis)
+
+TAB - Toggle Mouse Cursor (starts hidden)
+CAPS - Toggle Wireframe (text is not included as you may forget how to turn it off)
+
+Notes
+--------
+- Mouse position prints to console only when visible and in window bounds
+- Left align and right align texts do not have central y origin
+
+Extras
+--------
+- Font, Texture, Shader Loaders
+- Texture Cache Optimization
+- Uniform Cache Optimization
+- Shader Cache Optimization
+- Shader Program Cache Optimization
+- Rotating pyramid (Z and C)
+
+
+Improvements from last assessments comments
+-----------------------------------
+- Mesh class is now a mesh class that only handles generating a shape and rendering it
+- Gameobject class now exists and requires a mesh pointer to render
+- Filepaths have been auto added for ease of use (e.g "Rayman.jpg" instead of "Resources/Textures/...")
+- PVM calculated on CPU side
+- No basicShader, from now on they will be specialised

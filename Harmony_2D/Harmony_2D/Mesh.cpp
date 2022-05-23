@@ -113,43 +113,7 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 	}
 	case SHAPE::SPHERE:
 	{
-		// Angles to keep track of the sphere points 
-		float Phi = 0.0f;
-		float Theta = 0.0f;
-
-		// Cycle through x axis by increments of 1 / fidelity level
-		for (int i = 0; i < 36; i++)
-		{
-			// Starting angle of 0 for each y axis ring
-			Theta = 0.0f;
-
-			// Cycle through y axis by increments of 1 / fidelity level
-			for (int j = 0; j < 36; j++)
-			{
-				// Calculate new vertex positions based on 
-				// current y axis angle and x axis angle
-				// To make a donut
-				float x = cos(Phi) * sin(Theta);
-				float y = cos(Theta);
-				float z = sin(Phi) * sin(Theta);
-
-				// Add the new vertex point to the vertices vector
-				m_Vertices.emplace_back(Vertex{ 
-					{ x * 0.5f, y * 0.5f, z * 0.5f }, // Position
-					{ 1 - (float)i / (36 - 1), 1 - ((float)j / (36 - 1)) }, // Texture coords
-					//{ x,y,z } // Normals (unused as of yet)
-					});
-
-				// update y axis angle by increments of PI / fidelity level
-				// As the sphere is built ring by ring, the angle is only needed to do half the circumferance therefore using just PI
-				Theta += ((float)PI / ((float)36 - 1.0f));
-			}
-
-			// x and z axis angle is updated by increments of 2Pi / fidelity level
-			// Angle uses 2*PI to get the full circumference as this layer is built as a full ring
-			Phi += (2.0f * (float)PI) / ((float)36 - 1.0f);
-		}
-		
+		GenerateSphereVertices(36);
 		break;
 	}
 	default:
@@ -235,21 +199,7 @@ void Mesh::CreateShapeIndices(SHAPE _shape)
 	}
 	case SHAPE::SPHERE:
 	{
-		for (int i = 0; i < 36; i++)
-		{
-			for (int j = 0; j < 36; j++)
-			{
-				// First triangle of the quad
-				m_Indices.emplace_back((((i + 1) % 36) * 36) + ((j + 1) % 36));
-				m_Indices.emplace_back((i * 36) + (j));
-				m_Indices.emplace_back((((i + 1) % 36) * 36) + (j));
-
-				// Second triangle of the quad
-				m_Indices.emplace_back((i * 36) + ((j + 1) % 36));
-				m_Indices.emplace_back((i * 36) + (j));
-				m_Indices.emplace_back((((i + 1) % 36) * 36) + ((j + 1) % 36));
-			}
-		}
+		GenerateSphereIndices(36);
 		break;
 	}
 	default:
@@ -354,4 +304,63 @@ void Mesh::CreateAndInitializeBuffers()
 float Mesh::ToTexCoord(float& _position)
 {
 	return (_position + 1) * 0.5f;
+}
+
+void Mesh::GenerateSphereVertices(int _fidelity)
+{
+	// Angles to keep track of the sphere points 
+	float Phi = 0.0f;
+	float Theta = 0.0f;
+
+	// Cycle through x axis by increments of 1 / fidelity level
+	for (int i = 0; i < _fidelity; i++)
+	{
+		// Starting angle of 0 for each y axis ring
+		Theta = 0.0f;
+
+		// Cycle through y axis by increments of 1 / fidelity level
+		for (int j = 0; j < _fidelity; j++)
+		{
+			// Calculate new vertex positions based on 
+			// current y axis angle and x axis angle
+			// To make a donut
+			float x = cos(Phi) * sin(Theta);
+			float y = cos(Theta);
+			float z = sin(Phi) * sin(Theta);
+
+			// Add the new vertex point to the vertices vector
+			m_Vertices.emplace_back(Vertex{
+				{ x * 0.5f, y * 0.5f, z * 0.5f }, // Position
+				{ 1 - (float)i / (_fidelity - 1), 1 - ((float)j / (_fidelity - 1)) }, // Texture coords
+				//{ x,y,z } // Normals (unused as of yet)
+				});
+
+			// update y axis angle by increments of PI / fidelity level
+			// As the sphere is built ring by ring, the angle is only needed to do half the circumferance therefore using just PI
+			Theta += ((float)PI / ((float)_fidelity - 1.0f));
+		}
+
+		// x and z axis angle is updated by increments of 2Pi / fidelity level
+		// Angle uses 2*PI to get the full circumference as this layer is built as a full ring
+		Phi += (2.0f * (float)PI) / ((float)_fidelity - 1.0f);
+	}
+}
+
+void Mesh::GenerateSphereIndices(int _fidelity)
+{
+	for (int i = 0; i < _fidelity; i++)
+	{
+		for (int j = 0; j < _fidelity; j++)
+		{
+			// First triangle of the quad
+			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+			m_Indices.emplace_back((i * _fidelity) + (j));
+			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + (j));
+
+			// Second triangle of the quad
+			m_Indices.emplace_back((i * _fidelity) + ((j + 1) % _fidelity));
+			m_Indices.emplace_back((i * _fidelity) + (j));
+			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+		}
+	}
 }
