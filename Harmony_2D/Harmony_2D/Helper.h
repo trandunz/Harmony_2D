@@ -26,6 +26,8 @@
 #define TWOPI 6.283185307186
 #define THREEPI 9.42477796077
 
+using KEYMAP = std::map<int, bool>;
+
 /// <summary>
 /// ShaderProgramLocation struct that encapuslates the file paths of a programs shaders.
 /// </summary>

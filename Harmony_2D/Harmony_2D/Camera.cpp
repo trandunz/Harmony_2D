@@ -10,16 +10,14 @@
 
 #include "Camera.h"
 
-Camera::Camera(glm::ivec2& _windowSize, std::map<int, bool>& _keyMap, glm::vec3 _position)
+Camera::Camera(glm::ivec2& _windowSize, glm::vec3 _position)
 {
-    m_KeyPresses = &_keyMap;
     m_Position = _position;
     m_WindowSize = &_windowSize;
 }
 
 Camera::~Camera()
 {
-    m_KeyPresses = nullptr;
     m_WindowSize = nullptr;
 }
 
@@ -36,15 +34,13 @@ glm::mat4 Camera::GetProjectionMatrix()
 
 void Camera::UpdateRotationVectors()
 {
-    glm::vec3 newFront =
-    {
-        cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch)),
+    m_Front = glm::normalize(glm::vec3{
+        cos(glm::radians(m_Pitch)) * cos(glm::radians(m_Yaw)),
         sin(glm::radians(m_Pitch)),
-        sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch))
-    };
-    m_Front = glm::normalize(newFront);
-    m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
+        cos(glm::radians(m_Pitch)) * sin(glm::radians(m_Yaw))
+        });
     m_Up = glm::normalize(glm::cross(m_Right, m_Front));
+    m_Right = glm::normalize(glm::cross(m_Front, { 0,1,0 }));
 }
 
 glm::mat4 Camera::GetPVMatrix()
@@ -58,51 +54,77 @@ void Camera::SetNearAndFarPlane(glm::vec2 _nearAndFar)
     m_FarPlane = _nearAndFar.y;
 }
 
-void Camera::Movement(const long double& _dt)
+void Camera::SetLookSensitivity(float _newSenstivity)
+{
+    m_LookSensitivity = _newSenstivity;
+}
+
+float Camera::GetLookSensitivity()
+{
+    return m_LookSensitivity;
+}
+
+void Camera::Movement(float& _dt)
 {
     UpdateRotationVectors();
     UpdatePosition(_dt);
 }
 
-bool Camera::UpdatePosition(const long double& _dt)
+void Camera::MouseLook(float& _dt, glm::vec2 _mousePos)
 {
-    bool moved = false;
+    if (m_LastMousePos == glm::vec2(0, 0))
+        m_LastMousePos = _mousePos;
+
+    m_Yaw += (m_LookSensitivity * (_mousePos.x - m_LastMousePos.x) * _dt);
+    m_Pitch += (m_LookSensitivity * (m_LastMousePos.y - _mousePos.y) * _dt);
+
+    if (m_Pitch > 89.0f) 
+        m_Pitch = 89.0f;
+    if (m_Pitch < -89.0f) 
+        m_Pitch = -89.0f;
+
+    m_LastMousePos = _mousePos;
+}
+
+void Camera::UpdatePosition(float& _dt)
+{
     float x;
     float y;
+    float z;
 
     if (m_Perspective)
     {
         x = m_InputVec.x * m_MoveSpeed;
         y = m_InputVec.y * m_MoveSpeed;
-
+        z = m_InputVec.z * m_MoveSpeed;
     }
     else
     {
         x = m_InputVec.x * m_MoveSpeed * m_WindowSize->x;
         y = m_InputVec.y * m_MoveSpeed * m_WindowSize->x;
-
+        z = m_InputVec.z * m_MoveSpeed * m_WindowSize->x;
     }
 
-    if (x >= 0.000000001f || x <= -0.000000001f)
+    if (x != 0)
     {
-        m_Position += m_Right * x *(float)_dt;
-        moved = true;
+        m_Position += m_Right * x * _dt;
     }
-    if (y >= 0.000000001f || y <= -0.000000001f)
+    if (y != 0)
     {
-        m_Position += m_Front * y * (float)_dt;
-        moved = true;
+        m_Position += glm::vec3{0,1,0} *y* _dt;
     }
-
-    return moved;
+    if (z != 0)
+    {
+        m_Position += m_Front * z * _dt;
+    }
 }
 
-void Camera::Movement_Capture()
+void Camera::Movement_Capture(KEYMAP& _keymap)
 {
     // Reset Input Vec
     m_InputVec = {};
 
-    for (auto& item : (*m_KeyPresses))
+    for (auto& item : (_keymap))
     {
         if (item.second == true)
         {
@@ -118,16 +140,27 @@ void Camera::Movement_Capture()
                 m_InputVec.x = -1;
                 break;
             }
-            case GLFW_KEY_W:
-            {
-                m_InputVec.y = 1;
-                break;
-            }
-            case GLFW_KEY_S:
+            case GLFW_KEY_Q:
             {
                 m_InputVec.y = -1;
                 break;
             }
+            case GLFW_KEY_E:
+            {
+                m_InputVec.y = 1;
+                break;
+            }
+            case GLFW_KEY_W:
+            {
+                m_InputVec.z = 1;
+                break;
+            }
+            case GLFW_KEY_S:
+            {
+                m_InputVec.z = -1;
+                break;
+            }
+            
             default:
                 break;
             }

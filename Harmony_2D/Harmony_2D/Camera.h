@@ -19,7 +19,7 @@ public:
     /// </summary>
     /// <param name="_keyMap"></param>
     /// <param name="_position"></param>
-    Camera(glm::ivec2& _windowSize, std::map<int, bool>& _keyMap, glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera(glm::ivec2& _windowSize, glm::vec3 _position = glm::vec3(0.0f, 0.0f, 0.0f));
     
     /// <summary>
     /// Cleans Up Any Pointers Or Objects (e.g KeyPresses*, WidnowSize*)
@@ -29,13 +29,21 @@ public:
     /// <summary>
     /// Captures Camera Input for movement
     /// </summary>
-    void Movement_Capture();
+    void Movement_Capture(KEYMAP& _keymap);
 
     /// <summary>
     /// Handles Camera Movement Based On Input. Does Not Run If No Input.
     /// </summary>
     /// <param name="_dt"></param>
-    void Movement(const long double& _dt);
+    void Movement(float& _dt);
+
+    /// <summary>
+    /// Handles Mouse Look.
+    /// Updates Pitch and Yaw Values
+    /// </summary>
+    /// <param name="_dt"></param>
+    /// <param name="_mousePos"></param>
+    void MouseLook(float& _dt, glm::vec2 _mousePos);
 
     /// <summary>
     /// Returns The Camera's Position
@@ -54,6 +62,18 @@ public:
     /// </summary>
     /// <param name="_nearAndFar"></param>
     void SetNearAndFarPlane(glm::vec2 _nearAndFar);
+    
+    /// <summary>
+    /// Set the mouse look sensitivity of the camera
+    /// </summary>
+    /// <param name="_newSenstivity"></param>
+    void SetLookSensitivity(float _newSenstivity);
+
+    /// <summary>
+    /// Returns the mouse look sensitivity
+    /// </summary>
+    /// <returns></returns>
+    float GetLookSensitivity();
 
     /// <summary>
     /// Returns the value of the nearPlane.
@@ -85,17 +105,17 @@ private:
     /// </summary>
     /// <param name="_dt"></param>
     /// <returns></returns>
-    bool UpdatePosition(const long double& _dt);
+    void UpdatePosition(float& _dt);
 
     /// <summary>
     /// Updates the vectors (up, ront, right) for the camera based on pitch and yaw.
     /// </summary>
     void UpdateRotationVectors();
 
-    std::map<int, bool>* m_KeyPresses = nullptr;
     glm::ivec2* m_WindowSize = nullptr;
 
     float m_MoveSpeed = 10.0f;
+    float m_LookSensitivity = 1.0f;
 
     bool m_Perspective = true;
 
@@ -105,9 +125,10 @@ private:
     float m_Fov = 45.0f;
     glm::vec3 m_InputVec{ 0,0,0 };
     glm::vec3 m_Position{ 0,0,0 };
-    glm::vec3 m_Front{ 0,0,-1 };
+    glm::vec3 m_Front{0,0,-1};
     glm::vec3 m_Up{0,1,0};
-    glm::vec3 m_WorldUp{ 0,1,0 };
     glm::vec3 m_Right{ 1,0,0 };
+
+    glm::vec2 m_LastMousePos{ 0.0f ,0.0f};
 };
 

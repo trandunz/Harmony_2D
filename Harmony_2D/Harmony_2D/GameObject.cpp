@@ -10,10 +10,9 @@
 
 #include "GameObject.h"
 
-GameObject::GameObject(Camera& _camera, double& _deltaTime, glm::vec3 _position)
+GameObject::GameObject(Camera& _camera, glm::vec3 _position)
 {
     m_ActiveCamera = &_camera;
-    m_DeltaTime = &_deltaTime;
     // Set starting position
     SetTranslation(_position);
 }
@@ -25,8 +24,6 @@ GameObject::~GameObject()
 
     if (m_ActiveCamera)
         m_ActiveCamera = nullptr;
-
-    m_DeltaTime = nullptr;
 
     m_ActiveTextures.clear();
 }
@@ -77,14 +74,14 @@ void GameObject::Movement_WASDEQ(std::map<int, bool>& _keypresses)
     glm::normalize(m_Input);
 }
 
-void GameObject::Update()
+void GameObject::Update(float& _deltaTime)
 {
     // If player provides input, Translate the gameobject accordingly.
     if (Magnitude((glm::vec3)m_Input) > 0)
-        Translate(m_Input * (float)*m_DeltaTime * m_MovementSpeed);
+        Translate(m_Input * _deltaTime * m_MovementSpeed);
     // If player provides Rotational input, rotate accordingly
     if (m_Input.w != 0)
-        Rotate({ 0,1,0 }, m_Input.w * (float)*m_DeltaTime * 100);
+        Rotate({ 0,1,0 }, m_Input.w * _deltaTime * 100);
 }
 
 void GameObject::Draw()

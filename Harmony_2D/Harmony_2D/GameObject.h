@@ -21,7 +21,7 @@ public:
 	/// <param name="_camera"></param>
 	/// <param name="_deltaTime"></param>
 	/// <param name="_position"></param>
-	GameObject(Camera& _camera, double& _deltaTime, glm::vec3 _position);
+	GameObject(Camera& _camera, glm::vec3 _position);
 	
 	/// <summary>
 	/// GameObject Destructor
@@ -44,7 +44,7 @@ public:
 	/// Update function for GameObject.
 	/// Should be called every frame.
 	/// </summary>
-	void Update();
+	void Update(float& _deltaTime);
 
 	/// <summary>
 	/// Draws The gameobject if it has a mesh attached
@@ -161,7 +161,6 @@ private:
 	float m_MovementSpeed = 10.0f;
 	Mesh* m_Mesh = nullptr;
 	Camera* m_ActiveCamera = nullptr;
-	double* m_DeltaTime = nullptr;
 	Transform m_Transform{};
 	std::string m_Name{"gameObject"};
 };
