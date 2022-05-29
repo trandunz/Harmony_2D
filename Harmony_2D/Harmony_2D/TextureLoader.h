@@ -30,6 +30,13 @@ public:
 	/// <returns></returns>
 	static Texture LoadTexture(std::string&& _fileName);
 
+	/// <summary>
+	/// Creates a cubemap from the given 6 textures and returns its id and filepath in the struct Texture using Cache Optimization
+	/// </summary>
+	/// <param name="_fileNames"></param>
+	/// <returns></returns>
+	static Texture LoadCubemap(std::string _fileNames[6]);
+
 private:
 	inline static std::vector<Texture> m_Textures;
 };

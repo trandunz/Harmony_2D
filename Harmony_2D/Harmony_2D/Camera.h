@@ -115,11 +115,11 @@ private:
     glm::ivec2* m_WindowSize = nullptr;
 
     float m_MoveSpeed = 10.0f;
-    float m_LookSensitivity = 1.0f;
+    float m_LookSensitivity = 5.0f;
 
     bool m_Perspective = true;
 
-    float m_NearPlane = 0.1f, m_FarPlane = 100.0f;
+    float m_NearPlane = 0.1f, m_FarPlane = 2000.0f;
     float m_Yaw = -90.0f;
     float m_Pitch = 0.0f;
     float m_Fov = 45.0f;

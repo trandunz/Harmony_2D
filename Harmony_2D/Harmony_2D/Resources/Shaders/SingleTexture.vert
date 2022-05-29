@@ -3,7 +3,7 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : basic.vert
+// File Name : SingleTexture.vert
 // Description : Generic vertex shader for handling position and texture coordinate layouts
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
@@ -13,6 +13,7 @@
 // Input locations from vertex buffer
 layout (location = 0) in vec3 l_position;
 layout (location = 1) in vec2 l_texCoords;
+layout (location = 2) in vec3 l_normals;
 
 // Output data for next Shader
 out vec2 TexCoords;

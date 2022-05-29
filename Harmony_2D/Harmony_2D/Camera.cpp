@@ -28,8 +28,22 @@ glm::mat4 Camera::GetViewMatrix()
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
-    return m_Perspective ? glm::perspective(glm::radians(m_Fov), (float)m_WindowSize->x / (float)m_WindowSize->y, m_NearPlane, m_FarPlane) : 
-        glm::ortho((float)-m_WindowSize->x / 2, (float)m_WindowSize->x / 2, (float)-m_WindowSize->y / 2, (float)m_WindowSize->y / 2, m_NearPlane, m_FarPlane);
+    return m_Perspective 
+        ? 
+        glm::perspective(
+            glm::radians(m_Fov), 
+            (float)m_WindowSize->x / 
+            (float)m_WindowSize->y, 
+            m_NearPlane, 
+            m_FarPlane) 
+        : 
+        glm::ortho(
+            (float)-m_WindowSize->x / 2, 
+            (float)m_WindowSize->x / 2, 
+            (float)-m_WindowSize->y / 2, 
+            (float)m_WindowSize->y / 2, 
+            m_NearPlane, 
+            m_FarPlane);
 }
 
 void Camera::UpdateRotationVectors()
@@ -111,7 +125,7 @@ void Camera::UpdatePosition(float& _dt)
     }
     if (y != 0)
     {
-        m_Position += glm::vec3{0,1,0} *y* _dt;
+        m_Position += glm::vec3{0,1,0} * y * _dt;
     }
     if (z != 0)
     {

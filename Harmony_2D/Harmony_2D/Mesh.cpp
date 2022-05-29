@@ -10,15 +10,19 @@
 
 #include "Mesh.h"
 
-Mesh::Mesh(SHAPE _shape)
+Mesh::Mesh(SHAPE _shape, GLenum _windingOrder)
 {
+	m_WindingOrder = _windingOrder;
+
 	CreateShapeVertices(_shape);
 	CreateShapeIndices(_shape);
 	CreateAndInitializeBuffers();
 }
 
-Mesh::Mesh(unsigned int _numberOfSides)
+Mesh::Mesh(unsigned int _numberOfSides, GLenum _windingOrder)
 {
+	m_WindingOrder = _windingOrder;
+
 	CreatePolygonVertices(_numberOfSides);
 	CreatePolygonIndices(_numberOfSides);
 	CreateAndInitializeBuffers();
@@ -59,40 +63,40 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 	case SHAPE::CUBE:
 	{
 		// Quad 1
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f}, {0,0,1} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f}, {0,0,1} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f}, {0,0,1} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f}, {0,0,1} });
 		// Quad 2
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f}, {0,0,-1} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} , {0,0,-1} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f}, {0,0,-1} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f}, {0,0,-1} });
 		// Quad 3
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f},{1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f},{1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f},{1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f},{1,0,0} });
 		// Quad 4
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f},{-1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f},{-1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f},{-1,0,0} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f},{-1,0,0} });
 		// Quad 5
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f},{0,1,0} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f},{0,1,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f},{0,1,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f},{0,1,0} });
 		// Quad 6
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f} });
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f} });
-		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f},{0,-1,0} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f},{0,-1,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f},{0,-1,0} });
+		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,1.0f},{0,-1,0} });
 		break;
 	}
 	case SHAPE::PYRAMID:
 	{
-		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f}, {0.0f,1.0f} });
+		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, -0.5f}, {0.0f,1.0f} } );
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.0f, 0.5f}, {0.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, 0.5f}, {1.0f,0.0f} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.0f, -0.5f}, {1.0f,1.0f} });
@@ -129,48 +133,32 @@ void Mesh::CreateShapeIndices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
-		// First Quad
-		m_Indices.emplace_back(0);
-		m_Indices.emplace_back(1);
-		m_Indices.emplace_back(2);
-		m_Indices.emplace_back(0);
-		m_Indices.emplace_back(2);
-		m_Indices.emplace_back(3);
-		// Second Quad
-		m_Indices.emplace_back(4);
-		m_Indices.emplace_back(5);
-		m_Indices.emplace_back(6);
-		m_Indices.emplace_back(4);
-		m_Indices.emplace_back(6);
-		m_Indices.emplace_back(7);
-		// Third Quad
-		m_Indices.emplace_back(8);
-		m_Indices.emplace_back(9);
-		m_Indices.emplace_back(10);
-		m_Indices.emplace_back(8);
-		m_Indices.emplace_back(10);
-		m_Indices.emplace_back(11);
-		// Fourth Quad
-		m_Indices.emplace_back(12);
-		m_Indices.emplace_back(13);
-		m_Indices.emplace_back(14);
-		m_Indices.emplace_back(12);
-		m_Indices.emplace_back(14);
-		m_Indices.emplace_back(15);
-		// Fith Quad
-		m_Indices.emplace_back(16);
-		m_Indices.emplace_back(17);
-		m_Indices.emplace_back(18);
-		m_Indices.emplace_back(16);
-		m_Indices.emplace_back(18);
-		m_Indices.emplace_back(19);
-		// Sixth Quad
-		m_Indices.emplace_back(20);
-		m_Indices.emplace_back(21);
-		m_Indices.emplace_back(22);
-		m_Indices.emplace_back(20);
-		m_Indices.emplace_back(22);
-		m_Indices.emplace_back(23);
+		if (m_WindingOrder == GL_CCW)
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				m_Indices.emplace_back(4 * i);
+				m_Indices.emplace_back((4 * i) + 1);
+				m_Indices.emplace_back((4 * i) + 2);
+
+				m_Indices.emplace_back(4 * i);
+				m_Indices.emplace_back((4 * i) + 2);
+				m_Indices.emplace_back((4 * i) + 3);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				m_Indices.emplace_back(4 * i);
+				m_Indices.emplace_back((4 * i) + 2);
+				m_Indices.emplace_back((4 * i) + 1);
+
+				m_Indices.emplace_back(4 * i);
+				m_Indices.emplace_back((4 * i) + 3);
+				m_Indices.emplace_back((4 * i) + 2);
+			}
+		}
 
 		break;
 	}
@@ -295,6 +283,9 @@ void Mesh::CreateAndInitializeBuffers()
 	// TexCoords
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
+	// Normals
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normals)));
 	// Unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -332,7 +323,7 @@ void Mesh::GenerateSphereVertices(int _fidelity)
 			m_Vertices.emplace_back(Vertex{
 				{ x * 0.5f, y * 0.5f, z * 0.5f }, // Position
 				{ 1 - (float)i / (_fidelity - 1), 1 - ((float)j / (_fidelity - 1)) }, // Texture coords
-				//{ x,y,z } // Normals (unused as of yet)
+				{ x,y,z } // Normals
 				});
 
 			// update y axis angle by increments of PI / fidelity level
@@ -352,15 +343,30 @@ void Mesh::GenerateSphereIndices(int _fidelity)
 	{
 		for (int j = 0; j < _fidelity; j++)
 		{
-			// First triangle of the quad
-			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
-			m_Indices.emplace_back((i * _fidelity) + (j));
-			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + (j));
+			if (m_WindingOrder == GL_CCW)
+			{
+				// First triangle of the quad
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+				m_Indices.emplace_back((i * _fidelity) + (j));
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + (j));
 
-			// Second triangle of the quad
-			m_Indices.emplace_back((i * _fidelity) + ((j + 1) % _fidelity));
-			m_Indices.emplace_back((i * _fidelity) + (j));
-			m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+				// Second triangle of the quad
+				m_Indices.emplace_back((i * _fidelity) + ((j + 1) % _fidelity));
+				m_Indices.emplace_back((i * _fidelity) + (j));
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+			}
+			else
+			{
+				// First triangle of the quad
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + (j));
+				m_Indices.emplace_back((i * _fidelity) + (j));
+
+				// Second triangle of the quad
+				m_Indices.emplace_back((i * _fidelity) + ((j + 1) % _fidelity));
+				m_Indices.emplace_back((((i + 1) % _fidelity) * _fidelity) + ((j + 1) % _fidelity));
+				m_Indices.emplace_back((i * _fidelity) + (j));
+			}
 		}
 	}
 }

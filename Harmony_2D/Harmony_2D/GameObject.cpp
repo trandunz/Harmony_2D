@@ -25,6 +25,9 @@ GameObject::~GameObject()
     if (m_ActiveCamera)
         m_ActiveCamera = nullptr;
 
+    if (m_LightManager)
+        m_LightManager = nullptr;
+
     m_ActiveTextures.clear();
 }
 
@@ -107,7 +110,86 @@ void GameObject::Draw()
             // Projection * View * Model Matrix
             ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
         }
-        
+        if (m_ShaderLocation.vertShader == "Normals3D.vert")   
+        {
+            // Apply Texture
+            if (m_ActiveTextures.size() > 0)
+            {
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+            }
+
+            // Projection * View * Model Matrix
+            ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
+
+            ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "ModelMatrix", std::move(m_Transform.transform));
+        }
+        if (m_ShaderLocation.fragShader == "BlinnFong3D.frag")
+        {
+            ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStrength", 0.15f);
+            ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", { 1.0f,1.0f,1.0f });
+            ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f * 4);
+            ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());
+
+            if (m_LightManager)
+            {
+                std::vector<PointLight>& pointLights = m_LightManager->GetPointLights();
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfPointLights", (int)pointLights.size());
+                for (unsigned i = 0; i < pointLights.size(); i++)
+                {
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].Position", pointLights[i].Position);
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].Color", pointLights[i].Color);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].SpecularStrength", pointLights[i].SpecularStrength);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].AttenuationLinear", pointLights[i].AttenuationLinear);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].AttenuationExponent", pointLights[i].AttenuationExponent);
+                }
+
+                std::vector<DirectionalLight>& directionalLights = m_LightManager->GetDirectionalLights();
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfDirectionalLights", (int)directionalLights.size());
+                for (unsigned i = 0; i < directionalLights.size(); i++)
+                {
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].Direction", directionalLights[i].Direction);
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].Color", directionalLights[i].Color);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].SpecularStrength", directionalLights[i].SpecularStrength);
+                }
+            }
+        }
+        else if (m_ShaderLocation.fragShader == "BlinnFong3D_Rim.frag")
+        {
+            ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStrength", 0.15f);
+            ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", { 1.0f,1.0f,1.0f });
+            ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f * 4);
+            ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());
+
+            ShaderLoader::SetUniform1f(std::move(m_ShaderID), "RimExponent", 4.0f);
+            ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "RimColor", { 1.0f,0.0f,0.0f });
+
+            if (m_LightManager)
+            {
+                std::vector<PointLight>& pointLights = m_LightManager->GetPointLights();
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfPointLights", (int)pointLights.size());
+                for (unsigned i = 0; i < pointLights.size(); i++)
+                {
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].Position", pointLights[i].Position);
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].Color", pointLights[i].Color);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].SpecularStrength", pointLights[i].SpecularStrength);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].AttenuationLinear", pointLights[i].AttenuationLinear);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].AttenuationExponent", pointLights[i].AttenuationExponent);
+                }
+
+                std::vector<DirectionalLight>& directionalLights = m_LightManager->GetDirectionalLights();
+                ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfDirectionalLights", (int)directionalLights.size());
+                for (unsigned i = 0; i < directionalLights.size(); i++)
+                {
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].Direction", directionalLights[i].Direction);
+                    ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].Color", directionalLights[i].Color);
+                    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].SpecularStrength", directionalLights[i].SpecularStrength);
+                }
+            }
+        }
+
         // Draw the mesh
         m_Mesh->Draw();
 
@@ -227,6 +309,11 @@ GLuint GameObject::GetShader()
 void GameObject::ClearInputVector()
 {
     m_Input = {};
+}
+
+void GameObject::SetLightManager(LightManager& _lightManager)
+{
+    m_LightManager = &_lightManager;
 }
 
 

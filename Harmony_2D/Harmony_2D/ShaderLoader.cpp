@@ -24,7 +24,6 @@ ShaderLoader::~ShaderLoader()
 
     m_Shaders.clear();
     m_ShaderPrograms.clear();
-    m_Uniforms.clear();
 }
 
 GLuint ShaderLoader::CreateShader(std::string&& _vertexShader, std::string&& _fragmentShader)
@@ -90,154 +89,54 @@ GLuint ShaderLoader::CreateShader(std::string&& _vertexShader, std::string&& _fr
     return program;
 }
 
-void ShaderLoader::SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint&& _value)
+void ShaderLoader::SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform1i(item.second, _value);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform1i(m_Uniforms.back().second, _value);
+    glUniform1i(glGetUniformLocation(_program, _location.data()), _value);
 }
 
-void ShaderLoader::SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value)
+void ShaderLoader::SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform1f(item.second, _value);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform1f(m_Uniforms.back().second, _value);
+    glUniform1f(glGetUniformLocation(_program, _location.data()), _value);
 }
 
-void ShaderLoader::SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2)
+void ShaderLoader::SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform2i(item.second, _value, _value2);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform2i(m_Uniforms.back().second, _value, _value2);
+    glUniform2i(glGetUniformLocation(_program, _location.data()), _value, _value2);
 }
 
-void ShaderLoader::SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2)
+void ShaderLoader::SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform2f(item.second, _value, _value2);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform2f(m_Uniforms.back().second, _value, _value2);
+    glUniform2f(glGetUniformLocation(_program, _location.data()), _value, _value2);
 }
 
-void ShaderLoader::SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2, GLint&& _value3)
+void ShaderLoader::SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2, GLint _value3)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform3i(item.second, _value, _value2, _value3);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform3i(m_Uniforms.back().second, _value, _value2, _value3);
+    glUniform3i(glGetUniformLocation(_program, _location.data()), _value, _value2, _value3);
 }
 
-void ShaderLoader::SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2, GLfloat&& _value3)
+void ShaderLoader::SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2, GLfloat _value3)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform3f(item.second, _value, _value2, _value3);
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform3f(m_Uniforms.back().second, _value, _value2, _value3);
+    glUniform3f(glGetUniformLocation(_program, _location.data()), _value, _value2, _value3);
 }
 
-void ShaderLoader::SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3&& _value)
+void ShaderLoader::SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3 _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform3fv(item.second, 1, glm::value_ptr(_value));
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform3fv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
+    glUniform3fv(glGetUniformLocation(_program, _location.data()), 1, glm::value_ptr(_value));
 }
 
-void ShaderLoader::SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3&& _value)
+void ShaderLoader::SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3 _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform3iv(item.second, 1, glm::value_ptr(_value));
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform3iv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
+    glUniform3iv(glGetUniformLocation(_program, _location.data()), 1, glm::value_ptr(_value));
 }
 
-void ShaderLoader::SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4&& _value)
+void ShaderLoader::SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4 _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniform4fv(item.second, 1, glm::value_ptr(_value));
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniform4fv(m_Uniforms.back().second, 1, glm::value_ptr(_value));
+    glUniform4fv(glGetUniformLocation(_program, _location.data()), 1, glm::value_ptr(_value));
 }
 
-void ShaderLoader::SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4&& _value)
+void ShaderLoader::SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4 _value)
 {
-    GLint location = 0;
-    for (auto& item : m_Uniforms)
-    {
-        if (item.first.program == _program && item.first.location == _location.data())
-        {
-            glUniformMatrix4fv(item.second, 1, GL_FALSE, glm::value_ptr(_value));
-            return;
-        }
-    }
-    m_Uniforms.push_back(std::make_pair(UniformLocation{ _program, _location.data() }, glGetUniformLocation(_program, _location.data())));
-    glUniformMatrix4fv(m_Uniforms.back().second, 1, GL_FALSE, glm::value_ptr(_value));
+    glUniformMatrix4fv(glGetUniformLocation(_program, _location.data()), 1, GL_FALSE, glm::value_ptr(_value));
 }
 
 GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)

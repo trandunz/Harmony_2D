@@ -35,7 +35,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint&& _value);
+    static void SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint _value);
     
     /// <summary>
     /// Sets Uniform 1f At Location Using Caching Optimization
@@ -43,7 +43,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value);
+    static void SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat _value);
     
     /// <summary>
     /// Sets Uniform 2i At Location Using Caching Optimization
@@ -52,7 +52,7 @@ public:
     /// <param name="_location"></param>
     /// <param name="_value"></param>
     /// <param name="_value2"></param>
-    static void SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2);
+    static void SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2);
     
     /// <summary>
     /// Sets Uniform 2f At Location Using Caching Optimization
@@ -61,7 +61,7 @@ public:
     /// <param name="_location"></param>
     /// <param name="_value"></param>
     /// <param name="_value2"></param>
-    static void SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2);
+    static void SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2);
     
     /// <summary>
     /// Sets Uniform 3i At Location Using Caching Optimization
@@ -71,7 +71,7 @@ public:
     /// <param name="_value"></param>
     /// <param name="_value2"></param>
     /// <param name="_value3"></param>
-    static void SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint&& _value, GLint&& _value2, GLint&& _value3);
+    static void SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2, GLint _value3);
     
     /// <summary>
     /// Sets Uniform 3f At Location Using Caching Optimization
@@ -81,7 +81,7 @@ public:
     /// <param name="_value"></param>
     /// <param name="_value2"></param>
     /// <param name="_value3"></param>
-    static void SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat&& _value, GLfloat&& _value2, GLfloat&& _value3);
+    static void SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2, GLfloat _value3);
     
     /// <summary>
     /// Sets Uniform 3fv At Location Using Caching Optimization
@@ -89,7 +89,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3&& _value);
+    static void SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3 _value);
     
     /// <summary>
     /// Sets Uniform 3iv At Location Using Caching Optimization
@@ -97,7 +97,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3&& _value);
+    static void SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3 _value);
     
     /// <summary>
     /// Sets Uniform 4fv At Location Using Caching Optimization
@@ -105,7 +105,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4&& _value);
+    static void SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4 _value);
 
     /// <summary>
     /// Sets Uniform 4fv At Location Using Caching Optimization
@@ -113,7 +113,7 @@ public:
     /// <param name="_program"></param>
     /// <param name="_location"></param>
     /// <param name="_value"></param>
-    static void SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4&& _value);
+    static void SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4 _value);
 private:
     /// <summary>
     /// Compiles A Shader Of A Given Type And Source And Returns Its ID.
@@ -131,7 +131,6 @@ private:
     static std::string PassFileToString(const std::string& _fileName);
 
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> m_ShaderPrograms;
-    inline static std::vector<std::pair<UniformLocation, GLint>> m_Uniforms;
     inline static std::vector<std::pair<std::string, GLuint>> m_Shaders;
 };
 

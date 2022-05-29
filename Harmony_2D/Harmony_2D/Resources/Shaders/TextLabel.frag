@@ -3,7 +3,7 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : basic.vert
+// File Name : TextLabel.frag
 // Description : Generic fragment shader for handling TextLabels And Scrolling TextLabels
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz

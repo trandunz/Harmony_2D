@@ -158,9 +158,11 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FontLoader.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="TextLabel.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
@@ -169,16 +171,24 @@
     <ClInclude Include="FontLoader.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="TextLabel.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Shaders\BlinnFong3D.frag" />
+    <None Include="Resources\Shaders\BlinnFong3D_Rim.frag" />
+    <None Include="Resources\Shaders\Normals3D.vert" />
     <None Include="Resources\Shaders\SingleTexture.frag" />
     <None Include="Resources\Shaders\SingleTexture.vert" />
+    <None Include="Resources\Shaders\Skybox.frag" />
+    <None Include="Resources\Shaders\Skybox.vert" />
     <None Include="Resources\Shaders\TextLabel.frag" />
     <None Include="Resources\Shaders\TextLabel.vert" />
+    <None Include="Resources\Shaders\UnlitColor.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

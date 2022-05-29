@@ -18,12 +18,12 @@ public:
 	/// Contruct a mesh with the given shape
 	/// </summary>
 	/// <param name="_shape"></param>
-	Mesh(SHAPE _shape);
+	Mesh(SHAPE _shape, GLenum _windingOrder);
 	/// <summary>
 	/// Construct a 2D Mesh with the given number of sides
 	/// </summary>
 	/// <param name="_numberOfSides"></param>
-	Mesh(unsigned int _numberOfSides);
+	Mesh(unsigned int _numberOfSides, GLenum _windingOrder);
 	/// <summary>
 	/// Mesh Destructor
 	/// </summary>
@@ -74,5 +74,7 @@ private:
 	GLuint m_VertexArrayID{ 0 };
 	GLuint m_VertexBufferID{ 0 };
 	GLuint m_IndexBufferID{ 0 };
+
+	GLenum m_WindingOrder;
 };
 

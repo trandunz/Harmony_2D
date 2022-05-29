@@ -3,13 +3,12 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : basic.frag
+// File Name : SingleTexture.frag
 // Description : Generic fragment shader for handling single textured Meshes
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
 #version 460 core
-#define PI 3.141592654
 
 // Output to C++
 layout (location = 0) out vec4 FragColor;

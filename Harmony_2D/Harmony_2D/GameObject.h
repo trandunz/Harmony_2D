@@ -9,9 +9,7 @@
 // Mail : william.inman@mds.ac.nz
 
 #pragma once
-#include "Helper.h"
-#include "Mesh.h"
-#include "Camera.h"
+#include "LightManager.h"
 class GameObject
 {
 public:
@@ -153,14 +151,17 @@ public:
 	/// Clears the input vector to prevent further movement e.t.c
 	/// </summary>
 	void ClearInputVector();
+
+	void SetLightManager(LightManager& _lightManager);
 private:
 	std::vector<Texture> m_ActiveTextures{};
-	glm::uint m_ShaderID{0};
+	GLuint m_ShaderID{0};
 	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};
 	glm::vec4 m_Input{};
 	float m_MovementSpeed = 10.0f;
 	Mesh* m_Mesh = nullptr;
 	Camera* m_ActiveCamera = nullptr;
+	LightManager* m_LightManager{ nullptr };
 	Transform m_Transform{};
 	std::string m_Name{"gameObject"};
 };
