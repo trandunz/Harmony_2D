@@ -98,6 +98,8 @@ public:
     /// </summary>
     /// <returns></returns>
     glm::mat4 GetProjectionMatrix();
+
+    glm::vec3 GetFront();
 private:
 
     /// <summary>

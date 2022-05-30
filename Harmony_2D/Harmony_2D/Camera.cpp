@@ -46,6 +46,11 @@ glm::mat4 Camera::GetProjectionMatrix()
             m_FarPlane);
 }
 
+glm::vec3 Camera::GetFront()
+{
+    return m_Front;
+}
+
 void Camera::UpdateRotationVectors()
 {
     m_Front = glm::normalize(glm::vec3{

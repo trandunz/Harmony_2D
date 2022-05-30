@@ -10,6 +10,7 @@
 
 #pragma once
 #include "LightManager.h"
+
 class GameObject
 {
 public:
@@ -153,7 +154,15 @@ public:
 	void ClearInputVector();
 
 	void SetLightManager(LightManager& _lightManager);
+
+	void SetSkyboxTexture(Texture _skyboxTexture);
 private:
+	void SetBlinnFong3DUniforms();
+	void SetReflectionUniforms();
+	void SetReflectionMapUniforms();
+	void SetNormals3DVertUniforms();
+	void SetSingleTextureUniforms();
+
 	std::vector<Texture> m_ActiveTextures{};
 	GLuint m_ShaderID{0};
 	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};
@@ -164,5 +173,6 @@ private:
 	LightManager* m_LightManager{ nullptr };
 	Transform m_Transform{};
 	std::string m_Name{"gameObject"};
+	Texture m_SkyboxTexture;
 };
 

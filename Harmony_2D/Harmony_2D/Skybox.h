@@ -4,16 +4,23 @@
 class Skybox
 {
 public:
-	Skybox(Camera* _activeCamera, Mesh* _mesh, Texture _cubemapTexture);
-	~Skybox();
+	static Skybox& GetInstance(Camera* _activeCamera, Texture _cubemapTexture)
+	{
+		static Skybox instance(_activeCamera, _cubemapTexture);
+		return instance;
+	}
+
+	Skybox(Skybox const&) = delete;
+	void operator=(Skybox const&) = delete;
 
 	void Update(float& _dt);
 	void Draw();
 
 	void SetTexture(Texture _cubemapTexture);
 
-	void SetMesh(Mesh* _mesh);
 	void SetActiveCamera(Camera* _camera);
+
+	Texture GetTextureID();
 
 	/// <summary>
 	/// Sets the position of the Skybox
@@ -51,10 +58,15 @@ public:
 	void Scale(glm::vec3 _scaleFactor);
 
 private:
+	Skybox(Camera* _activeCamera, Texture _cubemapTexture);
+	~Skybox();
+
+	void CreateCubeVAO();
+
 	Transform m_Transform{};
 	GLuint m_ShaderID{ 0 };
 	Camera* m_ActiveCamera{ nullptr };
 	Texture m_CubemapTexture{};
-	Mesh* m_Mesh = nullptr;
+	GLuint m_VertexArrayID{ 0 };
 };
 

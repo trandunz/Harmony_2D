@@ -17,7 +17,7 @@ glm::ivec2 WindowSize{ 1000,1000 };
 
 float DeltaTime = 0.0, LastFrame = 0.0;
 
-bool IsMouseVisible = false, IsWireframe = false;
+bool IsMouseVisible = false;
 
 GameObject* SphereObject = nullptr;
 
@@ -27,7 +27,6 @@ LightManager* LightManagerObject = nullptr;
 Skybox* m_Skybox = nullptr;
 
 Mesh* CubeMesh = nullptr;
-Mesh* InvertedCubeMesh = nullptr;
 Mesh* SphereMesh = nullptr;
 
 Font ArialFont;
@@ -55,6 +54,9 @@ static inline void CalculateDeltaTime()
 	float currentFrame = (float)glfwGetTime();
 	DeltaTime = currentFrame - LastFrame;
 	LastFrame = currentFrame;
+
+	// Update Window Title With FPS And FrameTime
+	glfwSetWindowTitle(RenderWindow, ("GD1P04 - Assessment 3 | " + std::to_string(1/DeltaTime) + " fps / " + std::to_string(DeltaTime * 1000) + " ms").c_str());
 }
 
 /// <summary>
@@ -80,7 +82,7 @@ static inline void WindowResizeCallback(GLFWwindow* _renderWindow, int _width, i
 /// <param name="_ypos"></param>
 static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpos, double _ypos)
 {
-	if (SceneCamera)
+	if (SceneCamera && !IsMouseVisible)
 		SceneCamera->MouseLook(DeltaTime, {(float)_xpos , (float) _ypos});
 }
 
@@ -206,37 +208,37 @@ void Start()
 	SceneCamera = new Camera(WindowSize, {0,0,10});
 
 	CubeMesh = new Mesh(SHAPE::CUBE, GL_CCW);
-	InvertedCubeMesh = new Mesh(SHAPE::CUBE, GL_CW);
 	SphereMesh = new Mesh(SHAPE::SPHERE, GL_CCW);
 
 	LightManagerObject = new LightManager(*SceneCamera, 2);
 	LightManagerObject->SetLightMesh(SphereMesh);
 
 	LightManagerObject->CreatePointLight({
-		{ -5.0f, 0.0f, -2.0f },
-		{1.0f, 0.0f, 0.0f},
-		1.0f
+		{ -5.0f, 0.0f, -2.0f }, // Starting Position
+		{1.0f, 0.0f, 0.0f}, // Color
+		1.0f // Specular Strength
 		});
 
 	LightManagerObject->CreatePointLight({
-		{ 5.0f, 0.0f, -2.0f },
-		{0.0f, 0.0f, 1.0f},
-		1.0f
+		{ 5.0f, 0.0f, -2.0f }, // Starting Position
+		{0.0f, 0.0f, 1.0f}, // Color
+		1.0f // Specular Strength
 		});
 
 	LightManagerObject->CreateDirectionalLight({
 		{ 0.0f, 10.0f, -2.0f },
-		{1.0f, 1.0f, 1.0f},
-		1.0f
+		{1.0f, 1.0f, 1.0f}, // Color
+		1.0f // Specular Strength
 		});
 
-	SphereObject = new GameObject(*SceneCamera, { 0,1,-2 });
-	SphereObject->SetShader("Normals3D.vert", "BlinnFong3D.frag");
-	SphereObject->SetMesh(SphereMesh);
-	SphereObject->SetActiveTextures({ TextureLoader::LoadTexture("Rayman.jpg") });
-	SphereObject->SetLightManager(*LightManagerObject);
+	LightManagerObject->CreateSpotLight({
+		true, // Is attachted to Camera
+		{ 0.0f, 10.0f, -2.0f }, // Starting Position
+		{1.0f, 1.0f, 1.0f}, // Color
+		1.0f // Specular Strength
+		});
 
-	std::string cubemapTextures[6] 
+	std::string cubemapTextures[6]
 	{
 		"MountainOutpost/Right.jpg",
 		"MountainOutpost/Left.jpg",
@@ -245,7 +247,17 @@ void Start()
 		"MountainOutpost/Back.jpg",
 		"MountainOutpost/Front.jpg"
 	};
-	m_Skybox = new Skybox(SceneCamera, InvertedCubeMesh, TextureLoader::LoadCubemap(cubemapTextures));
+	m_Skybox = &Skybox::GetInstance(SceneCamera, TextureLoader::LoadCubemap(cubemapTextures));
+
+	SphereObject = new GameObject(*SceneCamera, { 0,1,-2 });
+	SphereObject->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+	SphereObject->SetMesh(SphereMesh);
+	SphereObject->SetActiveTextures({ 
+		TextureLoader::LoadTexture("Crate.jpg"),
+		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
+	SphereObject->SetLightManager(*LightManagerObject);
+	SphereObject->SetSkyboxTexture(m_Skybox->GetTextureID());
 }
 
 /// <summary>
@@ -289,18 +301,11 @@ void Render()
 	if (LightManagerObject)
 		LightManagerObject->Draw();
 
-	// Enable Wireframe if bool
-	if (IsWireframe)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	if (SphereObject)
 		SphereObject->Draw();
 
 	if (m_Skybox)
 		m_Skybox->Draw();
-
-	// Disable Wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Draw Any TextLabels Without Wireframe
 	for (auto& textLabel : TextLabels)
@@ -323,13 +328,7 @@ int Cleanup()
 		delete LightManagerObject;
 	LightManagerObject = nullptr;
 
-	if (m_Skybox != nullptr)
-		delete m_Skybox;
 	m_Skybox = nullptr;
-
-	if (InvertedCubeMesh != nullptr)
-		delete InvertedCubeMesh;
-	InvertedCubeMesh = nullptr;
 
 	if (CubeMesh != nullptr)
 		delete CubeMesh;

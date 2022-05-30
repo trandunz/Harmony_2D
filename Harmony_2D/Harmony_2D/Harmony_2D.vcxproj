@@ -182,6 +182,8 @@
     <None Include="Resources\Shaders\BlinnFong3D.frag" />
     <None Include="Resources\Shaders\BlinnFong3D_Rim.frag" />
     <None Include="Resources\Shaders\Normals3D.vert" />
+    <None Include="Resources\Shaders\Reflection.frag" />
+    <None Include="Resources\Shaders\ReflectionMap.frag" />
     <None Include="Resources\Shaders\SingleTexture.frag" />
     <None Include="Resources\Shaders\SingleTexture.vert" />
     <None Include="Resources\Shaders\Skybox.frag" />

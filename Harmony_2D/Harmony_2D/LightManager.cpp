@@ -1,9 +1,10 @@
 #include "LightManager.h"
 
-LightManager::LightManager(Camera& _activeCamera, int _maxPointLights, int _maxDirectionalLights)
+LightManager::LightManager(Camera& _activeCamera, int _maxPointLights, int _maxDirectionalLights, int _maxSpotLights)
 {
 	m_MaxPointLights = _maxPointLights;
 	m_MaxDirectionalLights = _maxDirectionalLights;
+	m_MaxSpotLights = _maxSpotLights;
 	m_ActiveCamera = &_activeCamera;
 	m_UnlitMeshShaderID = ShaderLoader::CreateShader("SingleTexture.vert","UnlitColor.frag");
 }
@@ -14,6 +15,7 @@ LightManager::~LightManager()
 	m_ActiveCamera = nullptr;
 	m_PointLights.clear();
 	m_DirectionalLights.clear();
+	m_SpotLights.clear();
 }
 
 void LightManager::Draw()
@@ -48,6 +50,12 @@ void LightManager::CreateDirectionalLight(DirectionalLight _newLight)
 		m_DirectionalLights.emplace_back(_newLight);
 }
 
+void LightManager::CreateSpotLight(SpotLight _newLight)
+{
+	if ((int)m_SpotLights.size() < m_MaxSpotLights)
+		m_SpotLights.emplace_back(_newLight);
+}
+
 std::vector<PointLight>& LightManager::GetPointLights()
 {
 	return m_PointLights;
@@ -56,4 +64,9 @@ std::vector<PointLight>& LightManager::GetPointLights()
 std::vector<DirectionalLight>& LightManager::GetDirectionalLights()
 {
 	return m_DirectionalLights;
+}
+
+std::vector<SpotLight>& LightManager::GetSpotLights()
+{
+	return m_SpotLights;
 }

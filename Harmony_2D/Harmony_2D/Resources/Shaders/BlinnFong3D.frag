@@ -20,6 +20,7 @@ in vec3 Normals;
 
 #define MAX_POINT_LIGHTS 4
 #define MAX_DIRECTIONAL_LIGHTS 4
+#define MAX_SPOT_LIGHTS 4
 
 struct PointLight
 {
@@ -34,8 +35,23 @@ struct PointLight
 struct DirectionalLight
 {
     vec3 Direction;
+    float fuckall;
     vec3 Color;
     float SpecularStrength;
+};
+
+struct SpotLight
+{
+    vec3 Position;
+    vec3 Color;
+    float SpecularStrength;
+    vec3 Direction;
+
+    float AttenuationLinear;
+    float AttenuationExponent;
+
+    float Cutoff;
+    float OuterCutoff;
 };
 
 // Outside Variables Passed In As 'Uniforms'
@@ -49,12 +65,11 @@ uniform float AmbientStrength;
 
 uniform int NumberOfPointLights;
 uniform int NumberOfDirectionalLights;
+uniform int NumberOfSpotLights;
 
 uniform PointLight PointLights[MAX_POINT_LIGHTS];
 uniform DirectionalLight DirectionalLights[MAX_DIRECTIONAL_LIGHTS];
-
-uniform float RimExponent;
-uniform vec3 RimColor;
+uniform SpotLight SpotLights[MAX_SPOT_LIGHTS];
 
 // Available Helper function Forward Declerations
 vec4 ColourFromTextureORWhite(vec2 _texCoords);
@@ -62,6 +77,7 @@ vec3 CalculateAmbientLight();
 
 vec3 CalculatePointLight(PointLight _pointLight);
 vec3 CalculateDirectionalLight(DirectionalLight _directionalLight);
+vec3 CalculateSpotLight(SpotLight _spotLight);
 
 vec3 ReverseViewDir;
 
@@ -78,6 +94,10 @@ void main()
     for (int i = 0; i < MAX_DIRECTIONAL_LIGHTS && i < NumberOfDirectionalLights; i++)
     {
         combinedLighting += CalculateDirectionalLight(DirectionalLights[i]);
+    }
+    for (int i = 0; i < MAX_SPOT_LIGHTS && i < NumberOfSpotLights; i++)
+    {
+        combinedLighting += CalculateSpotLight(SpotLights[i]);
     }
 
     FragColor = vec4(combinedLighting,1.0f) * ColourFromTextureORWhite(TexCoords);
@@ -135,4 +155,23 @@ vec3 CalculateDirectionalLight(DirectionalLight _directionalLight)
     vec3 specularLight = _directionalLight.SpecularStrength * specularReflectivity * _directionalLight.Color;
 
     return diffuseLight + specularLight;
+}
+
+vec3 CalculateSpotLight(SpotLight _spotLight)
+{
+    vec3 lightDir = normalize(Position - _spotLight.Position);
+
+    float strength = max(dot(Normals, -lightDir), 0.0f);
+    vec3 diffuseLight = strength * _spotLight.Color;
+
+    vec3 halfwayVector = normalize(-lightDir + ReverseViewDir);
+    float specularReflectivity = pow(max(dot(Normals, halfwayVector), 0.0f), Shininess);
+    vec3 specularLight = _spotLight.SpecularStrength * specularReflectivity * _spotLight.Color;
+
+    float distance = length(_spotLight.Position - Position);
+    float attenuation = 1 + (_spotLight.AttenuationLinear * distance) + (_spotLight.AttenuationExponent * pow(distance, 2.0f)); 
+
+    float theta = dot(lightDir, normalize(_spotLight.Direction));
+    float intensity = clamp((theta - _spotLight.OuterCutoff) / (_spotLight.Cutoff - _spotLight.OuterCutoff), 0.0f, 1.0f);
+    return ((diffuseLight + specularLight) * intensity) / attenuation;
 }
