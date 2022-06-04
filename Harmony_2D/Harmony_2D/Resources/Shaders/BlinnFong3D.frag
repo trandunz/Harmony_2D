@@ -35,7 +35,6 @@ struct PointLight
 struct DirectionalLight
 {
     vec3 Direction;
-    float fuckall;
     vec3 Color;
     float SpecularStrength;
 };

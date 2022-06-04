@@ -19,7 +19,7 @@ float DeltaTime = 0.0, LastFrame = 0.0;
 
 bool IsMouseVisible = false;
 
-GameObject* SphereObject = nullptr;
+std::vector < GameObject*> GameObjects{};
 
 Camera* SceneCamera = nullptr;
 LightManager* LightManagerObject = nullptr;
@@ -249,15 +249,56 @@ void Start()
 	};
 	m_Skybox = &Skybox::GetInstance(SceneCamera, TextureLoader::LoadCubemap(cubemapTextures));
 
-	SphereObject = new GameObject(*SceneCamera, { 0,1,-2 });
-	SphereObject->SetShader("Normals3D.vert", "BlinnFong3D.frag");
-	SphereObject->SetMesh(SphereMesh);
-	SphereObject->SetActiveTextures({ 
+	
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		x = cos(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
+		y = cos(glm::radians((float)(rand() % 360)));
+		z = sin(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
+
+		GameObjects.push_back(new GameObject(*SceneCamera, { x * 4.0f,y * 4.0f,z * 4.0f }));
+		GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+		GameObjects.back()->SetMesh(SphereMesh);
+		GameObjects.back()->SetActiveTextures({
+			TextureLoader::LoadTexture("Crate.jpg"),
+			TextureLoader::LoadTexture("Crate-Reflection.png")
+			});
+		GameObjects.back()->SetLightManager(*LightManagerObject);
+		GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
+	}
+
+	GameObjects.push_back(new GameObject(*SceneCamera, { -1.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "Reflection.frag");
+	GameObjects.back()->SetMesh(SphereMesh);
+	GameObjects.back()->SetActiveTextures({
 		TextureLoader::LoadTexture("Crate.jpg"),
 		TextureLoader::LoadTexture("Crate-Reflection.png")
 		});
-	SphereObject->SetLightManager(*LightManagerObject);
-	SphereObject->SetSkyboxTexture(m_Skybox->GetTextureID());
+	GameObjects.back()->SetLightManager(*LightManagerObject);
+	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
+
+	GameObjects.push_back(new GameObject(*SceneCamera, { 1.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "ReflectionMap.frag");
+	GameObjects.back()->SetMesh(CubeMesh);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
+		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
+	GameObjects.back()->SetLightManager(*LightManagerObject);
+	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
+
+	GameObjects.push_back(new GameObject(*SceneCamera, { 0,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Rim.frag");
+	GameObjects.back()->SetMesh(SphereMesh);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
+		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
+	GameObjects.back()->SetLightManager(*LightManagerObject);
+	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
 }
 
 /// <summary>
@@ -282,8 +323,10 @@ void Update()
 		if (SceneCamera)
 			SceneCamera->Movement(DeltaTime);
 
-		if (SphereObject)
-			SphereObject->Update(DeltaTime);
+		for (auto& gameObject : GameObjects)
+		{
+			gameObject->Update(DeltaTime);
+		}
 
 		if (m_Skybox)
 			m_Skybox->Update(DeltaTime);
@@ -301,8 +344,10 @@ void Render()
 	if (LightManagerObject)
 		LightManagerObject->Draw();
 
-	if (SphereObject)
-		SphereObject->Draw();
+	for (auto& gameObject : GameObjects)
+	{
+		gameObject->Draw();
+	}
 
 	if (m_Skybox)
 		m_Skybox->Draw();
@@ -338,9 +383,13 @@ int Cleanup()
 		delete SphereMesh;
 	SphereMesh = nullptr;
 
-	if (SphereObject != nullptr)
-		delete SphereObject;
-	SphereObject = nullptr;
+	for (auto& gameObject : GameObjects)
+	{
+		if (gameObject != nullptr)
+			delete gameObject;
+		gameObject = nullptr;
+	}
+	GameObjects.clear();
 
 	// Clean up TextLabels
 	for (auto& textLabel : TextLabels)

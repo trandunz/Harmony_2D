@@ -28,19 +28,6 @@ ShaderLoader::~ShaderLoader()
 
 GLuint ShaderLoader::CreateShader(std::string&& _vertexShader, std::string&& _fragmentShader)
 {
-    // Check If there Is Already A Shader With The Same Specifications Created
-    for (auto& item : m_ShaderPrograms)
-    {
-        if (item.first.vertShader == _vertexShader && item.first.fragShader == _fragmentShader)
-        {
-            if (IsDebug)
-            {
-                Print("Re-used Shader Program " + std::to_string(item.second) + "!");
-            }
-            return item.second;
-        }
-    }
-
     // Create A Default Program
     GLuint program = glCreateProgram();
 
@@ -83,7 +70,7 @@ GLuint ShaderLoader::CreateShader(std::string&& _vertexShader, std::string&& _fr
     }
 
     // Push The New Shader Program To Vector
-    m_ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.data(), _fragmentShader.data() }, program));
+    m_ShaderPrograms.push_back(std::make_pair(ShaderProgramLocation{ _vertexShader.c_str(), _fragmentShader.c_str() }, program));
 
     // Return Program ID
     return program;
