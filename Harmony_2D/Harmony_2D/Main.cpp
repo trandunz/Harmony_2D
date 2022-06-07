@@ -264,7 +264,6 @@ void Start()
 		GameObjects.back()->SetMesh(SphereMesh);
 		GameObjects.back()->SetActiveTextures({
 			TextureLoader::LoadTexture("Crate.jpg"),
-			TextureLoader::LoadTexture("Crate-Reflection.png")
 			});
 		GameObjects.back()->SetLightManager(*LightManagerObject);
 		GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
@@ -273,10 +272,6 @@ void Start()
 	GameObjects.push_back(new GameObject(*SceneCamera, { -1.0f,0,0 }));
 	GameObjects.back()->SetShader("Normals3D.vert", "Reflection.frag");
 	GameObjects.back()->SetMesh(SphereMesh);
-	GameObjects.back()->SetActiveTextures({
-		TextureLoader::LoadTexture("Crate.jpg"),
-		TextureLoader::LoadTexture("Crate-Reflection.png")
-		});
 	GameObjects.back()->SetLightManager(*LightManagerObject);
 	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
 
@@ -290,12 +285,22 @@ void Start()
 	GameObjects.back()->SetLightManager(*LightManagerObject);
 	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
 
-	GameObjects.push_back(new GameObject(*SceneCamera, { 0,0,0 }));
-	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Rim.frag");
-	GameObjects.back()->SetMesh(SphereMesh);
+	GameObjects.push_back(new GameObject(*SceneCamera, { 2.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Reflection.frag");
+	GameObjects.back()->SetMesh(CubeMesh);
 	GameObjects.back()->SetActiveTextures({
 		TextureLoader::LoadTexture("Crate.jpg"),
 		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
+	GameObjects.back()->SetLightManager(*LightManagerObject);
+	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
+
+	GameObjects.push_back(new GameObject(*SceneCamera, { 0,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+	GameObjects.back()->SetMesh(SphereMesh);
+	GameObjects.back()->SetRimLighting(true);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
 		});
 	GameObjects.back()->SetLightManager(*LightManagerObject);
 	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());

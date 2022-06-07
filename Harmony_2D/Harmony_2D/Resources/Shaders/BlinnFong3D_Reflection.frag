@@ -3,8 +3,8 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : BlinnFong3D_Rim.frag
-// Description : Generic fragment shader for handling BlinnFong + Rim Lighting On Meshes
+// File Name : BlinnFong3D.frag
+// Description : Generic fragment shader for handling BlinnFong Lighting On Meshes
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
@@ -70,17 +70,21 @@ uniform PointLight PointLights[MAX_POINT_LIGHTS];
 uniform DirectionalLight DirectionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight SpotLights[MAX_SPOT_LIGHTS];
 
+uniform bool bRimLighting;
 uniform float RimExponent;
 uniform vec3 RimColor;
+
+uniform samplerCube SkyboxTexture;
+uniform sampler2D ReflectionMap;
 
 // Available Helper function Forward Declerations
 vec4 ColourFromTextureORWhite(vec2 _texCoords);
 vec3 CalculateAmbientLight();
-vec3 CalculateRimLight();
 
 vec3 CalculatePointLight(PointLight _pointLight);
 vec3 CalculateDirectionalLight(DirectionalLight _directionalLight);
 vec3 CalculateSpotLight(SpotLight _spotLight);
+vec3 CalculateRimLight();
 
 vec3 ReverseViewDir;
 
@@ -102,9 +106,14 @@ void main()
     {
         combinedLighting += CalculateSpotLight(SpotLights[i]);
     }
-    combinedLighting += CalculateRimLight();
+    if (bRimLighting)
+    {
+        combinedLighting += CalculateRimLight();
+    }
 
-    FragColor = vec4(combinedLighting,1.0f) * ColourFromTextureORWhite(TexCoords);
+    vec3 viewDir = normalize(Position - CameraPos);
+    vec3 reflectedDir = reflect(viewDir, Normals);
+    FragColor = vec4(combinedLighting,1.0f) * mix(texture(Texture0, TexCoords), texture(SkyboxTexture, reflectedDir), texture(ReflectionMap, TexCoords).r);
 }
 
 // Checks for number of active textures and returns the colour output accordingly.

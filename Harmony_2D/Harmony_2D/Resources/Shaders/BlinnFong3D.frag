@@ -70,6 +70,10 @@ uniform PointLight PointLights[MAX_POINT_LIGHTS];
 uniform DirectionalLight DirectionalLights[MAX_DIRECTIONAL_LIGHTS];
 uniform SpotLight SpotLights[MAX_SPOT_LIGHTS];
 
+uniform bool bRimLighting;
+uniform float RimExponent;
+uniform vec3 RimColor;
+
 // Available Helper function Forward Declerations
 vec4 ColourFromTextureORWhite(vec2 _texCoords);
 vec3 CalculateAmbientLight();
@@ -77,6 +81,7 @@ vec3 CalculateAmbientLight();
 vec3 CalculatePointLight(PointLight _pointLight);
 vec3 CalculateDirectionalLight(DirectionalLight _directionalLight);
 vec3 CalculateSpotLight(SpotLight _spotLight);
+vec3 CalculateRimLight();
 
 vec3 ReverseViewDir;
 
@@ -97,6 +102,10 @@ void main()
     for (int i = 0; i < MAX_SPOT_LIGHTS && i < NumberOfSpotLights; i++)
     {
         combinedLighting += CalculateSpotLight(SpotLights[i]);
+    }
+    if (bRimLighting)
+    {
+        combinedLighting += CalculateRimLight();
     }
 
     FragColor = vec4(combinedLighting,1.0f) * ColourFromTextureORWhite(TexCoords);
@@ -126,6 +135,14 @@ vec4 ColourFromTextureORWhite(vec2 _texCoords)
 vec3 CalculateAmbientLight()
 {
     return AmbientStrength * AmbientColor;
+}
+
+vec3 CalculateRimLight()
+{
+    float rimFactor = 1.0f - dot(Normals, ReverseViewDir);
+    rimFactor = smoothstep(0.0f, 1.0f, rimFactor);
+    rimFactor = pow(rimFactor, RimExponent);
+    return rimFactor * RimColor;
 }
 
 vec3 CalculatePointLight(PointLight _pointLight)

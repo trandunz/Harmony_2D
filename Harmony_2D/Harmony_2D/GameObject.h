@@ -156,13 +156,17 @@ public:
 	void SetLightManager(LightManager& _lightManager);
 
 	void SetSkyboxTexture(Texture _skyboxTexture);
+
+	void SetRimLighting(bool _rimLighting);
 private:
 	void SetBlinnFong3DUniforms();
+	void SetRimLighingUniforms();
 	void SetReflectionUniforms();
 	void SetReflectionMapUniforms();
 	void SetNormals3DVertUniforms();
 	void SetSingleTextureUniforms();
 
+	bool m_RimLighting = false;
 	std::vector<Texture> m_ActiveTextures{};
 	GLuint m_ShaderID{0};
 	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};

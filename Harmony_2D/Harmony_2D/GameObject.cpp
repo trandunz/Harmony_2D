@@ -107,12 +107,7 @@ void GameObject::Draw()
             if (m_ShaderLocation.fragShader == "BlinnFong3D.frag")
             {
                 SetBlinnFong3DUniforms();
-            }
-            else if (m_ShaderLocation.fragShader == "BlinnFong3D_Rim.frag")
-            {
-                SetBlinnFong3DUniforms();
-                ShaderLoader::SetUniform1f(std::move(m_ShaderID), "RimExponent", 4.0f);
-                ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "RimColor", { 1.0f,0.0f,0.0f });
+                SetRimLighingUniforms();
             }
             else if (m_ShaderLocation.fragShader == "Reflection.frag")
             {
@@ -120,6 +115,12 @@ void GameObject::Draw()
             }
             else if (m_ShaderLocation.fragShader == "ReflectionMap.frag")
             {
+                SetReflectionMapUniforms();
+            }
+            else if (m_ShaderLocation.fragShader == "BlinnFong3D_Reflection.frag")
+            {
+                SetBlinnFong3DUniforms();
+                SetRimLighingUniforms();
                 SetReflectionMapUniforms();
             }
         }
@@ -257,6 +258,11 @@ void GameObject::SetSkyboxTexture(Texture _skyboxTexture)
     m_SkyboxTexture = _skyboxTexture;
 }
 
+void GameObject::SetRimLighting(bool _rimLighting)
+{
+    m_RimLighting = _rimLighting;
+}
+
 void GameObject::SetBlinnFong3DUniforms()
 {
     // Apply Texture
@@ -316,6 +322,16 @@ void GameObject::SetBlinnFong3DUniforms()
             ShaderLoader::SetUniform1f(std::move(m_ShaderID), "SpotLights[" + std::to_string(i) + "].Cutoff", glm::cos(glm::radians(spotLights[i].Cutoff)));
             ShaderLoader::SetUniform1f(std::move(m_ShaderID), "SpotLights[" + std::to_string(i) + "].OuterCutoff", glm::cos(glm::radians(spotLights[i].OuterCutoff)));
         }
+    }
+}
+
+void GameObject::SetRimLighingUniforms()
+{
+    ShaderLoader::SetUniform1i(std::move(m_ShaderID), "bRimLighting", m_RimLighting);
+    if (m_RimLighting)
+    {
+        ShaderLoader::SetUniform1f(std::move(m_ShaderID), "RimExponent", 4.0f);
+        ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "RimColor", { 1.0f,0.0f,0.0f });
     }
 }
 

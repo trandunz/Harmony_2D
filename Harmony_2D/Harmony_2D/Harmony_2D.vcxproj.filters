@@ -100,9 +100,6 @@
     <None Include="Resources\Shaders\Normals3D.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Resources\Shaders\BlinnFong3D_Rim.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Resources\Shaders\UnlitColor.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -116,6 +113,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Resources\Shaders\ReflectionMap.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\BlinnFong3D_Reflection.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
