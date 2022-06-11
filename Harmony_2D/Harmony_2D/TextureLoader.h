@@ -35,7 +35,7 @@ public:
 	/// </summary>
 	/// <param name="_fileNames"></param>
 	/// <returns></returns>
-	static Texture LoadCubemap(std::string _fileNames[6]);
+	static Texture LoadCubemap(std::vector<std::string> _fileNames);
 
 private:
 	inline static std::vector<Texture> m_Textures;

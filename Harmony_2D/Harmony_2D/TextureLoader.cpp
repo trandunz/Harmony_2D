@@ -81,7 +81,7 @@ Texture TextureLoader::LoadTexture(std::string&& _fileName)
     return m_Textures.back();
 }
 
-Texture TextureLoader::LoadCubemap(std::string _fileNames[6])
+Texture TextureLoader::LoadCubemap(std::vector<std::string> _fileNames)
 {
     for (auto& item : m_Textures)
     {

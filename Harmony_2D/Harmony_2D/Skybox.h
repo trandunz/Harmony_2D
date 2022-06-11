@@ -1,25 +1,63 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : Skybox.h 
+// Description : Skybox Header File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #pragma once
 #include "Mesh.h"
 #include "Camera.h"
 class Skybox
 {
 public:
+	/// <summary>
+	/// Creates A Skybox Singleton or Returns It.
+	/// </summary>
+	/// <param name="_activeCamera"></param>
+	/// <param name="_cubemapTexture"></param>
+	/// <returns></returns>
 	static Skybox& GetInstance(Camera* _activeCamera, Texture _cubemapTexture)
 	{
 		static Skybox instance(_activeCamera, _cubemapTexture);
 		return instance;
 	}
 
+	/// <summary>
+	/// Delete Copy Contructor
+	/// </summary>
+	/// <param name=""></param>
 	Skybox(Skybox const&) = delete;
+	/// <summary>
+	/// Delete Assignment Operator
+	/// </summary>
+	/// <param name=""></param>
 	void operator=(Skybox const&) = delete;
 
-	void Update(float& _dt);
+	/// <summary>
+	/// Handles Drawing of the skybox
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// Sets the Cubemap of the skybox
+	/// </summary>
+	/// <param name="_cubemapTexture"></param>
 	void SetTexture(Texture _cubemapTexture);
 
+	/// <summary>
+	/// Sets the active camera
+	/// </summary>
+	/// <param name="_camera"></param>
 	void SetActiveCamera(Camera* _camera);
 
+	/// <summary>
+	/// Gets the Cubemap Texture ID
+	/// </summary>
+	/// <returns></returns>
 	Texture GetTextureID();
 
 	/// <summary>
@@ -58,10 +96,21 @@ public:
 	void Scale(glm::vec3 _scaleFactor);
 
 private:
+	/// <summary>
+	/// Private Constructor
+	/// </summary>
+	/// <param name="_activeCamera"></param>
+	/// <param name="_cubemapTexture"></param>
 	Skybox(Camera* _activeCamera, Texture _cubemapTexture);
+	/// <summary>
+	/// Private Destructor
+	/// </summary>
 	~Skybox();
 
-	void CreateCubeVAO();
+	/// <summary>
+	/// Create An Inverted Cube VAO
+	/// </summary>
+	void CreateInvertedCubeVAO();
 
 	Transform m_Transform{};
 	GLuint m_ShaderID{ 0 };

@@ -1,26 +1,2 @@
-﻿  Camera.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-freetyped.lib(autofit.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(autofit.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftbase.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftbase.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftbitmap.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftbitmap.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftinit.obj) : warning LNK4099: PDB '' was not found with 'freetyped.lib(ftinit.obj)' or at ''; linking object as if no debug info
-freetyped.lib(bdf.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(bdf.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(cff.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(cff.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(type1cid.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(type1cid.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftgzip.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftgzip.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftlzw.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftlzw.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(pcf.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(pcf.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(pfr.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(pfr.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(psaux.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(psaux.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(pshinter.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(pshinter.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(psnames.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(psnames.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(raster.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(raster.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(sfnt.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(sfnt.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(smooth.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(smooth.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(truetype.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(truetype.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(type1.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(type1.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(type42.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(type42.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(winfnt.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(winfnt.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftsystem.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftsystem.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-freetyped.lib(ftdebug.obj) : warning LNK4099: PDB 'freetype.pdb' was not found with 'freetyped.lib(ftdebug.obj)' or at 'D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\freetype.pdb'; linking object as if no debug info
-  Harmony_2D.vcxproj -> D:\Users\mds00002d0\Documents\Git\Harmony_2D\Harmony_2D\Debug\Harmony_2D.exe
+﻿  Main.cpp
+  Harmony_2D.vcxproj -> C:\Users\trand\Documents\GitHub\Harmony_2D\Harmony_2D\Debug\Harmony_2D.exe

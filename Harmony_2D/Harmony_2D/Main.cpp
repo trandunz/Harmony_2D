@@ -19,12 +19,12 @@ float DeltaTime = 0.0, LastFrame = 0.0;
 
 bool IsMouseVisible = false;
 
-std::vector < GameObject*> GameObjects{};
+std::vector <GameObject*> GameObjects{};
 
 Camera* SceneCamera = nullptr;
 LightManager* LightManagerObject = nullptr;
 
-Skybox* m_Skybox = nullptr;
+Skybox* SceneSkybox = nullptr;
 
 Mesh* CubeMesh = nullptr;
 Mesh* SphereMesh = nullptr;
@@ -43,6 +43,10 @@ void Update();
 void Render();
 int Cleanup();
 
+void CreateTextLabels();
+void CreateLights();
+void CreateObjects();
+
 void HandleKeymapActions();
 void HandleMouseVisible();
 
@@ -51,6 +55,7 @@ void HandleMouseVisible();
 /// </summary>
 static inline void CalculateDeltaTime()
 {
+	// Calculate DeltaTime
 	float currentFrame = (float)glfwGetTime();
 	DeltaTime = currentFrame - LastFrame;
 	LastFrame = currentFrame;
@@ -60,22 +65,8 @@ static inline void CalculateDeltaTime()
 }
 
 /// <summary>
-/// Handles Window Resizing.
-/// Calls GlViewPort(0,0,newWidth,newHeight).
-/// Sets WindowSize = {newWidth,newHeight}.
-/// </summary>
-/// <param name="_renderWindow"></param>
-/// <param name="_width"></param>
-/// <param name="_height"></param>
-static inline void WindowResizeCallback(GLFWwindow* _renderWindow, int _width, int _height)
-{
-	glViewport(0, 0, _width, _height);
-	WindowSize = { _width , _height};
-}
-
-/// <summary>
 /// GLFW Mouse Position Callback Function.
-/// Activates when the mouse moves
+/// Activates when the mouse moves.
 /// </summary>
 /// <param name="_renderWindow"></param>
 /// <param name="_xpos"></param>
@@ -87,7 +78,8 @@ static inline void CursorPositionCallback(GLFWwindow* _renderWindow, double _xpo
 }
 
 /// <summary>
-/// GLFW Key Callback Function
+/// GLFW Key Callback Function.
+/// Actives when key is pressed.
 /// </summary>
 /// <param name="_renderWindow"></param>
 /// <param name="_key"></param>
@@ -107,16 +99,6 @@ static inline void KeyCallback(GLFWwindow* _renderWindow, int _key, int _scanCod
 }
 
 /// <summary>
-/// GLFW Character Callback Function.
-/// Returns uniCode / Asci Input Codes
-/// </summary>
-/// <param name="_renderWindow"></param>
-/// <param name="_uniCode"></param>
-static inline void CharacterCallback(GLFWwindow* _renderWindow, unsigned _uniCode)
-{
-}
-
-/// <summary>
 /// Main Thread Function
 /// </summary>
 /// <returns></returns>
@@ -128,7 +110,10 @@ int main()
 }
 
 /// <summary>
-/// Initalizes GLFW With Window Hints, Callback Functions
+/// Initalizes GLFW With Window Hints, 
+/// Set Number of MSAA Samples To 4,
+/// Create GLFW Window,
+/// Set Callback Functions
 /// </summary>
 void InitGLFW()
 {
@@ -151,13 +136,18 @@ void InitGLFW()
 
 	// Set Callback Functions
 	glfwSetKeyCallback(RenderWindow, KeyCallback);
-	glfwSetWindowSizeCallback(RenderWindow, WindowResizeCallback);
 	glfwSetCursorPosCallback(RenderWindow, CursorPositionCallback);
-	glfwSetCharCallback(RenderWindow, CharacterCallback);
 }
 
 /// <summary>
-/// Initalizes GLEW, Enables Culling, Enables 1-Alpha Blending, Sets Clear Color For Default FrameBuffer (Grey)
+/// Initalizes GLEW, 
+/// Enable MultiSample Anti-Aliasing,
+/// Enable Backface Culling,
+/// Enable Blending,
+/// Enable One Minus Alpha Blending, 
+/// Enable Depth Buffer,
+/// Enable Seamless Cubemap Textures,
+/// Sets Clear Color For Default FrameBuffer (Grey)
 /// </summary>
 void InitGLEW()
 {
@@ -204,106 +194,36 @@ void Start()
 
 	ArialFont = FontLoader::LoadFont("ARIAL.TTF");
 
+	CreateTextLabels();
+
 	// Create The Scene Camera
 	SceneCamera = new Camera(WindowSize, {0,0,10});
 
 	CubeMesh = new Mesh(SHAPE::CUBE, GL_CCW);
 	SphereMesh = new Mesh(SHAPE::SPHERE, GL_CCW);
 
-	LightManagerObject = new LightManager(*SceneCamera, 2);
+	LightManagerObject = new LightManager(*SceneCamera, 2, 1, 1);
 	LightManagerObject->SetLightMesh(SphereMesh);
 
-	LightManagerObject->CreatePointLight({
-		{ -5.0f, 0.0f, -2.0f }, // Starting Position
-		{1.0f, 0.0f, 0.0f}, // Color
-		1.0f // Specular Strength
-		});
+	CreateLights();
 
-	LightManagerObject->CreatePointLight({
-		{ 5.0f, 0.0f, -2.0f }, // Starting Position
-		{0.0f, 0.0f, 1.0f}, // Color
-		1.0f // Specular Strength
-		});
+	SceneSkybox = &Skybox::GetInstance(SceneCamera, TextureLoader::LoadCubemap(
+		{
+			"MountainOutpost/Right.jpg",
+			"MountainOutpost/Left.jpg",
+			"MountainOutpost/Up.jpg",
+			"MountainOutpost/Down.jpg",
+			"MountainOutpost/Back.jpg",
+			"MountainOutpost/Front.jpg"
+		}));
 
-	LightManagerObject->CreateDirectionalLight({
-		{ 0.0f, 10.0f, -2.0f },
-		{1.0f, 1.0f, 1.0f}, // Color
-		1.0f // Specular Strength
-		});
+	CreateObjects();
 
-	LightManagerObject->CreateSpotLight({
-		true, // Is attachted to Camera
-		{ 0.0f, 10.0f, -2.0f }, // Starting Position
-		{1.0f, 1.0f, 1.0f}, // Color
-		1.0f // Specular Strength
-		});
-
-	std::string cubemapTextures[6]
+	for (auto& gameObject : GameObjects)
 	{
-		"MountainOutpost/Right.jpg",
-		"MountainOutpost/Left.jpg",
-		"MountainOutpost/Up.jpg",
-		"MountainOutpost/Down.jpg",
-		"MountainOutpost/Back.jpg",
-		"MountainOutpost/Front.jpg"
-	};
-	m_Skybox = &Skybox::GetInstance(SceneCamera, TextureLoader::LoadCubemap(cubemapTextures));
-
-	
-	float x = 0;
-	float y = 0;
-	float z = 0;
-	for (int i = 0; i < 10; i++)
-	{
-		x = cos(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
-		y = cos(glm::radians((float)(rand() % 360)));
-		z = sin(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
-
-		GameObjects.push_back(new GameObject(*SceneCamera, { x * 4.0f,y * 4.0f,z * 4.0f }));
-		GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
-		GameObjects.back()->SetMesh(SphereMesh);
-		GameObjects.back()->SetActiveTextures({
-			TextureLoader::LoadTexture("Crate.jpg"),
-			});
-		GameObjects.back()->SetLightManager(*LightManagerObject);
-		GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
+		gameObject->SetLightManager(*LightManagerObject);
+		gameObject->SetSkyboxTexture(SceneSkybox->GetTextureID());
 	}
-
-	GameObjects.push_back(new GameObject(*SceneCamera, { -1.0f,0,0 }));
-	GameObjects.back()->SetShader("Normals3D.vert", "Reflection.frag");
-	GameObjects.back()->SetMesh(SphereMesh);
-	GameObjects.back()->SetLightManager(*LightManagerObject);
-	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
-
-	GameObjects.push_back(new GameObject(*SceneCamera, { 1.0f,0,0 }));
-	GameObjects.back()->SetShader("Normals3D.vert", "ReflectionMap.frag");
-	GameObjects.back()->SetMesh(CubeMesh);
-	GameObjects.back()->SetActiveTextures({
-		TextureLoader::LoadTexture("Crate.jpg"),
-		TextureLoader::LoadTexture("Crate-Reflection.png")
-		});
-	GameObjects.back()->SetLightManager(*LightManagerObject);
-	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
-
-	GameObjects.push_back(new GameObject(*SceneCamera, { 2.0f,0,0 }));
-	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Reflection.frag");
-	GameObjects.back()->SetMesh(CubeMesh);
-	GameObjects.back()->SetActiveTextures({
-		TextureLoader::LoadTexture("Crate.jpg"),
-		TextureLoader::LoadTexture("Crate-Reflection.png")
-		});
-	GameObjects.back()->SetLightManager(*LightManagerObject);
-	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
-
-	GameObjects.push_back(new GameObject(*SceneCamera, { 0,0,0 }));
-	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
-	GameObjects.back()->SetMesh(SphereMesh);
-	GameObjects.back()->SetRimLighting(true);
-	GameObjects.back()->SetActiveTextures({
-		TextureLoader::LoadTexture("Crate.jpg"),
-		});
-	GameObjects.back()->SetLightManager(*LightManagerObject);
-	GameObjects.back()->SetSkyboxTexture(m_Skybox->GetTextureID());
 }
 
 /// <summary>
@@ -329,12 +249,7 @@ void Update()
 			SceneCamera->Movement(DeltaTime);
 
 		for (auto& gameObject : GameObjects)
-		{
 			gameObject->Update(DeltaTime);
-		}
-
-		if (m_Skybox)
-			m_Skybox->Update(DeltaTime);
 
 		// Main Render
 		Render();
@@ -346,22 +261,21 @@ void Update()
 /// </summary>
 void Render()
 {
+	// Draw Skybox
+	if (SceneSkybox)
+		SceneSkybox->Draw();
+
+	// Draw All PointLights
 	if (LightManagerObject)
 		LightManagerObject->Draw();
 
+	// Draw All Objects
 	for (auto& gameObject : GameObjects)
-	{
 		gameObject->Draw();
-	}
 
-	if (m_Skybox)
-		m_Skybox->Draw();
-
-	// Draw Any TextLabels Without Wireframe
+	// Draw All TextLabels
 	for (auto& textLabel : TextLabels)
-	{
 		textLabel->Draw();
-	}
 
 	// Swap Front Buffer And Back Buffer
 	glfwSwapBuffers(RenderWindow);
@@ -374,29 +288,34 @@ void Render()
 /// <returns></returns>
 int Cleanup()
 {
-	if (LightManagerObject != nullptr)
+	// Cleanup Light Manahger
+	if (LightManagerObject)
 		delete LightManagerObject;
 	LightManagerObject = nullptr;
 
-	m_Skybox = nullptr;
+	// Null Skybox Pointer
+	SceneSkybox = nullptr;
 
-	if (CubeMesh != nullptr)
+	// Cleanup Cube Mesh
+	if (CubeMesh)
 		delete CubeMesh;
 	CubeMesh = nullptr;
 
-	if (SphereMesh != nullptr)
+	// Cleanup Sphere Mesh
+	if (SphereMesh)
 		delete SphereMesh;
 	SphereMesh = nullptr;
 
+	// Cleanup All Objects
 	for (auto& gameObject : GameObjects)
 	{
-		if (gameObject != nullptr)
+		if (gameObject)
 			delete gameObject;
 		gameObject = nullptr;
 	}
 	GameObjects.clear();
 
-	// Clean up TextLabels
+	// Cleanup All TextLabels
 	for (auto& textLabel : TextLabels)
 	{
 		if (textLabel)
@@ -424,6 +343,99 @@ int Cleanup()
 	
 	// Return Main Thread Exit Code (0)
 	return EXIT_SUCCESS;
+}
+
+/// <summary>
+/// Handles Creation Of Text Labels
+/// </summary>
+void CreateTextLabels()
+{
+	TextLabels.emplace_back(new TextLabel(WindowSize, "ESC To Close Window", ArialFont, DeltaTime, { 120,WindowSize.y - 30 }, { 1,1,1,1 }, { 0.2f, 0.2f }));
+	TextLabels.emplace_back(new TextLabel(WindowSize, "TAB To Toggle Cursor", ArialFont, DeltaTime, { 120,WindowSize.y - 60 }, { 1,1,1,1 }, { 0.2f, 0.2f }));
+}
+
+/// <summary>
+/// Handles Creation Of Lights
+/// </summary>
+void CreateLights()
+{
+	LightManagerObject->CreatePointLight({
+		{ -5.0f, 0.0f, -2.0f }, // Starting Position
+		{1.0f, 0.0f, 0.0f}, // Color
+		1.0f // Specular Strength
+		});
+
+	LightManagerObject->CreatePointLight({
+		{ 5.0f, 0.0f, -2.0f }, // Starting Position
+		{0.0f, 0.0f, 1.0f}, // Color
+		1.0f // Specular Strength
+		});
+
+	LightManagerObject->CreateDirectionalLight({
+		{ 0.0f, 10.0f, -2.0f }, // Starting Position
+		{1.0f, 1.0f, 1.0f}, // Color
+		1.0f // Specular Strength
+		});
+
+	LightManagerObject->CreateSpotLight({
+		true, // Is attachted to Camera
+		{ 0.0f, 10.0f, -2.0f }, // Starting Position
+		{1.0f, 1.0f, 1.0f}, // Color
+		1.0f // Specular Strength
+		});
+}
+
+/// <summary>
+/// Handles Creation Of Objects
+/// </summary>
+void CreateObjects()
+{
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	// Create 10 Lit Spheres
+	for (int i = 0; i < 10; i++)
+	{
+		x = cos(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
+		y = cos(glm::radians((float)(rand() % 360)));
+		z = sin(glm::radians((float)(rand() % 360))) * sin(glm::radians((float)(rand() % 360)));
+
+		GameObjects.push_back(new GameObject(*SceneCamera, { x * 4.0f,y * 4.0f,z * 4.0f }));
+		GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+		GameObjects.back()->SetMesh(SphereMesh);
+	}
+
+	// Create Rim Lighting Sphere
+	GameObjects.push_back(new GameObject(*SceneCamera, { 0,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+	GameObjects.back()->SetMesh(SphereMesh);
+	GameObjects.back()->SetRimLighting(true);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
+		});
+
+	// Create Reflection Sphere
+	GameObjects.push_back(new GameObject(*SceneCamera, { -1.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "Reflection.frag");
+	GameObjects.back()->SetMesh(SphereMesh);
+
+	// Creation Reflection Map Cube
+	GameObjects.push_back(new GameObject(*SceneCamera, { 1.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "ReflectionMap.frag");
+	GameObjects.back()->SetMesh(CubeMesh);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
+		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
+
+	// Create Reflection Map Cube With Combined Lighting
+	GameObjects.push_back(new GameObject(*SceneCamera, { 2.0f,0,0 }));
+	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Reflection.frag");
+	GameObjects.back()->SetMesh(CubeMesh);
+	GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Crate.jpg"),
+		TextureLoader::LoadTexture("Crate-Reflection.png")
+		});
 }
 
 /// <summary>
@@ -463,7 +475,7 @@ void HandleKeymapActions()
 }
 
 /// <summary>
-/// Disable Or Enables The Mouse Curson Depending On Bool IsMouseVisible
+/// Disable Or Enables The Mouse Cursor Depending On Bool IsMouseVisible
 /// </summary>
 void HandleMouseVisible()
 {

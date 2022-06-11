@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : Skybox.cpp 
+// Description : Skybox Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #include "Skybox.h"
 
 Skybox::Skybox(Camera* _activeCamera, Texture _cubemapTexture)
@@ -8,7 +18,7 @@ Skybox::Skybox(Camera* _activeCamera, Texture _cubemapTexture)
 
 	m_ShaderID = ShaderLoader::CreateShader("Skybox.vert","Skybox.frag");
 
-	CreateCubeVAO();
+	CreateInvertedCubeVAO();
 }
 
 Skybox::~Skybox()
@@ -17,26 +27,24 @@ Skybox::~Skybox()
 		m_ActiveCamera = nullptr;
 }
 
-void Skybox::Update(float& _dt)
-{
-	
-}
-
 void Skybox::Draw()
 {
 	glUseProgram(m_ShaderID);
 
-	// Set Texture
+	// Pass In Cubemap Texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubemapTexture.ID);
 	ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
 
-	// Set PVM Matrix
+	// Pass In PVM Matrix
 	if (m_ActiveCamera)
 		ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
 
+	// Draw
 	glBindVertexArray(m_VertexArrayID);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+
+	// Unbind
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glUseProgram(0);
@@ -95,46 +103,47 @@ void Skybox::Scale(glm::vec3 _scaleFactor)
 	UpdateModelValueOfTransform(m_Transform);
 }
 
-void Skybox::CreateCubeVAO()
+void Skybox::CreateInvertedCubeVAO()
 {
 	GLuint vertexBufferID;
 	GLuint indexBufferID;
 
+	// Define Cube Vertices
 	glm::vec3 vertexPositions[]
 	{
+		// Front
 		{ -0.5f,  0.5f, 0.5f },
 		{-0.5f,  -0.5f, 0.5f},
 		{0.5f,  -0.5f, 0.5f},
-
 		{0.5f,  0.5f, 0.5f},
+		// Back
 		{0.5f,  0.5f, -0.5f},
 		{0.5f,  -0.5f, -0.5f},
-
 		{-0.5f,  -0.5f, -0.5f},
 		{-0.5f,  0.5f, -0.5f},
+		// Right
 		{0.5f,  0.5f, 0.5f},
-
 		{0.5f,  -0.5f, 0.5f},
 		{0.5f,  -0.5f, -0.5f},
 		{0.5f,  0.5f, -0.5f},
-
+		// Left
 		{-0.5f,  0.5f, -0.5f},
 		{-0.5f,  -0.5f, -0.5f},
 		{-0.5f,  -0.5f, 0.5f},
-
 		{-0.5f,  0.5f, 0.5f},
+		// Top
 		{-0.5f,  0.5f, -0.5f},
 		{-0.5f,  0.5f, 0.5f},
-
 		{0.5f,  0.5f, 0.5f},
 		{0.5f,  0.5f, -0.5f},
+		// Bottom
 		{-0.5f,  -0.5f, 0.5f},
-
 		{-0.5f,  -0.5f, -0.5f},
 		{0.5f,  -0.5f, -0.5f},
 		{0.5f,  -0.5f, 0.5f} 
 	};
 
+	// Define Inverted Cube Indices
 	unsigned indicesValues[36];
 	unsigned element{ 0 };
 	for (int i = 0; i < 6; i++)
@@ -163,10 +172,10 @@ void Skybox::CreateCubeVAO()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned), &indicesValues[0], GL_STATIC_DRAW);
 
-	// Layouts
-	// Position
+	// Position Layout
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+
 	// Unbind
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

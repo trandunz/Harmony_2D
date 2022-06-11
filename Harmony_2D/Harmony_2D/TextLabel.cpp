@@ -10,13 +10,13 @@
 
 #include "TextLabel.h"
 
-TextLabel::TextLabel(glm::ivec2* _windowSize, std::string_view&& _text, Font& _loadedFont, double& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
+TextLabel::TextLabel(glm::ivec2& _windowSize, std::string_view&& _text, Font& _loadedFont, float& _deltaTime, glm::vec2&& _position, glm::vec4&& _colour , glm::vec2&& _scale)
 {
 	m_Label = _text;
 	m_Position = _position;
 	m_Colour = _colour;
 	m_Scale = _scale;
-	m_WindowSize = _windowSize;
+	m_WindowSize = &_windowSize;
 	m_DeltaTime = &_deltaTime;
 	m_Font = &_loadedFont;
 
@@ -72,14 +72,14 @@ void TextLabel::Draw()
 	{
 		// Assign all Uniforms
 		glUseProgram(m_ProgramID);
-		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", std::move(m_Colour));
-		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "PMatrix", std::move(m_ProjectionMatrix));
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", std::move(m_LeftClip));
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", std::move(m_RightClip));
+		ShaderLoader::SetUniform4fv(std::move(m_ProgramID), "Colour", m_Colour);
+		ShaderLoader::SetUniformMatrix4fv(std::move(m_ProgramID), "PMatrix", m_ProjectionMatrix);
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "LeftClip", m_Position.x - m_LeftClip);
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "RightClip", m_Position.x + m_RightClip);
 		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ElapsedTime", (float)glfwGetTime());
-		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ScrollSpeed", std::move(m_ScrollSpeed));
-		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrollingRight", std::move(m_ScrollRight));
-		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrolling", std::move(m_IsScrolling));
+		ShaderLoader::SetUniform1f(std::move(m_ProgramID), "ScrollSpeed", m_ScrollSpeed);
+		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrollingRight", m_ScrollRight);
+		ShaderLoader::SetUniform1i(std::move(m_ProgramID), "IsScrolling", m_IsScrolling);
 
 		// Bind Vertex Array
 		glBindVertexArray(m_VertexArrayID);
