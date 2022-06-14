@@ -75,7 +75,7 @@ Texture TextureLoader::LoadTexture(std::string&& _fileName)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // Add Newly Created Texture To Vector
-    m_Textures.emplace_back(Texture{ id , {width,height},_fileName.data() });
+    m_Textures.emplace_back(Texture{ id , {width,height},_fileName });
 
     // Return Newly Created Texture
     return m_Textures.back();
@@ -127,7 +127,7 @@ Texture TextureLoader::LoadCubemap(std::vector<std::string> _fileNames)
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    m_Textures.emplace_back(Texture{ id , {0,0}, _fileNames[0].data()});
+    m_Textures.emplace_back(Texture{ id , {0,0}, _fileNames[0]});
 
     return m_Textures.back();
 }

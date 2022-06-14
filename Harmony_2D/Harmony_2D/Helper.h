@@ -75,7 +75,7 @@ struct Texture
 {
 	GLuint ID = 0;
 	glm::vec2 Dimensions{ 0 };
-	const char* FilePath = "";
+	std::string FilePath = "";
 };
 
 /// <summary>

@@ -3,13 +3,12 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : basic.frag
-// Description : Generic fragment shader for handling both animated meshes and non animated meshes
+// File Name : SingleTexture.frag
+// Description : Generic fragment shader for handling single textured Meshes
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
 #version 460 core
-#define PI 3.141592654
 
 // Output to C++
 layout (location = 0) out vec4 FragColor;
@@ -30,8 +29,7 @@ void main()
     FragColor = ColourFromTextureORWhite(TexCoords);
 }
 
-// Checks for number of active textures and returns the colour output accordingly.
-// If two textures are passed into the shader, they are mixed with a clamped sin function.
+// Checks for number a texture and returns the colour output accordingly.
 vec4 ColourFromTextureORWhite(vec2 _texCoords)
 {
     vec4 outputColour;

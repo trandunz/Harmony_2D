@@ -18,6 +18,7 @@ glm::ivec2 WindowSize{ 1000,1000 };
 float DeltaTime = 0.0, LastFrame = 0.0;
 
 bool IsMouseVisible = false;
+bool CameraHasSpotlight = false;
 
 std::vector <GameObject*> GameObjects{};
 
@@ -184,12 +185,10 @@ void Start()
 	
 	// Initialize Texture Loader
 	TextureLoader::Init({ 
-		"Capguy_Walk.png", 
-		"path.jpg",
-		"AwesomeFace.png",
-		"Rayman.jpg" ,
-		"Raven.png",
-		"Gull.jpg"
+		"Brick.jpg",
+		"World.jpg",
+		"Crate.jpg",
+		"Crate-Reflection.png"
 		});
 
 	ArialFont = FontLoader::LoadFont("ARIAL.TTF");
@@ -352,6 +351,7 @@ void CreateTextLabels()
 {
 	TextLabels.emplace_back(new TextLabel(WindowSize, "ESC To Close Window", ArialFont, DeltaTime, { 120,WindowSize.y - 30 }, { 1,1,1,1 }, { 0.2f, 0.2f }));
 	TextLabels.emplace_back(new TextLabel(WindowSize, "TAB To Toggle Cursor", ArialFont, DeltaTime, { 120,WindowSize.y - 60 }, { 1,1,1,1 }, { 0.2f, 0.2f }));
+	TextLabels.emplace_back(new TextLabel(WindowSize, "CAPS To Toggle Camera Spotlight", ArialFont, DeltaTime, { 175,WindowSize.y - 90 }, { 1,1,1,1 }, { 0.2f, 0.2f }));
 }
 
 /// <summary>
@@ -360,26 +360,21 @@ void CreateTextLabels()
 void CreateLights()
 {
 	LightManagerObject->CreatePointLight({
-		{ -5.0f, 0.0f, -2.0f }, // Starting Position
-		{1.0f, 0.0f, 0.0f}, // Color
+		{ -6.0f, 0.0f, 0.0f }, // Starting Position
+		{1.0f, 0.34f, 0.2f}, // Color
 		1.0f // Specular Strength
 		});
 
 	LightManagerObject->CreatePointLight({
-		{ 5.0f, 0.0f, -2.0f }, // Starting Position
-		{0.0f, 0.0f, 1.0f}, // Color
-		1.0f // Specular Strength
+		{ 6.0f, 0.0f, 0.0f }, // Starting Position
+		{0.36f, 0.247f, 0.827f}, // Color
+		1.0f, // Specular Strength
+		0.09f, // Linear Attenuation
+		0.032f // Exponent Attenuation
 		});
 
 	LightManagerObject->CreateDirectionalLight({
-		{ 0.0f, 10.0f, -2.0f }, // Starting Position
-		{1.0f, 1.0f, 1.0f}, // Color
-		1.0f // Specular Strength
-		});
-
-	LightManagerObject->CreateSpotLight({
-		true, // Is attachted to Camera
-		{ 0.0f, 10.0f, -2.0f }, // Starting Position
+		{ 0.0f, -1.0f, 0.0f }, // Direction
 		{1.0f, 1.0f, 1.0f}, // Color
 		1.0f // Specular Strength
 		});
@@ -403,6 +398,9 @@ void CreateObjects()
 		GameObjects.push_back(new GameObject(*SceneCamera, { x * 4.0f,y * 4.0f,z * 4.0f }));
 		GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D.frag");
 		GameObjects.back()->SetMesh(SphereMesh);
+		GameObjects.back()->SetActiveTextures({
+		TextureLoader::LoadTexture("Brick.jpg")
+			});
 	}
 
 	// Create Rim Lighting Sphere
@@ -415,12 +413,12 @@ void CreateObjects()
 		});
 
 	// Create Reflection Sphere
-	GameObjects.push_back(new GameObject(*SceneCamera, { -1.0f,0,0 }));
+	GameObjects.push_back(new GameObject(*SceneCamera, { -2.0f,0,0 }));
 	GameObjects.back()->SetShader("Normals3D.vert", "Reflection.frag");
 	GameObjects.back()->SetMesh(SphereMesh);
 
 	// Creation Reflection Map Cube
-	GameObjects.push_back(new GameObject(*SceneCamera, { 1.0f,0,0 }));
+	GameObjects.push_back(new GameObject(*SceneCamera, { 2.0f,0,0 }));
 	GameObjects.back()->SetShader("Normals3D.vert", "ReflectionMap.frag");
 	GameObjects.back()->SetMesh(CubeMesh);
 	GameObjects.back()->SetActiveTextures({
@@ -429,7 +427,7 @@ void CreateObjects()
 		});
 
 	// Create Reflection Map Cube With Combined Lighting
-	GameObjects.push_back(new GameObject(*SceneCamera, { 2.0f,0,0 }));
+	GameObjects.push_back(new GameObject(*SceneCamera, { 4.0f,0,0 }));
 	GameObjects.back()->SetShader("Normals3D.vert", "BlinnFong3D_Reflection.frag");
 	GameObjects.back()->SetMesh(CubeMesh);
 	GameObjects.back()->SetActiveTextures({
@@ -464,6 +462,28 @@ void HandleKeymapActions()
 				glfwSetWindowShouldClose(RenderWindow, true);
 
 				// On Button Down Instead Of Hold
+				item.second = false;
+				break;
+			}
+			case GLFW_KEY_CAPS_LOCK:
+			{
+				CameraHasSpotlight = !CameraHasSpotlight;
+
+				if (CameraHasSpotlight)
+				{
+					LightManagerObject->SetMaxSpotLights(1);
+					LightManagerObject->CreateSpotLight({
+							true, // Is attachted to Camera
+							{ 0.0f, 0.0f, 0.0f }, // Starting Position
+							{1.0f, 1.0f, 1.0f}, // Color
+							1.0f // Specular Strength
+						});
+				}
+				else
+				{
+					LightManagerObject->SetMaxSpotLights(0);
+				}
+
 				item.second = false;
 				break;
 			}

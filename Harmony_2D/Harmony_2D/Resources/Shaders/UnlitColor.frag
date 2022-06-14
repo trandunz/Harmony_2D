@@ -13,9 +13,6 @@
 // Output to C++
 layout (location = 0) out vec4 FragColor;
 
-// Input from Previous Shader
-in vec2 TexCoords;
-
 // Outside Variables Passed In As 'Uniforms'
 uniform vec3 Color;
 

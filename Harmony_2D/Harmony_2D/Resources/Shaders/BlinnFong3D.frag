@@ -111,8 +111,7 @@ void main()
     FragColor = vec4(combinedLighting,1.0f) * ColourFromTextureORWhite(TexCoords);
 }
 
-// Checks for number of active textures and returns the colour output accordingly.
-// If two textures are passed into the shader, they are mixed with a clamped sin function.
+// Checks for number a texture and returns the colour output accordingly.
 vec4 ColourFromTextureORWhite(vec2 _texCoords)
 {
     vec4 outputColour;
@@ -132,11 +131,13 @@ vec4 ColourFromTextureORWhite(vec2 _texCoords)
     return outputColour;
 }
 
+// Calculates Ambient Lighting
 vec3 CalculateAmbientLight()
 {
     return AmbientStrength * AmbientColor;
 }
 
+// Calculates Rim Lighting
 vec3 CalculateRimLight()
 {
     float rimFactor = 1.0f - dot(Normals, ReverseViewDir);
@@ -145,6 +146,7 @@ vec3 CalculateRimLight()
     return rimFactor * RimColor;
 }
 
+// Calculates A Point Lights Contribution
 vec3 CalculatePointLight(PointLight _pointLight)
 {
     vec3 lightDir = normalize(Position - _pointLight.Position);
@@ -161,18 +163,20 @@ vec3 CalculatePointLight(PointLight _pointLight)
     return (diffuseLight + specularLight) / attenuation;
 }
 
+// Calculates A Directional Lights Contribution
 vec3 CalculateDirectionalLight(DirectionalLight _directionalLight)
 {
-    float strength = max(dot(Normals, normalize(_directionalLight.Direction)), 0.0f);
+    float strength = max(dot(Normals, -normalize(_directionalLight.Direction)), 0.0f);
     vec3 diffuseLight = strength * _directionalLight.Color;
 
-    vec3 halfwayVector = normalize(normalize(_directionalLight.Direction) + ReverseViewDir);
+    vec3 halfwayVector = normalize(-normalize(_directionalLight.Direction) + ReverseViewDir);
     float specularReflectivity = pow(max(dot(Normals, halfwayVector), 0.0f), Shininess);
     vec3 specularLight = _directionalLight.SpecularStrength * specularReflectivity * _directionalLight.Color;
 
     return diffuseLight + specularLight;
 }
 
+// Calculates A Spot Lights Contribution
 vec3 CalculateSpotLight(SpotLight _spotLight)
 {
     vec3 lightDir = normalize(Position - _spotLight.Position);
@@ -187,7 +191,7 @@ vec3 CalculateSpotLight(SpotLight _spotLight)
     float distance = length(_spotLight.Position - Position);
     float attenuation = 1 + (_spotLight.AttenuationLinear * distance) + (_spotLight.AttenuationExponent * pow(distance, 2.0f)); 
 
-    float theta = dot(lightDir, normalize(_spotLight.Direction));
-    float intensity = clamp((theta - _spotLight.OuterCutoff) / (_spotLight.Cutoff - _spotLight.OuterCutoff), 0.0f, 1.0f);
+    float angle = dot(lightDir, normalize(_spotLight.Direction));
+    float intensity = clamp((angle - _spotLight.OuterCutoff) / (_spotLight.Cutoff - _spotLight.OuterCutoff), 0.0f, 1.0f);
     return ((diffuseLight + specularLight) * intensity) / attenuation;
 }

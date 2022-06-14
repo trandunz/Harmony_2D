@@ -3,8 +3,8 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : SingleTexture.vert
-// Description : Generic vertex shader for handling position and texture coordinate layouts
+// File Name : Skybox.vert
+// Description : Generic vertex shader for handling skybox
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
@@ -12,10 +12,9 @@
 
 // Input locations from vertex buffer
 layout (location = 0) in vec3 l_position;
-layout (location = 1) in vec2 l_texCoords;
 
 // Output data for next Shader
-out vec2 TexCoords;
+out vec3 TexCoords;
 
 // Outside Variables Passed In As 'Uniforms'
 uniform mat4 PVMMatrix;
@@ -23,6 +22,6 @@ uniform mat4 PVMMatrix;
 // Main function that gets called per vertex.
 void main()
 {
-    TexCoords = l_texCoords;
+    TexCoords = l_position;
 	gl_Position = PVMMatrix * vec4(l_position,1.0f);
 }

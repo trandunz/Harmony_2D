@@ -13,7 +13,6 @@
 // Input locations from vertex buffer
 layout (location = 0) in vec3 l_position;
 layout (location = 1) in vec2 l_texCoords;
-layout (location = 2) in vec3 l_normals;
 
 // Output data for next Shader
 out vec2 TexCoords;

@@ -275,7 +275,7 @@ void GameObject::SetBlinnFong3DUniforms()
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", { 1.0f,1.0f,1.0f });
 
     // Set Shininess
-    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f * 4);
+    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f * 5);
     
     // Set Camera Position
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());

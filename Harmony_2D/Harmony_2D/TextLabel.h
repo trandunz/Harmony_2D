@@ -127,8 +127,8 @@ private:
 	bool m_ScrollRight = true;
 	float* m_DeltaTime = nullptr;
 	float m_ScrollSpeed = 100.0f;
-	float m_RightClip = 200.0f;
-	float m_LeftClip = 200.0f;
+	float m_RightClip = 250.0f;
+	float m_LeftClip = 250.0f;
 
 	std::string m_Label{};
 	glm::vec2 m_Scale{ 1.0f, 1.0f };

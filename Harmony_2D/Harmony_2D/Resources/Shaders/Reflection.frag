@@ -3,8 +3,8 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : UnlitColor.frag
-// Description : Generic fragment shader for handling unlit coloured Meshes
+// File Name : Reflection.frag
+// Description : Generic fragment shader for handling Reflection
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 

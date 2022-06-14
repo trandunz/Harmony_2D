@@ -29,8 +29,7 @@ void main()
     FragColor = ColourFromTextureORWhite(TexCoords);
 }
 
-// Checks for number of active textures and returns the colour output accordingly.
-// If two textures are passed into the shader, they are mixed with a clamped sin function.
+// Checks for number a texture and returns the colour output accordingly.
 vec4 ColourFromTextureORWhite(vec2 _texCoords)
 {
     vec4 outputColour;

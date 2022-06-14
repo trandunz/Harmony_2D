@@ -3,8 +3,8 @@
 // Auckland 
 // New Zealand 
 // (c) Media Design School
-// File Name : UnlitColor.frag
-// Description : Generic fragment shader for handling unlit coloured Meshes
+// File Name : Skybox.frag
+// Description : Generic fragment shader for handling skybox
 // Author : William Inman
 // Mail : william.inman@mds.ac.nz
 
@@ -13,11 +13,14 @@
 // Output to C++
 layout (location = 0) out vec4 FragColor;
 
+// Input from Previous Shader
+in vec3 TexCoords;
+
 // Outside Variables Passed In As 'Uniforms'
-uniform vec3 Color;
+uniform samplerCube Texture0;
 
 // Main function that gets called per vertex fragment.
 void main()
 {
-    FragColor = vec4(Color,1.0f);
+    FragColor = texture(Texture0, TexCoords);
 }
