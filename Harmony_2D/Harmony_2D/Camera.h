@@ -39,7 +39,7 @@ public:
 
     /// <summary>
     /// Handles Mouse Look.
-    /// Updates Pitch and Yaw Values
+    /// Updates Pitch and Yaw Values Based On Mouse Position
     /// </summary>
     /// <param name="_dt"></param>
     /// <param name="_mousePos"></param>
@@ -99,18 +99,22 @@ public:
     /// <returns></returns>
     glm::mat4 GetProjectionMatrix();
 
+    /// <summary>
+    /// Returns the front vector of the camera
+    /// </summary>
+    /// <returns></returns>
     glm::vec3 GetFront();
 private:
 
     /// <summary>
-    /// Updates The Cameras Position Based On Input.
+    /// Updates The Cameras Position Based On Input Gathered In Movement_Capture
     /// </summary>
     /// <param name="_dt"></param>
     /// <returns></returns>
     void UpdatePosition(float& _dt);
 
     /// <summary>
-    /// Updates the vectors (up, ront, right) for the camera based on pitch and yaw.
+    /// Updates the up, front and right vectors for the camera based on pitch and yaw.
     /// </summary>
     void UpdateRotationVectors();
 

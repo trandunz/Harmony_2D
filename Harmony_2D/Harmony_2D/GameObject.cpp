@@ -31,43 +31,44 @@ GameObject::~GameObject()
     m_ActiveTextures.clear();
 }
 
-void GameObject::Movement_WASDEQ(std::map<int, bool>& _keypresses)
+void GameObject::Movement_WASDEQ(KEYMAP& _keymap)
 {
     // Grab keyboard input for moving Object With WASDQE
     m_Input = {};
-    for (auto& item : _keypresses)
+
+    for (auto& key : _keymap)
     {
-        if (item.second)
+        if (key.second)
         {
-            if (item.first == GLFW_KEY_W)
+            if (key.first == GLFW_KEY_W)
             {
                 m_Input.z -= 1.0f;
             }
-            if (item.first == GLFW_KEY_A)
+            if (key.first == GLFW_KEY_A)
             {
                 m_Input.x -= 1.0f;
             }
-            if (item.first == GLFW_KEY_S)
+            if (key.first == GLFW_KEY_S)
             {
                 m_Input.z += 1.0f;
             }
-            if (item.first == GLFW_KEY_D)
+            if (key.first == GLFW_KEY_D)
             {
                 m_Input.x += 1.0f;
             }
-            if (item.first == GLFW_KEY_Q)
+            if (key.first == GLFW_KEY_Q)
             {
                 m_Input.y -= 1.0f;
             }
-            if (item.first == GLFW_KEY_E)
+            if (key.first == GLFW_KEY_E)
             {
                 m_Input.y += 1.0f;
             }
-            if (item.first == GLFW_KEY_Z)
+            if (key.first == GLFW_KEY_Z)
             {
                 m_Input.w -= 1.0f;
             }
-            if (item.first == GLFW_KEY_C)
+            if (key.first == GLFW_KEY_C)
             {
                 m_Input.w += 1.0f;
             }
@@ -100,23 +101,28 @@ void GameObject::Draw()
         {
             SetSingleTextureUniforms();
         }
+        // Else if Vertex shader is 3D with Normals
         else if (m_ShaderLocation.vertShader == "Normals3D.vert")   
         {
             SetNormals3DVertUniforms();
         
+            // If Frag Shader is Blinn_Phong Lighting
             if (m_ShaderLocation.fragShader == "BlinnFong3D.frag")
             {
                 SetBlinnFong3DUniforms();
                 SetRimLighingUniforms();
             }
+            // Else if Frag Shader is Reflection
             else if (m_ShaderLocation.fragShader == "Reflection.frag")
             {
                 SetReflectionUniforms();
             }
+            // Else If Frag Shader Is ReflectionMap
             else if (m_ShaderLocation.fragShader == "ReflectionMap.frag")
             {
                 SetReflectionMapUniforms();
             }
+            // Else If Frag Shader IS Blinn_Phong Lighting With Reflection
             else if (m_ShaderLocation.fragShader == "BlinnFong3D_Reflection.frag")
             {
                 SetBlinnFong3DUniforms();
@@ -134,16 +140,6 @@ void GameObject::Draw()
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
-}
-
-void GameObject::SetName(std::string_view _newName)
-{
-    m_Name = _newName;
-}
-
-std::string_view GameObject::GetName()
-{
-    return m_Name;
 }
 
 void GameObject::SetMesh(Mesh* _mesh)
@@ -274,13 +270,19 @@ void GameObject::SetBlinnFong3DUniforms()
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
     }
 
+    // Set Global Ambient Colour And Strength
     ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStrength", 0.15f);
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", { 1.0f,1.0f,1.0f });
+
+    // Set Shininess
     ShaderLoader::SetUniform1f(std::move(m_ShaderID), "Shininess", 32.0f * 4);
+    
+    // Set Camera Position
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());
 
     if (m_LightManager)
     {
+        // Set Point Light Uniforms From Light Manager
         std::vector<PointLight>& pointLights = m_LightManager->GetPointLights();
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfPointLights", (int)pointLights.size());
         for (unsigned i = 0; i < pointLights.size(); i++)
@@ -292,6 +294,7 @@ void GameObject::SetBlinnFong3DUniforms()
             ShaderLoader::SetUniform1f(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].AttenuationExponent", pointLights[i].AttenuationExponent);
         }
 
+        // Set Directional Light Uniforms From Light Manager
         std::vector<DirectionalLight>& directionalLights = m_LightManager->GetDirectionalLights();
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfDirectionalLights", (int)directionalLights.size());
         for (unsigned i = 0; i < directionalLights.size(); i++)
@@ -301,15 +304,18 @@ void GameObject::SetBlinnFong3DUniforms()
             ShaderLoader::SetUniform1f(std::move(m_ShaderID), "DirectionalLights[" + std::to_string(i) + "].SpecularStrength", directionalLights[i].SpecularStrength);
         }
 
+        // Set Spotlight Uniforms From Light Manager
         std::vector<SpotLight>& spotLights = m_LightManager->GetSpotLights();
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfSpotLights", (int)spotLights.size());
         for (unsigned i = 0; i < spotLights.size(); i++)
         {
+            // If the spotlight is attached to the camera, Set Uniforms Accordingly
             if (spotLights[i].IsAttachedToCamera)
             {
                 ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "SpotLights[" + std::to_string(i) + "].Position", m_ActiveCamera->GetPosition());
                 ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "SpotLights[" + std::to_string(i) + "].Direction", m_ActiveCamera->GetFront());
             }
+            // Else Apply Assigned Starting Positon And Direction
             else
             {
                 ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "SpotLights[" + std::to_string(i) + "].Position", spotLights[i].Position);
@@ -327,7 +333,10 @@ void GameObject::SetBlinnFong3DUniforms()
 
 void GameObject::SetRimLighingUniforms()
 {
+    // Set Rim Lighting Bool
     ShaderLoader::SetUniform1i(std::move(m_ShaderID), "bRimLighting", m_RimLighting);
+
+    // If RimLighting Enabled Then Set Colour And Exponent
     if (m_RimLighting)
     {
         ShaderLoader::SetUniform1f(std::move(m_ShaderID), "RimExponent", 4.0f);
@@ -337,7 +346,10 @@ void GameObject::SetRimLighingUniforms()
 
 void GameObject::SetReflectionUniforms()
 {
+    // Set Camera Position
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());
+
+    // Bind And Set Skybox Texture Uniform
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_SkyboxTexture.ID);
     ShaderLoader::SetUniform1i(std::move(m_ShaderID), "SkyboxTexture", 0);
@@ -345,17 +357,22 @@ void GameObject::SetReflectionUniforms()
 
 void GameObject::SetReflectionMapUniforms()
 {
+    // If two or more textures are present
     if (m_ActiveTextures.size() > 1)
     {
+        // Set Regular Texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
-
+        // Set Reflection Map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[1].ID);
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "ReflectionMap", 1);
     }
+    // Set Camera Pos
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "CameraPos", m_ActiveCamera->GetPosition());
+
+    // Bind And Set Skybox Texture Uniform
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_SkyboxTexture.ID);
     ShaderLoader::SetUniform1i(std::move(m_ShaderID), "SkyboxTexture", 2);
@@ -366,7 +383,8 @@ void GameObject::SetNormals3DVertUniforms()
     // Projection * View * Model Matrix
     ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
 
-    ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "ModelMatrix", std::move(m_Transform.transform));
+    // Set Model Matrix
+    ShaderLoader::SetUniformMatrix4fv(std::move(m_ShaderID), "ModelMatrix", m_Transform.transform);
 }
 
 void GameObject::SetSingleTextureUniforms()

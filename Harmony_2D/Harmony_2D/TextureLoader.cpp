@@ -32,8 +32,6 @@ void TextureLoader::Init(std::vector<const char*>&& _textures)
 
 Texture TextureLoader::LoadTexture(std::string&& _fileName)
 {
-    stbi_set_flip_vertically_on_load(true);
-
     // Checks If A Texture With The Same File path Has Already Been Created
     for (auto& item : m_Textures)
     {
@@ -42,6 +40,8 @@ Texture TextureLoader::LoadTexture(std::string&& _fileName)
             return item;
         }
     }
+
+    stbi_set_flip_vertically_on_load(true);
 
     GLint width, height, components;
 

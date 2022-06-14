@@ -1,3 +1,13 @@
+// Bachelor of Software Engineering 
+// Media Design School 
+// Auckland 
+// New Zealand 
+// (c) Media Design School
+// File Name : LightManager.cpp 
+// Description : LightManager Implementation File
+// Author : William Inman
+// Mail : william.inman@mds.ac.nz
+
 #include "LightManager.h"
 
 LightManager::LightManager(Camera& _activeCamera, int _maxPointLights, int _maxDirectionalLights, int _maxSpotLights)
@@ -20,13 +30,15 @@ LightManager::~LightManager()
 
 void LightManager::Draw()
 {
+	// If a Mesh Has Been Assigned
 	if (m_LightMesh)
 	{
+		// For Each PointLight, Draw An Unlit Mesh With The Same Color
 		glUseProgram(m_UnlitMeshShaderID);
 		for (auto& light : m_PointLights)
 		{
 			ShaderLoader::SetUniformMatrix4fv(std::move(m_UnlitMeshShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * glm::translate(glm::mat4(1), light.Position));
-			ShaderLoader::SetUniform3fv(std::move(m_UnlitMeshShaderID), "Color", std::move(light.Color));
+			ShaderLoader::SetUniform3fv(std::move(m_UnlitMeshShaderID), "Color", light.Color);
 			m_LightMesh->Draw();
 		}
 		glUseProgram(0);
@@ -69,4 +81,37 @@ std::vector<DirectionalLight>& LightManager::GetDirectionalLights()
 std::vector<SpotLight>& LightManager::GetSpotLights()
 {
 	return m_SpotLights;
+}
+
+void LightManager::SetMaxPointLights(int _maxAmount)
+{
+	m_MaxPointLights = _maxAmount;
+
+	// Trim Excess
+	while ((int)m_PointLights.size() > m_MaxPointLights)
+	{
+		m_PointLights.pop_back();
+	}
+}
+
+void LightManager::SetMaxDirectionalLights(int _maxAmount)
+{
+	m_MaxDirectionalLights = _maxAmount;
+
+	// Trim Excess
+	while ((int)m_DirectionalLights.size() > m_MaxDirectionalLights)
+	{
+		m_DirectionalLights.pop_back();
+	}
+}
+
+void LightManager::SetMaxSpotLights(int _maxAmount)
+{
+	m_MaxSpotLights = _maxAmount;
+
+	// Trim Excess
+	while ((int)m_SpotLights.size() > m_MaxSpotLights)
+	{
+		m_SpotLights.pop_back();
+	}
 }

@@ -28,6 +28,7 @@ glm::mat4 Camera::GetViewMatrix()
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
+    // Return Projection Matrix Based On If Perspective Or Ortho
     return m_Perspective 
         ? 
         glm::perspective(
@@ -53,13 +54,18 @@ glm::vec3 Camera::GetFront()
 
 void Camera::UpdateRotationVectors()
 {
+    // Set thee new front vector
     m_Front = glm::normalize(glm::vec3{
         cos(glm::radians(m_Pitch)) * cos(glm::radians(m_Yaw)),
         sin(glm::radians(m_Pitch)),
         cos(glm::radians(m_Pitch)) * sin(glm::radians(m_Yaw))
         });
-    m_Up = glm::normalize(glm::cross(m_Right, m_Front));
+
+    // Set New Right Vector
     m_Right = glm::normalize(glm::cross(m_Front, { 0,1,0 }));
+
+    // Set new up Vector
+    m_Up = glm::normalize(glm::cross(m_Right, m_Front));
 }
 
 glm::mat4 Camera::GetPVMatrix()
@@ -91,17 +97,18 @@ void Camera::Movement(float& _dt)
 
 void Camera::MouseLook(float& _dt, glm::vec2 _mousePos)
 {
+    // Reset Mouse Pos If First Time Moving Mouse
     if (m_LastMousePos == glm::vec2(0, 0))
         m_LastMousePos = _mousePos;
 
+    // Update Pitch And Yaw
     m_Yaw += (m_LookSensitivity * (_mousePos.x - m_LastMousePos.x) * _dt);
     m_Pitch += (m_LookSensitivity * (m_LastMousePos.y - _mousePos.y) * _dt);
 
-    if (m_Pitch > 89.0f) 
-        m_Pitch = 89.0f;
-    if (m_Pitch < -89.0f) 
-        m_Pitch = -89.0f;
+    // Clamp Pitch To 89 degrees
+    glm::clamp(m_Pitch, -89.0f, 89.0f);
 
+    // Update Last Mouse Pos
     m_LastMousePos = _mousePos;
 }
 
@@ -111,19 +118,23 @@ void Camera::UpdatePosition(float& _dt)
     float y;
     float z;
 
+    // Scale Movement Speed On Projection Type
     if (m_Perspective)
     {
+        // Scale With Move Speed
         x = m_InputVec.x * m_MoveSpeed;
         y = m_InputVec.y * m_MoveSpeed;
         z = m_InputVec.z * m_MoveSpeed;
     }
     else
     {
+        // Scale With Move Speed * Window Size
         x = m_InputVec.x * m_MoveSpeed * m_WindowSize->x;
         y = m_InputVec.y * m_MoveSpeed * m_WindowSize->x;
         z = m_InputVec.z * m_MoveSpeed * m_WindowSize->x;
     }
 
+    // Update position values if changed
     if (x != 0)
     {
         m_Position += m_Right * x * _dt;
@@ -143,11 +154,12 @@ void Camera::Movement_Capture(KEYMAP& _keymap)
     // Reset Input Vec
     m_InputVec = {};
 
-    for (auto& item : (_keymap))
+    // Grab Input From Keymap
+    for (auto& key : (_keymap))
     {
-        if (item.second == true)
+        if (key.second == true)
         {
-            switch (item.first)
+            switch (key.first)
             {
             case GLFW_KEY_D:
             {
@@ -186,5 +198,6 @@ void Camera::Movement_Capture(KEYMAP& _keymap)
         }
     }
 
+    // Normalize all input
     glm::normalize(m_InputVec);
 }

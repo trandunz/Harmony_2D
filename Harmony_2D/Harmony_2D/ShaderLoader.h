@@ -22,7 +22,7 @@ public:
     ~ShaderLoader();
 
     /// <summary>
-    /// Creates A Given Shader Program Using Cache Optimization With The Specified Vertex Shader And Fragment Shader Paths And Returns Its ID.
+    /// Creates A Given Shader Program With The Specified Vertex Shader And Fragment Shader Paths And Returns Its ID.
     /// </summary>
     /// <param name="_vertexShader"></param>
     /// <param name="_fragmentShader"></param>
@@ -30,7 +30,7 @@ public:
     static GLuint CreateShader(std::string&& _vertexShader, std::string&& _fragmentShader);
 
     /// <summary>
-    /// Sets Uniform 1i At Location Using Caching Optimization
+    /// Sets Uniform 1i At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -38,7 +38,7 @@ public:
     static void SetUniform1i(GLuint&& _program, std::string_view&& _location, GLint _value);
     
     /// <summary>
-    /// Sets Uniform 1f At Location Using Caching Optimization
+    /// Sets Uniform 1f At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -46,7 +46,7 @@ public:
     static void SetUniform1f(GLuint&& _program, std::string_view&& _location, GLfloat _value);
     
     /// <summary>
-    /// Sets Uniform 2i At Location Using Caching Optimization
+    /// Sets Uniform 2i At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -55,7 +55,7 @@ public:
     static void SetUniform2i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2);
     
     /// <summary>
-    /// Sets Uniform 2f At Location Using Caching Optimization
+    /// Sets Uniform 2f At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -64,7 +64,7 @@ public:
     static void SetUniform2f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2);
     
     /// <summary>
-    /// Sets Uniform 3i At Location Using Caching Optimization
+    /// Sets Uniform 3i At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -74,7 +74,7 @@ public:
     static void SetUniform3i(GLuint&& _program, std::string_view&& _location, GLint _value, GLint _value2, GLint _value3);
     
     /// <summary>
-    /// Sets Uniform 3f At Location Using Caching Optimization
+    /// Sets Uniform 3f At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -84,7 +84,7 @@ public:
     static void SetUniform3f(GLuint&& _program, std::string_view&& _location, GLfloat _value, GLfloat _value2, GLfloat _value3);
     
     /// <summary>
-    /// Sets Uniform 3fv At Location Using Caching Optimization
+    /// Sets Uniform 3fv At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -92,7 +92,7 @@ public:
     static void SetUniform3fv(GLuint&& _program, std::string_view&& _location, glm::vec3 _value);
     
     /// <summary>
-    /// Sets Uniform 3iv At Location Using Caching Optimization
+    /// Sets Uniform 3iv At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -100,7 +100,7 @@ public:
     static void SetUniform3iv(GLuint&& _program, std::string_view&& _location, glm::ivec3 _value);
     
     /// <summary>
-    /// Sets Uniform 4fv At Location Using Caching Optimization
+    /// Sets Uniform 4fv At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>
@@ -108,7 +108,7 @@ public:
     static void SetUniform4fv(GLuint&& _program, std::string_view&& _location, glm::vec4 _value);
 
     /// <summary>
-    /// Sets Uniform 4fv At Location Using Caching Optimization
+    /// Sets Uniform 4fv At Location
     /// </summary>
     /// <param name="_program"></param>
     /// <param name="_location"></param>

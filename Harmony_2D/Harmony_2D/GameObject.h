@@ -37,7 +37,7 @@ public:
 	/// E: Up
 	/// </summary>
 	/// <param name="_keypresses"></param>
-	void Movement_WASDEQ(std::map<int, bool>& _keypresses);
+	void Movement_WASDEQ(KEYMAP& _keymap);
 
 	/// <summary>
 	/// Update function for GameObject.
@@ -49,17 +49,6 @@ public:
 	/// Draws The gameobject if it has a mesh attached
 	/// </summary>
 	void Draw();
-
-	/// <summary>
-	/// Sets the name of the gameobject for gameobject comparisons
-	/// </summary>
-	/// <param name="_newName"></param>
-	void SetName(std::string_view _newName);
-	/// <summary>
-	/// Returns the name of the gameobject for gameobject comparisons
-	/// </summary>
-	/// <returns></returns>
-	std::string_view GetName();
 
 	/// <summary>
 	/// Attaches a mesh to be used for drawing.
@@ -149,21 +138,60 @@ public:
 	GLuint GetShader();
 
 	/// <summary>
-	/// Clears the input vector to prevent further movement e.t.c
+	/// Clears the input vector to prevent further movement
 	/// </summary>
 	void ClearInputVector();
 
+	/// <summary>
+	/// Sets The Light Manager Used Lighting
+	/// </summary>
+	/// <param name="_lightManager"></param>
 	void SetLightManager(LightManager& _lightManager);
 
+	/// <summary>
+	/// Sets the texture of the skybox
+	/// </summary>
+	/// <param name="_skyboxTexture"></param>
 	void SetSkyboxTexture(Texture _skyboxTexture);
 
+	/// <summary>
+	/// Toggle Rim Lighting If Blinn-Phong Shader Enabled
+	/// </summary>
+	/// <param name="_rimLighting"></param>
 	void SetRimLighting(bool _rimLighting);
 private:
+
+	/// <summary>
+	/// Handles Setting Blinn-Phong Shader Uniforms.
+	/// Requres Blinn-Phong Shader Active
+	/// </summary>
 	void SetBlinnFong3DUniforms();
+
+	/// <summary>
+	/// Handles setting Rim Lighting Shader Uniforms (Combine With Blinn-Phong To Work)
+	/// Requires Blinn-Phone Shader Active
+	/// </summary>
 	void SetRimLighingUniforms();
+
+	/// <summary>
+	/// Sets Reflection Specific Shader Uniforms
+	/// </summary>
 	void SetReflectionUniforms();
+
+	/// <summary>
+	/// Set Reflection Map Specific Shader Uniforms.
+	/// Requires: Blinn-Phong_Reflection or Reflection Map Shaders
+	/// </summary>
 	void SetReflectionMapUniforms();
+
+	/// <summary>
+	/// Sets Uniforms for Use With Normals3D.vert
+	/// </summary>
 	void SetNormals3DVertUniforms();
+
+	/// <summary>
+	/// Set Uniforms For Single Texture
+	/// </summary>
 	void SetSingleTextureUniforms();
 
 	bool m_RimLighting = false;
@@ -176,7 +204,6 @@ private:
 	Camera* m_ActiveCamera = nullptr;
 	LightManager* m_LightManager{ nullptr };
 	Transform m_Transform{};
-	std::string m_Name{"gameObject"};
 	Texture m_SkyboxTexture;
 };
 

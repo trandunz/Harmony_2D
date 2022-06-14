@@ -62,32 +62,32 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 	{
 	case SHAPE::CUBE:
 	{
-		// Quad 1
+		// Front
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,1.0f}, {0,0,1} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,0.0f}, {0,0,1} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {1.0f,0.0f}, {0,0,1} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,1.0f}, {0,0,1} });
-		// Quad 2
+		// Back
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {0.0f,1.0f}, {0,0,-1} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {0.0f,0.0f} , {0,0,-1} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {1.0f,0.0f}, {0,0,-1} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {1.0f,1.0f}, {0,0,-1} });
-		// Quad 3
+		// Right
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {0.0f,1.0f},{1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, 0.5f}, {0.0f,0.0f},{1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f},{1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f},{1,0,0} });
-		// Quad 4
+		// Left
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f},{-1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f},{-1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {1.0f,0.0f},{-1,0,0} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {1.0f,1.0f},{-1,0,0} });
-		// Quad 5
+		// Top
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, -0.5f}, {0.0f,1.0f},{0,1,0} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  0.5f, 0.5f}, {0.0f,0.0f},{0,1,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, 0.5f}, {1.0f,0.0f},{0,1,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  0.5f, -0.5f}, {1.0f,1.0f},{0,1,0} });
-		// Quad 6
+		// Bottom
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, 0.5f}, {0.0f,1.0f},{0,-1,0} });
 		m_Vertices.emplace_back(Vertex{ {-0.5f,  -0.5f, -0.5f}, {0.0f,0.0f},{0,-1,0} });
 		m_Vertices.emplace_back(Vertex{ {0.5f,  -0.5f, -0.5f}, {1.0f,0.0f},{0,-1,0} });
@@ -209,7 +209,7 @@ void Mesh::CreatePolygonVertices(unsigned int _numberOfSides)
 		return;
 	}
 
-	float angle = 0.0f, increment = ((float)TWOPI / _numberOfSides);
+	float angle = 0.0f, increment = (glm::two_pi<float>() / _numberOfSides);
 
 	// Centre
 	m_Vertices.emplace_back(Vertex{ {0.0f,  0.0f, 0.0f}, {0.5f,0.5f} });
@@ -314,7 +314,6 @@ void Mesh::GenerateSphereVertices(int _fidelity)
 		{
 			// Calculate new vertex positions based on 
 			// current y axis angle and x axis angle
-			// To make a donut
 			float x = cos(Phi) * sin(Theta);
 			float y = cos(Theta);
 			float z = sin(Phi) * sin(Theta);
@@ -327,13 +326,14 @@ void Mesh::GenerateSphereVertices(int _fidelity)
 				});
 
 			// update y axis angle by increments of PI / fidelity level
-			// As the sphere is built ring by ring, the angle is only needed to do half the circumferance therefore using just PI
-			Theta += ((float)PI / ((float)_fidelity - 1.0f));
+			// As the sphere is built ring by ring, 
+			// the angle is only needed to do half the circumferance therefore using just PI
+			Theta += (glm::pi<float>() / ((float)_fidelity - 1.0f));
 		}
 
 		// x and z axis angle is updated by increments of 2Pi / fidelity level
 		// Angle uses 2*PI to get the full circumference as this layer is built as a full ring
-		Phi += (2.0f * (float)PI) / ((float)_fidelity - 1.0f);
+		Phi += (glm::two_pi<float>()) / ((float)_fidelity - 1.0f);
 	}
 }
 

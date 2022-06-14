@@ -22,10 +22,9 @@
 #include <fstream>
 #include <functional>
 
-#define PI 3.141592654
-#define TWOPI 6.283185307186
-#define THREEPI 9.42477796077
-
+/// <summary>
+/// Alias For Keymap (int = Key, bool = bPressed)
+/// </summary>
 using KEYMAP = std::map<int, bool>;
 
 /// <summary>
@@ -47,7 +46,7 @@ struct UniformLocation
 };
 
 /// <summary>
-/// Vertex struct that encapsulates Positional data and textureCoordinates
+/// Vertex struct that encapsulates Positional data, textureCoordinates and Normals
 /// </summary>
 struct Vertex
 {
@@ -79,6 +78,9 @@ struct Texture
 	const char* FilePath = "";
 };
 
+/// <summary>
+/// Shape Enum To Identify Shapes For Mesh Class
+/// </summary>
 enum class SHAPE
 {
 	UNASSIGNED,
@@ -87,6 +89,9 @@ enum class SHAPE
 	SPHERE
 };
 
+/// <summary>
+/// Font Character Struct that contains the characters texture id, size, bearing and advance
+/// </summary>
 struct FontChar
 {
 	GLuint textureID = 0; // Texture ID
@@ -95,6 +100,9 @@ struct FontChar
 	GLuint advance = 0; // Distance To Next Character
 };
 
+/// <summary>
+/// TEXTALIGNMENT enum to specify what sort of alignment TextLabels Should Use When Rendering
+/// </summary>
 enum class TEXTALIGNMENT
 {
 	LEFT,
@@ -122,11 +130,24 @@ inline glm::mat4& UpdateModelValueOfTransform(Transform& _transform)
 	return _transform.transform;
 }
 
+/// <summary>
+/// returns the value of pi at specified angle from sin(_angle * _xScale) / _yScale) + _offset
+/// </summary>
+/// <param name="_angle"></param>
+/// <param name="_yScale"></param>
+/// <param name="_xScale"></param>
+/// <param name="_offset"></param>
+/// <returns></returns>
 inline float ClampedSin(float _angle, float _yScale, float _xScale, float _offset)
 {
 	return (sinf(_angle * _xScale) / _yScale) + _offset;
 }
 
+/// <summary>
+/// Returns the Magnitude of the specified vector3
+/// </summary>
+/// <param name="_vector"></param>
+/// <returns></returns>
 inline float Magnitude(glm::vec3 _vector)
 {
 	return sqrtf((_vector.x * _vector.x) + (_vector.y * _vector.y) + (_vector.z * _vector.z));
@@ -141,11 +162,19 @@ inline void Print(std::string_view _string)
 	std::cout << _string << std::endl;
 }
 
+/// <summary>
+/// Prints the Given Vector with format Vector X:~ | Y:~ | Z:~ 
+/// </summary>
+/// <param name="_vector"></param>
 inline void Print(glm::vec3& _vector)
 {
 	std::cout << "Vector x:" << std::to_string(_vector.x) << "| Y: " << std::to_string(_vector.y) << "| Z:" << std::to_string(_vector.z) << std::endl;
 }
 
+/// <summary>
+/// Prints the Given Vector with format Vector X:~ | Y:~ | Z:~ | W:~
+/// </summary>
+/// <param name="_vector"></param>
 inline void Print(glm::vec4 _vector)
 {
 	std::cout << "Vector x:" << std::to_string(_vector.x) << "| Y: " << std::to_string(_vector.y) << "| Z:" << std::to_string(_vector.z) << "| W:" << std::to_string(_vector.w) << std::endl;
@@ -168,14 +197,3 @@ inline void Print(float&& _float)
 {
 	std::cout << _float << std::endl;
 }
-
-inline float ToRadians(float&& _degrees)
-{
-	return (_degrees * (float)PI) / 180.0f;
-}
-
-inline float ToDegrees(float&& _radians)
-{
-	return (_radians * 180.0f) / (float)PI;
-}
-
